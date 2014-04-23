@@ -1,0 +1,132 @@
+{% extends "base.html" %}
+{% load filters %}
+{% block content %}
+<script>angular.module('app', ['ui.bootstrap'])</script>
+<div class="container" ng-app="app">
+	<h1>Yellowcoin API Documentation</h1>
+	<div class="row alert alert-warning">
+		<div class="col-md-12 text-center">
+			API is subject to change without notice while we are in beta.
+		</div>
+	</div>
+	<h2>Your API Keys</h2>
+	<table class="table">
+		<thead><tr>
+				<th class="col-md-4">Key</th>
+				<th class="col-md-6">Comment</th>
+		</tr></thead>
+		<tbody>
+			{% for key in keys %}
+			<tr>
+				<td><code>{{key.key}}</code></td>
+				<td>{{key.comment}}</td>
+				<td>
+					<form action="/api/" method="POST">
+						{% csrf_token %}
+						<input type="hidden" name="delete" value="{{key.key}}"/>				
+						<button type="submit" class="btn btn-danger">Delete</button>
+					</form>
+				</td>
+			</tr>
+			{% endfor %}
+	</tbody></table>
+	<form action="/api/" method="POST" class="form-inline">
+		{% csrf_token %}
+		<div class="row">
+			<div class="col-md-6 col-md-push-4">
+				<input type="text" name="comment" class="form-control" placeholder="A comment about where this key will be used"/>
+				</div><div class="col-md-4 col-md-push-4">
+				<button type="submit" class="btn btn-success">Create New API Key</button>
+			</div>
+		</div>
+	</form>
+	<hr/>
+	<accordion close-others="true">
+	{% for index, api in docs %}
+	<accordion-group>
+	<accordion-heading>
+	<div class="row pointer">
+		<div class="col-xs-5">{{ api.path }}</div>
+		<div class="col-xs-5">{{ api.short_description }}</div>
+		<div class="col-xs-2">
+			{% for method in api.allowed_methods %}
+			{% if method == 'GET' %}
+			<span class="label label-success">{{ method }}</span>
+			{% elif method == 'POST' %}
+			<span class="label label-info">{{ method }}</span>
+			{% elif method == 'PUT' %}
+			<span class="label label-warning">{{ method }}</span>
+			{% elif method == 'DELETE' %}
+			<span class="label label-danger">{{ method }}</span>
+			{% endif %}
+			{% endfor %}
+		</div>
+	</div>
+	</accordion-heading>	
+	<div class="row"><div class="col-md-12">{{ api.description|safe }}</div></div>
+	{% for method in api.allowed_methods %}
+	<div class="row">
+		{% with api.params|get:method as params %}
+		{% if params %}
+		<div class="col-md-6">
+			<h4>
+				{% if method == 'GET' %}
+				<span class="label label-success">{{ method }}</span>
+				{% elif method == 'POST' %}
+				<span class="label label-info">{{ method }}</span>
+				{% elif method == 'PUT' %}
+				<span class="label label-warning">{{ method }}</span>
+				{% elif method == 'DELETE' %}
+				<span class="label label-danger">{{ method }}</span>
+				{% endif %}
+				Parameters:</h4>
+			{% for data in params %}
+			<div class="row">
+				<div class="col-xs-4"><code>{{ data.key }}</code></div>
+				<div class="col-xs-8">{{ data.value }}</div>
+			</div>
+			{% endfor %}
+			<h5>Example</h5>
+<pre>{
+{% for data in params %}{% if data.example %}	"{{ data.key }}":"{{ data.example }}"{% if not forloop.last %},
+{% endif %}{% endif %}{% endfor %}
+}</pre>
+			</div>
+			{% endif %}
+			{% endwith %}
+			{% with api.returns|get:method as params %}
+			{% if params %}
+			<div class="col-md-6">
+				<h4>
+					{% if method == 'GET' %}
+					<span class="label label-success">{{ method }}</span>
+					{% elif method == 'POST' %}
+					<span class="label label-info">{{ method }}</span>
+					{% elif method == 'PUT' %}
+					<span class="label label-warning">{{ method }}</span>
+					{% elif method == 'DELETE' %}
+					<span class="label label-danger">{{ method }}</span>
+					{% endif %}
+					Returns:</h4>
+				{% for data in params %}
+				<div class="row">
+					<div class="col-xs-4"><code>{{ data.key }}</code></div>
+					<div class="col-xs-8">{{ data.value }}</div>
+				</div>
+				{% endfor %}
+				<h5>Example</h5>
+<pre>{
+{% for data in params %}{% if data.example %}	"{{ data.key }}":"{{ data.example }}"{% if not forloop.last %},
+{% endif %}{% endif %}{% endfor %}
+}</pre></div>
+				{% endif %}
+				{% endwith %}
+
+			</div>
+			{% endfor %}
+			</accordion-group>
+			{% endfor %}
+			</accordion>
+			<hr/>
+		</div>
+{% endblock %}

@@ -1,0 +1,152 @@
+<h2>Yellowcoin Limits</h2>
+<div class="row" ng-repeat="(currency, limit) in limits" ng-if="limit.max_amount != '2147483647'">
+	<div class="col-md-3 text-right"><label ng-bind="currency"></label></div>
+	<div class="col-md-7"><progressbar value="limit.cur_amount" max="limit.max_amount" type="warning"></progressbar></div>
+	<div class="col-md-2">Max {[limit.max_amount]} {[currency]}</div>
+</div>
+<p>Increase your limits by filling out more of your profile. Have a special request? <a href="{% url 'contact' %}">Send us an email</a> and we'll be in touch.</p>
+<form class="row alert animate alert-warning" ng-show="deltaChanged">
+	<div class="col-md-12 text-center">
+		<label for="current-password">Enter your current password to save your changes:&nbsp;</label><span class="form-inline"><span class="form-group">
+		<input type="password" ng-model="delta.current_password" id="current-password" class="form-control"/></span>
+		<button type="submit" class="btn btn-default" ng-click="saveChanges()">Save</button></span>
+	</div>
+</form>
+<h2>Profile</h2><hr/>
+<form class="form-horizontal">
+<div profile-input="user" title="Email Address" display="user.email" warning="{[(!user.is_valid.email ? 'Not verified' : '')]}">
+	<div class="row alert animate alert-warning">We'll need to confirm that you own this email address before you can make a transaction under it</div>
+	<input type="email" class="form-control" ng-model="delta.email" placeholder="Email address"/>
+</div>
+<div profile-input="user" title="Password" display="'********'" affects="['password']">
+<label for="new-password">New Password</label>
+<input type="password" class="form-control" id="new-password" ng-model="delta.password"/>
+<label for="confirm-password">Confirm Password</label>
+<input type="password" class="form-control" id="confirm-password"/>
+</div>
+
+<div profile-input="user" title="Identity" display="user.first_name ? user.first_name + ' ' + user.last_name : 'Not set'">
+	<div class="row">
+		<div class="col-sm-6">
+			<label for="first-name">First Name</label>
+			<input type="text" id="first-name" ng-model="delta.first_name" placeholder="John" class="form-control"/>
+		</div>
+		<div class="col-sm-6">
+			<label for="last-name">Last Name</label>
+			<input type="text" id="last-name" ng-model="delta.last_name" placeholder="Doe" class="form-control"/>
+		</div>
+	</div>
+</div>
+<div class="row">
+<label class="control-label col-sm-3">Bank Account</label>
+<div class="col-sm-9 form-control-static" ng-show="user.is_valid.bank_account"><i class="fa fa-check"></i>&nbsp; Verified</div>
+<div class="col-sm-9 form-control-static" ng-hide="user.is_valid.bank_account"><i class="fa fa-times"></i>&nbsp; Not Verified</div>
+</div>
+
+<hr/>
+
+<div profile-input="user" title="Home Address" display="user.address1">
+	<label for="address1">Street Address</label>
+	<input type="text" id="address1" ng-model="delta.address1" class="form-control" placeholder="21 Jump Street" typeahead="address.formatted_address for address in geocode($viewValue) | filter:$viewValue" typeahead-on-select="selectAddress($item, $model, $label)"/>	
+	<input type="text" id="address2" ng-model="delta.address2" class="form-control" placeholder="Apartment 15"/>
+	<div class="row">
+		<div class="col-sm-6">
+			<label for="city">City</label>
+			<input type="text" id="city" ng-model="delta.city" class="form-control" placeholder="Chicago"/>
+		</div>
+		<div class="col-sm-2">
+			<label for="state">State</label>
+			<input type="text" id="state" ng-model="delta.state" class="form-control" placeholder="IL"/>
+		</div>
+		<div class="col-sm-4">
+			<label for="zip">Zip</label>
+			<input type="text" id="zip" ng-model="delta.zip" class="form-control" placeholder="60637"/>
+		</div>
+	</div>
+</div>
+<div profile-input="user" title="Phone" display="user.phone | tel" warning="{[(!user.is_valid.phone && user.phone ? 'Not verified' : '')]}">
+	<input type="text" class="form-control" ng-model="delta.phone" placeholder="Phone number"/>
+</div> 
+<div profile-input="user" title="Social Security Number" display="user.ssn">
+	<input type="text" class="form-control" ng-model="delta.ssn" placeholder="Social security number"/>
+</div> 
+</form>
+<h2>Settings <small ng-show="working">Working...</small></h2>
+<form class="form-horizontal">
+<hr/>
+<div class="row">
+	<label class="col-md-3 control-label">One-Click Ordering</label>
+	<div class="col-md-7">
+			<div class="form-group" ng-class="{'has-error':oneClickErrors.withdrawal_account}">
+				<label for="source" class="col-sm-2 control-label">From</label>
+				<div class="col-sm-10" tooltip="{[oneClickErrors.withdrawal_account[0]]}">
+					<select class="form-control" ng-model="settings.one_click_order_template.withdrawal_account">
+						<option ng-repeat="(id,account) in accounts.bank" value="{[id]}">
+							{[account.display]}
+						</option>
+					</select>
+				</div>
+			</div>
+			<div class="form-group" ng-class="{'has-error':oneClickErrors.deposit_account}">
+				<label for="destination" class="col-sm-2 control-label">To</label>
+				<div class="col-sm-10" tooltip="{[oneClickErrors.deposit_account[0]]}">
+					<select class="form-control" ng-model="settings.one_click_order_template.deposit_account">
+						<option ng-repeat="(id,account) in accounts.BTC" value="{[id]}">
+							{[account.display]}
+						</option>
+					</select>
+				</div>
+			</div>
+			<div class="form-group" ng-class="{'has-error':oneClickErrors.subtotal}">
+				<label class="col-sm-2 control-label">Action</label>
+				<div class="col-sm-10" tooltip="{[oneClickErrors.subtotal[0]]}">
+					<div class="input-group">
+						<span class="input-group-addon dropdown-toggle" class="pointer"><span ng-show="settings.one_click_order_template.type=='A'">Buy</span><span ng-show="settings.one_click_order_template.type=='B'">Sell</span> <span class="caret"></span></span>
+						<ul class="dropdown-menu"><li><a class="pointer" ng-click="settings.one_click_order_template.type='A'">Buy</a></li><li><a class="pointer" ng-click="settings.one_click_order_template.type='B'">Sell</a></li></ul>
+						<input type="text" class="form-control" ng-model="settings.one_click_order_template.subtotal" placeholder="0.00"/>
+						<span class="input-group-addon dropdown-toggle">
+							<span ng-show="settings.one_click_order_template.type=='A'">{[askCurrency]}</span>
+							<span ng-show="settings.one_click_order_template.type=='B'">{[bidCurrency]}</span>
+						</span>
+					</div>
+				</div>
+			</div>
+	</div>
+	<div class="col-md-2"><div toggle-switch model="settings.one_click" disabled="{[oneClickDisabled()]}"></div></div>
+</div>
+<div class="row">
+<label class="col-md-3 control-label">Notifications</label>
+<div class="col-md-9">
+	<div notification="notify" attribute="login" title="Log in"></div>
+	<div notification="notify" attribute="start_transaction" title="Make a transaction"></div>
+	<div notification="notify" attribute="end_transaction" title="Complete a transaction"></div>
+	<div notification="notify" attribute="update_profile" title="Modify my profile"></div>
+	<div notification="notify" attribute="create_bank_account" title="Add a bank account"></div>
+	<div notification="notify" attribute="create_coin_address" title="Add a Bitcoin address"></div>
+</div>
+</div>
+<hr/>
+<div class="row">
+<label class="col-md-3 control-label">Two-Factor Authentication</label>
+<p class="col-md-7 form-control-static">Enable two-factor authentication for more security. Yada yada explanation here.</p>
+<div class="col-md-2"><div toggle-switch model="settings.two_factor_authentication" disabled="{[!user.phone && !delta.phone]}"></div></div>
+</div></div>
+<hr/>
+<div class="row">
+<label class="col-md-3 control-label">API Access</label>
+<p class="col-md-7 form-control-static">Caution: This permits full access to your account. Trust who you give this key to, or disable API access.</p>
+<div class="col-md-2"><div toggle-switch model="settings.api_access"></div></div>
+</form>
+<h2>Login History</h2>
+<table class="table">
+<tr>
+	<th>Timestamp</th>
+	<th>IP Address</th>
+	<th>Location</th>
+</tr>
+<tr ng-repeat="record in records">
+	<td ng-bind="record.timestamp">
+	<td ng-bind="record.ip">
+	<td ng-bind="record.location">
+</tr>
+</table>

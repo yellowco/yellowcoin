@@ -1,0 +1,63 @@
+		<div id="bank-modal" class="modal fade" tabindex="-1">
+			<div class="modal-dialog">
+				<form class="modal-content" role="form" ng-submit="submit('bank')">
+					<div class="modal-header">
+						<button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+						<h4 class="modal-title">Add a New Bank Account</h4>
+					</div>
+					<div class="modal-body">
+						<div class="form-group">
+							<label for="address">Account Holder</label>
+							<div class="row">
+								<div class="col-md-6 input-group" ng-class="{'has-error':errors.bank.first_name}">
+								<input id="first-name" class="form-control" type="text" name="first_name" placeholder="First" ng-model="data.bank.first_name" tooltip="{[errors.bank.first_name[0]]}"/>
+								</div><div class="col-md-6 input-group" ng-class="{'has-error':errors.bank.last_name}">
+								<input id="last-name" class="form-control" type="text" name="last_name" placeholder="Last" ng-model="data.bank.last_name" tooltip="{[errors.bank.last_name[0]]}"/>
+								</div>
+							</div>
+						</div>
+						<div class="form-group" ng-class="{'has-error':errors.bank.routing_number}">
+							<label for="routing-number">Routing Number</label>
+							<div class="input-group">
+								<input id="routing-number" class="form-control" type="text" name="routing_number" placeholder="321070104" ng-model="data.bank.routing_number" maxlength="9" tooltip="{[errors.bank.routing_number[0]]}"/>
+								<span class="input-group-addon">
+									<i class="fa fa-question" ng-show="data.bank.bank_name==''"></i>
+									<i class="fa fa-times" ng-show="data.bank.bank_name=='Unknown'">&nbsp;</i>
+									<i class="fa fa-check" ng-show="data.bank.bank_name!='' && data.bank.bank_name!='Unknown'">&nbsp;</i>{[data.bank.bank_name]}</span>
+							</div>
+						</div>
+						<div class="row"><div class="col-xs-7">
+						<div class="form-group" ng-class="{'has-error':errors.bank.account_number}">
+							<label for="account-number">Account Number</label>
+							<div class="input-group">
+							<input id="account-number" class="form-control" type="text" name="account_number" placeholder="" ng-model="data.bank.account_number" maxlength="17" tooltip="{[errors.bank.account_number[0]]}"/>
+	<div class="input-group-addon pointer" data-toggle="dropdown" id="account-type" ng-init="data.bank.type='CHECKING'">
+		<span class="dropdown-toggle stripped">{[ data.bank.type.charAt(0) + data.bank.type.substring(1).toLowerCase() ]}&nbsp;<span class="caret"></span></span>
+	</div>
+		<ul class="dropdown-menu pull-right" aria-labelledby="account-type">
+		  <li><a ng-click="data.bank.type='CHECKING'">Checking</a></li>
+		  <li><a ng-click="data.bank.type='SAVINGS'">Savings</a></li>
+		</ul>
+							</div>
+						</div>
+						</div><div class="col-xs-5">
+							<label>Sample Check</label>
+							<img class="img-responsive" src="/static/img/check.png" alt="Check Image"/>
+						</div></div>
+						<hr/>
+						<div class="container">
+						<div class="alert alert-info row">
+							<div class="col-sm-1 hidden-xs">
+							<i class="fa fa-exclamation fa-4x"></i>
+							</div>
+							<div class="col-sm-11 col-xs-12 col-xs-pull-1">By adding this account, you affirm that you are authorized to use the account by the account holder. We'll make two micro-deposits to your bank account to confirm that you have access to it.</div>
+						</div>
+						</div>
+					</div>
+					<div class="modal-footer">
+						<button type="submit" class="btn btn-primary">Add</button> <button type="submit" class="btn btn-link" data-dismiss="modal">Cancel</button>
+					</div>
+				</form>
+			</div>
+		</div>
+

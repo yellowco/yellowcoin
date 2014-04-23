@@ -1,0 +1,251 @@
+.pointer {
+	cursor:pointer;
+}
+#login-bar {
+	background-color:#F5F5F5;
+}
+#footer-logo {
+	background-color:#34495E;
+}
+.navbar {
+	background:none;
+	background-color:white;
+	padding:0;
+	box-shadow:none;
+	margin:0;
+	border:0;
+}
+.jumbotron.home {
+	border-bottom:10px solid #34495E;
+	border-top:10px solid #34495E;
+	margin-bottom:0;
+	background:url(http://www.zastavki.com/pictures/1600x1200/2009/The_financial_crisis_Wallpaper_Money_Oriental_Coins_013975_.jpg);
+	color:white;
+	text-shadow:2px 2px 1px black;
+}
+html, body {
+	height:100%;
+	background-color:#F5F5F5;
+}
+body, body h3, body h4 {
+	font-family: 'Roboto', Verdana, Arial, sans-serif !important;
+}
+footer {
+	color:white;
+	background-color:#393939;
+	border-top:10px solid #34495E;
+}
+footer img {
+	padding:10px;
+}
+textarea {
+	max-width:100%;
+}
+#flipboard {
+	margin:0.5em 1em;
+	padding:0.5em 1em;
+	text-align:center;
+	background-color:#333;
+	color:white;
+	text-shadow:1px 1px 3px #666;
+}
+#flipboard #price {
+	font-size:48pt;
+	line-height:72pt;
+}
+#features {
+	margin-top:1em;
+	margin-bottom:1em;
+}
+#register {
+	padding:0;
+}
+#register-form {
+	padding:10px;
+	background-color:white;
+}
+.navbar-nav > li > a {
+	padding:22px;
+	color:#393939;
+	font-weight:bold;
+	border-left:1px dotted #ecdd16;
+}
+.navbar-nav > li > a > small {
+	font-style:italic;
+	font-weight:normal;
+}
+.navbar-nav > li:hover {
+	background-color:#ecdd16;
+}
+.navbar-nav > li > a:hover {
+	background-color:transparent;
+}
+#register-form .form-group label {
+	text-transform:uppercase;
+}
+#content-body {
+	margin-top:0.5em;
+	margin-bottom:3em;
+}
+#content .nav-pills {
+	margin-top:2.5em;
+}
+#content .nav-pills > li {
+	margin-top:0.5em;
+	margin-right:0.5em;
+}
+#content h3 {
+	text-transform:uppercase;
+	font-weight:bold;
+	font-size:16pt;	
+	background:url("/static/img/up-bar.gif") bottom center no-repeat;
+	padding:20px;
+	border-bottom:1px solid #bcbcbc;
+	color:#34495E;
+}
+#copyright {
+	text-shadow:0px 2px 3px #555;
+	display:block;
+	text-align:center;
+	margin:1em;
+	color:#AAA;
+}
+#register h3 {
+	font-size:10pt;
+	padding:10px;
+	text-align:center;
+	text-transform:uppercase;
+	font-weight:bold;
+	color:white;
+	background:#34495E;
+	border-bottom:3px solid #ecdd16;
+}
+.nav-pills > li > a, .btn {
+	background-image:none;
+	background-color:#34495E;
+	color:white;
+	border-radius:0;
+	text-shadow:none;
+	font-weight:bold;
+	padding:5px 10px;
+	border-bottom:3px solid #ecdd16;
+	text-transform:uppercase;
+}
+.nav-pills > li > a:hover, .btn:hover {
+	background-color:#ecdd16;
+	color:black;
+	border-bottom:3px solid black;
+}
+.btn.btn-link {
+	background:none;
+	color:#ecdd16;
+	text-transform:lowercase;
+	border:none;
+	padding:0;
+	margin:0;
+	padding-bottom:2px;
+}
+#content h4 {
+	color:#34495E;
+	font-size:18pt;
+	font-weight:bold;
+}
+#content h4.panel-title {
+	font-weight:normal;
+	font-size:12pt;
+	color:black;
+	text-shadow:1px 1px 0px #CCC;
+}
+footer .social {
+	text-align:center;
+}
+.social a i {
+	float:left;
+	width:40px;
+	padding:10px;
+	display:block;
+	text-align:center;
+	color:white;
+}
+.form-group.has-warning input {
+	background-color:#fcf8e3;
+}
+.form-group.has-error input {
+	background-color:#f2dede;
+}
+footer .social a i {
+	float:none;
+	display:inline-block;
+	margin:0;
+}
+.social i.fa-reddit {
+	background:url("/static/img/reddit.png") center center no-repeat grey;
+}
+.social i.fa-facebook {
+	background-color:#3B5998;
+}
+.social i.fa-twitter {
+	background-color:#4099FF;
+}
+.social i.fa-phone {
+	background-color:green;
+}
+.social i.fa-envelope {
+	background-color:#ecdd16;
+}
+.dropdown-toggle.stripped {
+	border:none;
+	background:none;
+	padding:0;
+}
+.dropdown-button {
+	background-color:#EEEEEE;
+	padding:6px 12px;
+	border:1px solid #CCCCCC;
+	border-radius:4px;
+}
+.dropdown-button a {
+	text-decoration:none !important;
+	color:black !important;
+}
+@media(min-width:992px) {
+	#wrapper {
+		min-height: 100%;
+		height: auto !important;
+		height: 100%;
+		margin:0 auto -200px;
+	}
+	#push, footer {
+		height:200px;
+	}
+	footer {
+		margin-top:-200px;
+	}
+}
+@media(max-width:767px) {
+	.input-group {
+		display:block;
+	}
+	#flipboard #price {
+		font-size:32pt;
+	}
+}
+.animate {
+	max-height:10000px;
+}
+.page-404 {
+	margin-top:3em;
+}
+.page-404 h1 {
+	font-size:40pt;
+	font-weight:bold;
+	margin-top:3em;
+}
+.page-404 h2 {
+	font-weight:bold;
+	font-size:18pt;
+	text-transform:uppercase;
+}
+address {
+	padding-left:55px;
+}

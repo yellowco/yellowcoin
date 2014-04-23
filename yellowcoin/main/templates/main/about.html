@@ -1,0 +1,46 @@
+{% extends "base.html" %}
+
+{% block nav-about %}active{% endblock %}
+
+{% block content %}
+<div class="container">
+<h1>About Yellowcoin</h1>
+<div class="row"><div class="col-md-8">
+<h3 class="text-center">Founded on speed, simplicity, and security</h3>
+<p>By increasing the speed of transactions, decreasing complexity for customers, and increasing securty, we belive Yellowcoin can set a new standard for cryptocurrency brokerages and continue to revolutionize the industry as we reinvent ourselves in the changing landscape. We are in the finishing stages of development and testing, and plan to roll out beta by the middle of March.</p>
+<h4>Our Team</h4>
+<div class="row">
+	<div class="col-md-4">
+		<img src="dummyimage.com/400x400"/>
+		<h5>Kevin Wang</h5>
+		<h6></h6>
+		<p>biobiobio</p>
+	</div>
+	<div class="col-md-4">
+		<img src="dummyimage.com/400x400"/>
+		<h5>Minke Zhang</h5>
+		<h6>Title</h6>
+		<p>biobiobio</p>
+	</div>
+	<div class="col-md-4">
+		<img src="dummyimage.com/400x400"/>
+		<h5>Douglas Everson</h5>
+		<h6>Title</h6>
+		<p>biobiobio</p>
+	</div>
+</div>
+</div><div class="col-md-4">
+<h4>Location</h4>
+<div class="well">
+	<h4>Our Home</h4>
+	<p>alskjfdlaksdf</p>
+	<a href="{% url 'contact' %}" class="btn btn-success">Contact Us</a>
+</div>
+<h4>Careers</h4>
+<div class="well">
+	<h4>We're Hiring</h4>
+	<p>Do you have something to bring to our team?</p>
+	<a href="mailto:jobs@yellowco.in" class="btn btn-success">Join Us</a>
+</div>
+</div></div>
+{% endblock %}

@@ -1,0 +1,132 @@
+{% load gravatar %}<!DOCTYPE html>
+<!--[if lt IE 7]>      <html class="no-js lt-ie9 lt-ie8 lt-ie7"> <![endif]-->
+<!--[if IE 7]>         <html class="no-js lt-ie9 lt-ie8"> <![endif]-->
+<!--[if IE 8]>         <html class="no-js lt-ie9"> <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js"> <!--<![endif]-->
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+        <title></title>
+        <meta name="description" content="">
+        <meta name="viewport" content="width=device-width">
+		<meta name="fragment" content="฿" />
+		<link href='http://fonts.googleapis.com/css?family=Roboto:400,700' rel='stylesheet' type='text/css'>
+	        <link rel="stylesheet" href="{{ STATIC_URL }}css/bootstrap.min.css">
+		<link href="//netdna.bootstrapcdn.com/font-awesome/4.0.3/css/font-awesome.css" rel="stylesheet">
+	        <link rel="stylesheet" href="{{ STATIC_URL }}css/main.css">
+		<script src="//ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
+		<script src="//ajax.googleapis.com/ajax/libs/angularjs/1.2.8/angular.js"></script>
+		<script src="//ajax.googleapis.com/ajax/libs/angularjs/1.2.8/angular-route.js"></script>
+		<script src="//ajax.googleapis.com/ajax/libs/angularjs/1.2.8/angular-sanitize.js"></script>
+		<script src="//ajax.googleapis.com/ajax/libs/angularjs/1.2.8/angular-animate.js"></script>
+		<script src="{{ STATIC_URL }}js/ui-bootstrap-tpls-0.10.0.js"></script>
+		{% block head %}{% endblock %}
+    </head>
+    <body>
+        <!--[if lt IE 7]>
+            <p class="chromeframe">You are using an <strong>outdated</strong> browser. Please <a href="http://browsehappy.com/">upgrade your browser</a> or <a href="http://www.google.com/chromeframe/?redirect=true">activate Google Chrome Frame</a> to improve your experience.</p>
+        <![endif]-->
+	<div id="wrapper">
+	<div id="login-bar">
+		<div class="container">
+			<div class="row">
+				<div class="col-sm-8 col-xs-12">
+			{% if user.is_authenticated %}
+					Hi {{ user.email }}!
+					<a href="{% url 'application' %}" target="_self" class="btn btn-default">Dashboard</a>
+					<a href="{% url 'users|logout' %}" target="_self" class="btn btn-default">Sign Out</a>
+			{% else %}
+					<form class="form-inline" role="form" method="post" action="{% url 'users|login' %}">
+					{% csrf_token %}
+					<div class="form-group">
+						<label class="sr-only" for="email">Email Address</label>
+						<input type="email" name="username" class="form-control" id="email" placeholder="Email"/>
+					</div>
+					<div class="form-group">
+						<label class="sr-only" for="password">Password</label>
+						<input type="password" name="password" class="form-control" id="password" placeholder="Password"/>
+					</div>
+						<button type="submit" class="btn btn-default">Log In</button>
+					</form>
+			{% endif %}
+				</div>
+				<div class="col-xs-4 hidden-xs">
+					<div class="pull-right">
+					{% include "social.html" %}</div>
+				</div>
+			</div>
+		</div>
+	</div>
+    <div class="navbar">
+      <div class="container">
+        <div class="navbar-header">
+          <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+          	<i class="fa fa-bars"></i>
+			</button>
+          <a class="navbar-brand" target="_self" href="/"><img src="{{ STATIC_URL }}img/logo-55h.png" alt="Yellowcoin"/></a>
+        </div>
+        <div class="navbar-collapse collapse">
+          <ul class="nav navbar-nav navbar-right" role="navigation">
+            <li class="{% block nav-home %}{% endblock %}"><a target="_self" href="{% url "home" %}">Home<br/><small>it starts here</small></a></li>
+            <li class="{% block nav-about %}{% endblock %}"><a target="_self" href="{% url "about" %}">About<br/><small>get to know us</small></a></li>
+            <li class="{% block nav-charts %}{% endblock %}"><a target="_self" href="{% url "charts" %}">Charts<br/><small>know the latest</small></a></li>
+	<li class="{% block nav-contact %}{% endblock %}"><a target="_self" href="{% url "contact" %}">Contact Us<br/><small>have a question?</small></a></li>
+          </ul>
+        </div><!--/.navbar-collapse -->
+      </div>
+    </div>
+	<div id="content">
+	{% if messages %}
+	<div class="container text-center" id="messages">
+		{% for message in messages %}
+			{% if message.tags == 'success' %}
+				<div class="alert alert-{{ message.tags }} alert-dismissable">
+					<button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
+					{{ message }}
+				</div>
+			{% else %}
+				<div class="alert alert-{{ message.tags }}">{{ message }}</div>
+			{% endif %}
+		{% endfor %}
+	</div>
+	{% endif %}
+	{% block content %}{% endblock %}
+	</div>
+	<div id="push">&nbsp;</div>
+	</div>
+	<footer>
+	<div class="container">
+		<div class="row">
+			<div class="col-md-3">
+				Site Map | Terms of Service | Legal
+				<ul>
+					<li><a href="{% url "about" %}">About</a></li>
+					<li>Security</li>
+					<li>Fees</li>
+					<li>Blog</li>
+				</ul>
+			</div>
+			<div class="col-md-6">
+				<h6>Resources</h6>
+				<ul>
+					<li><a href="{% url "documentation" %}">Developer API</a></li>
+					<li><a href="{% url "contact" %}">Contact Us</a></li>
+				</ul>
+			</div>
+			<div class="col-md-3" id="footer-logo">
+				<div class="row"><div class="col-md-12 text-center"><img src="{{ STATIC_URL }}img/logo-hexagon-55h.png" alt="Yellowcoin"/></div></div>
+				<div class="row">
+					{% include "social.html" %}
+				</div>
+				<div class="row">
+				<div class="col-md-12">
+				<small id="copyright">&copy; Yellowcoin 2013. All rights reserved.</small>
+				</div>
+				</div>
+			</div>
+		</div>
+    </div> <!-- /container -->
+	</footer>
+        <script src="{{ STATIC_URL }}js/vendor/bootstrap.min.js"></script>
+    </body>
+</html>

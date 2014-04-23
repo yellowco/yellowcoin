@@ -1,0 +1,98 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="jumbotron home">
+	<div class="container">
+		<div class="row">
+			<div class="col-md-6">
+				<div id="flipboard">
+					The current price of Bitcoin is
+					<div id="price">$888.88</div>
+					<script type="text/javascript">
+					$(document).ready(function() {
+						function updatePrice() {
+							$.get('/api/prices/btc/usd/', function(data) {
+								$("#price").html("$" + data.price);
+							});
+						}
+						updatePrice();
+						setInterval(updatePrice, 5000);
+					});
+					</script>
+				</div>
+			</div>
+			<div class="col-md-6">
+				<h1>Simple. Secure.</h1>
+				<h2>Yellowcoin features easy to use tools and industry leading security.</h2>
+			</div>
+		</div>
+	</div>
+</div>
+<div class="container">
+	<h3 class="text-center">Yellowcoin brings peace of mind</h3>
+	<div class="row">
+		<div class="col-md-3 col-md-push-9" id="register">
+			<h3>Open a free Yellowcoin account</h3>
+			<form id="register-form" action="{% url 'users|register' %}" role="form" method="post">
+				{% csrf_token %}
+				<div class="form-group">
+					<label for="register-email">Your Email</label>
+					<input type="email" class="form-control" id="register-email" placeholder="Enter email" name="email"/>
+				</div>
+				<script src="/static/js/password.js"></script>
+				<div class="form-group">
+					<label for="register-password">Enter a Password</label>
+					<input type="password" class="form-control" id="register-password" placeholder="Password" name="password"/>
+				</div>
+				<div class="form-group">
+					<label for="register-password-confirm">Confirm Password</label>
+					<input type="password" class="form-control" id="register-password-confirm" placeholder="Password" name="password_confirm"/>
+				</div>
+ 				<div class="checkbox">
+					<label><input name="tos" type="checkbox"> I have read and agree to the Yellowcoin terms and conditions.</label>
+				</div>
+				<div class="text-center">
+					<button type="submit" class="btn btn-default">Sign Up</button>
+				</div>
+			</form>
+		</div>
+		<div class="col-md-9 col-md-pull-3" id="features">
+			<div class="row"><div class="col-md-6">
+				<div class="col-xs-2"><i class="fa fa-key fa-4x"></i></div>
+				<div class="col-xs-10"><h4>Secured Data</h4>
+				<p>Your data is protected with industry leading security</p>
+				</div>
+			</div><div class="col-md-6">
+				<div class="col-xs-2"><i class="fa fa-key fa-4x"></i></div>
+				<div class="col-xs-10"><h4>Secured Data</h4>
+				<p>Your data is protected with industry leading security</p>
+				</div>
+			</div></div>
+            <div class="row"><div class="col-md-6">
+                <div class="col-xs-2"><i class="fa fa-key fa-4x"></i></div>
+                <div class="col-xs-10"><h4>Secured Data</h4>
+                <p>Your data is protected with industry leading security</p>
+                </div>
+            </div><div class="col-md-6">
+                <div class="col-xs-2"><i class="fa fa-key fa-4x"></i></div>
+                <div class="col-xs-10"><h4>Secured Data</h4>
+                <p>Your data is protected with industry leading security</p>
+                </div>
+            </div></div>
+            <div class="row"><div class="col-md-6">
+                <div class="col-xs-2"><i class="fa fa-key fa-4x"></i></div>
+                <div class="col-xs-10"><h4>Secured Data</h4>
+                <p>Your data is protected with industry leading security</p>
+                </div>
+            </div><div class="col-md-6">
+                <div class="col-xs-2"><i class="fa fa-key fa-4x"></i></div>
+                <div class="col-xs-10"><h4>Secured Data</h4>
+                <p>Your data is protected with industry leading security</p>
+                </div>
+            </div></div>
+
+			<img style="width:33%;" class="img-responsive" src="/static/coinstack.png" alt="Yellowcoin is the best coin!"/>
+		</div>
+	</div>
+</div>
+{% endblock %}

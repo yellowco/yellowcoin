@@ -1,0 +1,67 @@
+{% extends "base.html" %}
+
+{% block nav-contact %}active{% endblock %}
+
+{% block content %}
+<div class="container">
+	<h1>Email us, we don't bite.</h1>
+	<div class="col-md-9">
+	<p>If something's wrong, that's not okay. We're committed to making sure you have the smoothest Bitcoin transactions possible. Contact us and we'll be in touch with you to solve your problem.</p>
+	<p>Just want to say hi or have a question? That's cool too, we'd love to hear from you.</p>
+	<hr/>
+	<form class="form-horizontal" role="form" method="POST" action="{% url 'contact' %}">
+ {% csrf_token %}
+{% if form.email.errors %}
+  <div class="form-group has-error">
+{% else %}
+  <div class="form-group">
+{% endif %}
+    <label for="email" class="col-sm-2 control-label">Your Email</label>
+    <div class="col-sm-10">
+      <input type="email" class="form-control" id="email" placeholder="If it's related to your account, please use your account's email." value="{{ user.email }}" name="sender"/>
+	{% for error in form.email.errors %}
+	<div class="text-danger">{{ error|escape }}</div>
+	{% endfor %}
+    </div>
+  </div>
+{% if form.subject.errors %}
+  <div class="form-group has-error">
+{% else %}
+  <div class="form-group">
+{% endif %}
+    <label for="subject" class="col-sm-2 control-label">Subject</label>
+    <div class="col-sm-10">
+      <input type="text" class="form-control" id="subject" placeholder="A quick summary will do." name="subject"/>
+	{% for error in form.subject.errors %}
+	<div class="text-danger">{{ error|escape }}</div>
+	{% endfor %}
+    </div>
+  </div>
+  <div class="form-group">
+	<label for="message" class="col-sm-2 control-label">Message</label>
+	<div class="col-sm-10">
+	  <textarea name="message" id="message" class="form-control" rows="5" placeholder="Don't forget to include reference numbers if they're important!"></textarea>
+    </div>
+  </div>
+  <div class="form-group">
+    <div class="col-sm-offset-2 col-sm-10">
+      <button type="submit" class="btn btn-default">Send</button>
+    </div>
+  </div>
+</form>
+	
+
+	</div>
+	<div class="col-md-3">
+		<img src="{{ STATIC_URL }}/img/logo-55h.png"/>
+		<address>
+		5706 S Ellis Ave<br/>
+		Chicago, IL 60637<br/>
+		</address>
+		<p>
+		<strong>Prefer to email us directly?</strong><br/>
+		Not a problem, email us at <a href="mailto:#">help@yellowco.in</a>
+		</p>
+	</div>
+</div>
+{% endblock %}

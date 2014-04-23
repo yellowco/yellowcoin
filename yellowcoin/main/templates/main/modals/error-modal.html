@@ -1,0 +1,13 @@
+<script type="text/ng-template" id="error-modal.html">
+      <div class="modal-header">
+        <button type="button" class="close" ng-click="dismiss()" aria-hidden="true">&times;</button>
+        <h4 class="modal-title">An Error Occurred</h4>
+      </div>
+      <div class="modal-body">
+        <p>We're sorry, an error occurred while trying to {[action]}. The error returned was:</p>
+		<pre>{[message]}</pre>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-default" ng-click="dismiss()">Okay</button>
+      </div>
+</script>

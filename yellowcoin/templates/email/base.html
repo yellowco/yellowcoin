@@ -1,0 +1,32 @@
+{% load email %}
+{% subject %}{% block subject %}{% endblock %}{% endsubject %}
+{% body %}
+{% block body %}{% endblock %}
+{% endbody %}
+{% bodyhtml %}
+<html>
+<head>
+ <meta http-equiv="Content-Type" content="text/html;charset=UTF-8" />
+ <title>Yellowcoin</title>
+</head>
+<body leftmargin="0" topmargin="0" marginwidth="0" marginheight="0" style="margin:0;padding:50px 0 50px 0;background-color:#F5F5F5;width:100% !important;">
+<center>
+<table width="500" border="0" cellpadding="0" cellspacing="0">
+  <tr><td>
+    <table style="width:100%;background-color:#FFFFFF;padding:0 20px 0 20px;">
+      <tr><td style="text-align:center"><img src="https://yellowco.in/static/img/logo-55h.png"/></td></tr>
+      <tr><td style="text-align:center;text-transform:uppercase;font-weight:bold;font-size:16pt;border-bottom:1px solid #bcbcbc;color:#34495E;">{% block heading %}{% endblock %}</td></tr>
+      <tr><td>
+        <p>Hello!</p>
+	{% block bodyhtml %}{% endblock %}
+        <p>Most sincerely,<br>Yellowcoin</p>
+      </td></tr>
+    </table>
+  </td></tr>
+  <tr><td>&nbsp;</td></tr>
+  <tr><td style="text-align:center;font-size:8pt;">Didn't expect this email? Forward it to abuse@yellowco.in.<br><br>Yellowcoin</td></tr>
+</table>
+</center>
+</body>
+</html>
+{% endbodyhtml %}

@@ -1,0 +1,26 @@
+    <h2>Refer a Friend</h2>
+    <p>Send this link to a friend!</p>
+    <pre>http://yellowco.in/refer/{{ referrer_key }}/</pre>
+    <h4>Your Referrals</h4>
+	<table class="table">
+		<thead>
+			<tr>
+				<th>Email</th>
+				<th>Activated</th>
+				<th>Added Bank Account</th>
+				<th>Completed Transaction</th>
+				<th>Date Joined</th>
+			</tr>
+		</thead>
+		<tbody>
+	{% for referral in referrals %}
+		<tr>
+			<td>{{ referral.email }}</td>
+			<td>{{ referral.profile.valid_email }}</td>
+			<td>{{ referral.profile.valid_bank_account }}</td>
+			<td>{{ referral.profile.valid_transaction }}</td>
+			<td>{{ referral.date_joined }}</td>
+		</tr>
+	{% endfor %}
+	</tbody>
+	</table>

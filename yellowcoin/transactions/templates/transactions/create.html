@@ -1,0 +1,110 @@
+			<form class="form-horizontal" role="form" ng-submit="execute()">
+				<div class="form-group" ng-class="{'has-error':transaction.errors.withdrawal_account}">
+					<label for="source" class="col-sm-2 control-label">Transfer from</label>
+					<div class="col-sm-10">
+						<select class="form-control" ng-model="transaction.withdrawal_account" ng-options="id as account.display for (id, account) in accounts.bank" tooltip="{[transaction.errors.withdrawal_account[0]]}">
+						</select>
+					</div>
+				</div>
+				<div class="form-group" ng-class="{'has-error':transaction.errors.deposit_account}">
+					<label for="destination" class="col-sm-2 control-label">Transfer to</label>
+					<div class="col-sm-10">
+						<select class="form-control" ng-model="transaction.deposit_account" ng-options="id as account.display for (id, account) in accounts.BTC" tooltip="{[transaction.errors.deposit_account[0]]}">
+						</select>
+					</div>
+				</div>
+				<div class="form-group">
+					<label class="col-sm-2 control-label">Amount</label>
+					<div class="col-sm-4">
+						<div class="input-group" ng-class="{'has-success':transaction.sourceLock && !transaction.errors.bid_subtotal, 'has-error':transaction.errors.bid_subtotal}">
+							<span class="input-group-addon"><i ng-show="transaction.sourceLock" style="width:20px" class="fa fa-lock"></i><i ng-hide="transaction.sourceLock" style="width:20px" class="fa fa-unlock"></i></span>
+							<input type="text" class="form-control" id="sell-amount" ng-model="transaction.bid_subtotal" placeholder="0.00" ng-focus="transaction.sourceLock = true" tooltip="{[transaction.errors.bid_subtotal[0]]}"/>
+							<span class="input-group-addon">{[bidCurrency]}</span>
+						</div>
+					</div>
+					<div class="col-sm-2 text-center pointer">
+						<div class="dropdown dropdown-button">
+							<a class="dropdown-toggle" id="order-type" data-toggle="dropdown" role="button">{[limitOrder ? 'Limit' : 'Market']}&nbsp;<span class="caret"><span></a>
+							<ul class="dropdown-menu" role="menu" aria-labelledby="order-type">
+								<li><a ng-click="limitOrder=false">Market Order</a></li>
+								<li><a ng-click="limitOrder=true;recurrence.recur=false">Limit Order</a></li>
+							</ul>
+						</div>
+					</div>
+					<div class="col-sm-4">
+						<div class="input-group" ng-class="{'has-success':!transaction.sourceLock && !transaction.errors.ask_subtotal, 'has-error':transaction.errors.ask_subtotal}">
+							<span class="input-group-addon"><i ng-hide="transaction.sourceLock" style="width:20px" class="fa fa-lock"></i><i style="width:20px" ng-show="transaction.sourceLock" class="fa fa-unlock"></i></span>
+							<input type="text" class="form-control" id="buy-amount" ng-model="transaction.ask_subtotal" placeholder="0.00" ng-focus="transaction.sourceLock = false" tooltip="{[transaction.errors.ask_subtotal[0]]}"/>
+							<span class="input-group-addon">{[askCurrency]}</span>
+						</div>
+					</div>
+				</div>
+				<div class="form-group">
+					<label class="col-sm-2 control-label">1% Fee</label>
+					<div class="col-sm-4" ng-hide="transaction.sourceLock">
+						<p class="form-control-static">
+							{[(transaction.bid_subtotal / (1 - {{fee}})) - transaction.bid_subtotal | number:2]} {[sell]}
+						</p>
+					</div>
+					<div class="col-sm-offset-6 col-sm-4" ng-show="transaction.sourceLock">
+						<p class="form-control-static">
+							{[transaction.ask_subtotal * {{fee}} | number:8]} {[buy]}
+						</p>
+					</div>
+				</div>
+				<div class="form-group">
+					<label class="col-sm-2 control-label">Net</label>
+					<div class="col-sm-4">
+						<p class="form-control-static" ng-if="transaction.sourceLock">{[transaction.bid_subtotal | number:2]} {[sell]}</p>
+						<p class="form-control-static" ng-if="!transaction.sourceLock">{[transaction.bid_subtotal / (1 - {{fee}}) | number:2]} {[sell]}</p>
+					</div>
+					<div class="col-sm-2 text-center"><i class="fa fa-long-arrow-right fa-3x"></i></div>
+					<div class="col-sm-4">
+						<p class="form-control-static" ng-if="!transaction.sourceLock">{[transaction.ask_subtotal | number:8]} {[buy]}</p>
+						<p class="form-control-static" ng-if="transaction.sourceLock">{[transaction.ask_subtotal * (1 - {{fee}}) | number:8]} {[buy]}</p>
+					</div>
+				</div>
+				<div class="alert alert-warning" ng-if="!limitOrder">Market orders are placed as limit orders, so if the exchange rate is rapidly changing, your order may not execute, as the exchange rate may have changed between the submission time and execution time. The order will be fulfilled at the exchange rate submitted above.</div>
+				<div class="form-group" ng-class="{'has-error':transaction.errors.comment}">
+					<label class="col-sm-2 control-label">Comment</label>
+					<div class="col-sm-10">
+						<input type="text" class="form-control" id="comment" ng-model="transaction.comment" placeholder="Optional note for the transaction." tooltip="{[transaction.errors.comment[0]]}"/>
+					</div>
+				</div>
+				<div class="form-group">
+					<label class="col-sm-10 col-sm-offset-2">
+						<input type="checkbox" ng-disabled="limitOrder" ng-model="recurrence.recur"/> Use these settings for a recurring order					
+					</label>
+				</div>
+				<div class="form-group" ng-show="recurrence.recur">
+					<label class="col-sm-2 control-label">Repeat Every</label>
+	<div class="input-group col-sm-4 dropdown">
+	  <input type="text" class="form-control" ng-model="recurrence.repeat.interval"/>
+		<ul class="dropdown-menu pull-right">
+	  <li><a class="pointer" ng-click="recurrence.repeat.unit='Hours'">Hours</a></li>
+		  <li><a class="pointer" ng-click="recurrence.repeat.unit='Days'">Days</a></li>
+		  <li><a class="pointer" ng-click="recurrence.repeat.unit='Months'">Months</a></li>
+		  <li><a class="pointer" ng-click="recurrence.repeat.unit='Years'">Years</a></li>
+		</ul>
+	  <span class="input-group-addon dropdown-toggle pointer">{[recurrence.repeat.unit]} <span class="caret"></span></span>
+	</div>
+				</div>
+				<div class="form-group" ng-show="recurrence.recur">
+					<label class="col-sm-2 control-label">Starting</label>
+					<div class="col-sm-5">
+			<div class="input-group">
+			  <input type="text" class="form-control" datepicker-popup="shortDate" ng-model="recurrence.starting.date" is-open="datepickerOpen" min="minDate" max="'2015-06-22'" ng-required="true" close-text="Close" />
+			  <span class="input-group-addon pointer" ng-click="open($event)"><i class="glyphicon glyphicon-calendar"></i></span>
+			</div>
+				</div>
+					<div class="col-sm-5">
+						<timepicker hour-step="1" minute-step="1" show-meridian="true" ng-model="recurrence.starting.time"></timepicker>
+					</div>
+				</div>
+				<div class="form-group">
+					<div class="col-sm-offset-2 col-sm-10">
+						<button type="submit" class="btn btn-default" ng-click="execute()" ng-disabled="transaction.pending">Execute</button>
+					</div>
+				</div>
+			</form>
+

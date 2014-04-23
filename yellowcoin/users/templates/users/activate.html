@@ -1,0 +1,39 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container">
+<div class="row">
+<div class="col-lg-offset-4 col-lg-8">
+	<div class="col-sm-offset-2 col-sm-10">
+		<h1>Activate</h1>
+	</div>
+	<form class="form-horizontal" action="{% url 'users|activate-manual' %}" role="form" method="post">
+	{% csrf_token %}
+	<div class="form-group">
+		<label for="email" class="col-sm-2 control-label">Email Address</label>
+		<div class="col-sm-4">
+			<input type="email" class="form-control" id="email" name="username" placeholder="Your email address"/>
+		</div>
+		<div class="col-sm-6">
+			{{ form.email.errors }}
+		</div>
+	</div>
+	<div class="form-group">
+		<label for="key" class="col-sm-2 control-label">Activation Key</label>
+		<div class="col-sm-4">
+			<input type="key" class="form-control" id="key" name="key" placeholder="Your activation key"/>
+		</div>
+		<div class="col-sm-6">
+			{{ form.key.errors }}
+		</div>
+	</div>
+	<div class="form-group">
+		<div class="col-sm-offset-2 col-sm-8">
+			<button type="submit" class="btn btn-warning">Activate</button> or <a href="/">Cancel</a>
+		</div>
+	</div>
+	</form>
+</div>
+</div>
+</div>
+{% endblock %}

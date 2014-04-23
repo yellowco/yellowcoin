@@ -1,0 +1,16 @@
+{% extends "email/base.html" %}
+
+{% block subject %}Successful Authorization{% endblock %}
+{% block heading %}Account Accessed{% endblock %}
+{% block body %}
+A successful authorization to your Yellowcoin account was recorded from {{ ip }} ({{ location }}).
+
+If you do not recognize this message, please disregard the above and forward this email to abuse@yellowco.in.
+
+Thanks for using Yellowcoin!
+{% endblock %}
+{% block bodyhtml %}
+<p>A successful authorization to your Yellowcoin account was recorded from {{ ip }} ({{ location }}).</p>
+
+<p>Thanks for using Yellowcoin!</p>
+{% endblock %}

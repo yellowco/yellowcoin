@@ -1,0 +1,16 @@
+{% extends "email/base.html" %}
+
+{% block subject %}Crypto Account Added{% endblock %}
+{% block heading %}New Crypto Account{% endblock %}
+{% block body %}
+An account with address {{ account.address }} has been added to your account.
+
+If you do not recognize this message, please disregard the above and forward this email to abuse@yellowco.in.
+
+Thanks for using Yellowcoin!
+{% endblock %}
+{% block bodyhtml %}
+<p>An account with address {{ account.address }} has been added to your account.</p>
+
+<p>Thanks for using Yellowcoin!</p>
+{% endblock %}

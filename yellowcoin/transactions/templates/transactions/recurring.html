@@ -1,0 +1,27 @@
+<h2>Recurring Orders</h2>
+
+<div class="row">
+	<div class="col-md-3 col-md-push-3 visible-md visible-lg"><strong>Last Run</strong></div>
+	<div class="col-md-3 col-md-push-3 visible-md visible-lg"><strong>Next Run</strong></div>
+</div>
+<div class="panel panel-default" ng-repeat="order in recurringOrders">
+	<div class="panel-body">
+		<div class="row">
+			<div class="col-md-3" ng-if="order.template.type == 'A'">
+				Buy {[order.template.subtotal]} {[order.template.ask_currency]}
+			</div>
+			<div class="col-md-3" ng-if="order.template.type == 'B'">
+				Sell {[order.template.subtotal]} {[order.template.bid_currency]}
+			</div>
+			<div class="col-md-3">
+				<span class="visible-xs visible-sm">Last run</span> <span am-time-ago="order.last_run" tooltip="{[order.last_run]}" tooltip-append-to-body="true"></span>
+			</div>
+			<div class="col-md-3">
+				<span class="visible-xs visible-sm">Next run</span> <span am-time-ago="order.next_run" tooltip="{[order.next_run]}" tooltip-append-to-body="true"></span>
+			</div>
+			<div class="col-md-3">
+				<span class="btn btn-link" ng-click="deleteRecurringOrder(order)">Delete</span>
+			</div>
+		</div>
+	</div>
+</div>

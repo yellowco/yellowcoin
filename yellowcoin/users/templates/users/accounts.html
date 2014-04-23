@@ -1,0 +1,18 @@
+<div ng-repeat="(context,x) in accounts">
+<h2 class="clearfix"><i class="col-sm-1 hidden-xs fa fa-{[readable[context].icon]}"></i><span class="col-sm-9">{[readable[context].text]}</span><button type="button" class="col-sm-2 btn btn-primary pull-right" data-toggle="modal" data-target="#{[context]}-modal"><i class="fa fa-plus"></i>&nbsp;Add New</button></h2>
+ <div class="panel panel-default {[context]}-account animate account" ng-repeat="(id,data) in accounts[context]" ng-if="!data.deleted">
+  <div class="panel-body">
+    <strong>{[getDisplayName(context,data).left]}</strong>&nbsp; <span class="label label-success" ng-show="data.is_default">Default</span>&nbsp;<span class="label label-danger" ng-show="data.is_confirmed===false">Not Verified</span><span class="pull-right hidden-xs">{[getDisplayName(context,data).right]}</span>
+  </div>
+  <div class="panel-footer clearfix">
+ <button ng-hide="data.is_default || data.is_confirmed===false" class="btn btn-link" ng-click="setDefault(context, id)">Make Default</button>
+ <button ng-show="data.is_confirmed===false" class="btn btn-link" ng-click="setValidate(context, id)" data-toggle="modal" data-target="#{[context]}-validate-modal">Verify</button>
+ <button class="btn btn-link pull-right" ng-click="delete(context, id)" ng-hide="data.deleteTimeout || data.is_locked">Delete</button>
+ <button type="button" class="btn btn-link pull-right" ng-click="undelete(context, id)" ng-show="data.deleteTimeout">Undo <span class="label label-danger">{[ data.deleteTimeout / 1000 | number:0 ]}</span></button>
+ <i class="pull-right fa fa-lock" tooltip="This account has a pending transaction associated with it, so it can't be deleted. :(" tooltip-placement="left" ng-show="data.is_locked" style="font-size:150%;"></i>
+ </div>
+ </div>
+</div>
+	{% include 'users/modals/bank-modal.html' %}
+	{% include 'users/modals/btc-modal.html' %}
+	{% include 'users/modals/bank-validate-modal.html' %}

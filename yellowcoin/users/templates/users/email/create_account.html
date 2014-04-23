@@ -1,0 +1,23 @@
+{% extends "email/base.html" %}
+
+{% block subject %}Yellowcoin Account Activation{% endblock %}
+{% block heading %}Activate Your Account{% endblock %}
+{% block body %}
+Thank you for registering a Yellowcoin account.
+
+To being using the site, you'll need to activate your account by visiting the following link in your web browser:
+https://yellowco.in{% url 'users|activate' user.activation_key %}
+
+If you do not recognize this message, please disregard the above and forward this email to abuse@yellowco.in.
+
+Thanks for using Yellowcoin!
+{% endblock %}
+{% block bodyhtml %}
+<p>Thank you for registering a Yellowcoin account.</p>
+
+<p>To begin using the site, you'll need to activate your account by visiting the following link in your web browser:<br>
+<a href="https://yellowco.in{% url 'users|activate' user.activation_key %}">https://yellowco.in{% url 'users|activate' user.activation_key %}</a>
+</p>
+
+<p>Thanks for using Yellowcoin!</p>
+{% endblock %}

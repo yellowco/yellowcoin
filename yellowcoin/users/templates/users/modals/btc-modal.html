@@ -1,0 +1,26 @@
+        <div id="BTC-modal" class="modal fade" tabindex="-1">
+            <div class="modal-dialog">
+                <form class="modal-content" role="form" ng-submit="submit('BTC')">
+                    <div class="modal-header">
+                        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                        <h4 class="modal-title">Add a New Bitcoin Address</h4>
+                    </div>
+                    <div class="modal-body">
+                        <div class="form-group" ng-class="{'has-error':errors.BTC.address}">
+                            <label for="address">Bitcoin Address</label>
+                            <input id="address" class="form-control" type="text" name="address" placeholder="15AeuxTuPQpntVvq4KVGqSxZM3ry39PV6Q" ng-model="data.BTC.address" tooltip="{[errors.BTC.address[0]]}"/>
+                        </div>
+                    </div>
+                    <div class="modal-body">
+                        <div class="form-group" ng-class="{'has-error':errors.BTC.nickname}">
+                            <label for="nickname">Nickname <span class="label label-info">Optional</span></label>
+                            <input id="nickname" class="form-control" type="text" name="nickname" placeholder="My wallet" ng-model="data.BTC.nickname" tooltip="{[errors.BTC.nickname[0]]}"/>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="submit" class="btn btn-primary">Add</button> <button type="submit" class="btn btn-link" data-dismiss="modal">Cancel</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+

@@ -1,0 +1,34 @@
+        <div id="bank-validate-modal" class="modal fade" tabindex="-1">
+            <div class="modal-dialog">
+                <form class="form-horizontal modal-content" role="form" ng-submit="validate('bank', validationId)">
+                    <div class="modal-header">
+                        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                        <h4 class="modal-title">Verify Bank Account {[ accounts.bank[validationId].account_number ]}</h4>
+                    </div>
+                    <div class="modal-body">
+						<p>Enter the two micro-deposits that were made to your {[ accounts.bank[validationId].type.toLowerCase() ]} account at {[ accounts.bank[validationId].bank_name ]}. Don't worry, the order doesn't matter. If the deposits haven't arrived and it's been a couple of days, <a href="{% url 'contact' %}">give us a poke</a> and we'll see what's going on.</p>
+					<div class="row"><div class="col-md-5 col-md-offset-3">
+                      <div class="form-group" ng-class="{'has-error':microdepositErrors}">
+    <label for="microdeposit1" class="col-sm-5 control-label">Deposit 1</label>
+    <div class="col-sm-7 input-group">
+		<span class="input-group-addon">$</span>
+      <input type="text" class="form-control" maxlength="4" id="microdeposit1" placeholder="0.00" ng-model="microdeposit1">
+    </div>
+  </div>
+  <div class="form-group" ng-class="{'has-error':microdepositErrors}">
+    <label for="microdeposit2" class="col-sm-5 control-label">Deposit 2</label>
+    <div class="col-sm-7 input-group">
+		<span class="input-group-addon">$</span>
+      <input type="text" class="form-control" maxlength="4" id="microdeposit2" placeholder="0.00" ng-model="microdeposit2">
+    </div>
+  </div></div>
+	</div>
+		{[microdepositErrors]}
+					</div>
+                    <div class="modal-footer">
+                        <button type="submit" class="btn btn-primary">Verify</button> <button type="submit" class="btn btn-link" data-dismiss="modal">Cancel</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+

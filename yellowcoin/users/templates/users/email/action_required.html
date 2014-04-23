@@ -1,0 +1,20 @@
+{% extends "email/base.html" %}
+
+{% block subject %}Transaction Action Required{% endblock %}
+{% block heading %}Action Required{% endblock %}
+{% block body %}
+Action is required to complete the transaction you requested.
+
+{{ message }}
+
+If you do not recognize this message, please disregard the above and forward this email to abuse@yellowco.in.
+
+Thanks for using Yellowcoin!
+{% endblock %}
+{% block bodyhtml %}
+<p>Action is required to complete the transaction you requested.</p>
+
+<p>{{ message }}</p>
+
+<p>Thanks for using Yellowcoin!</p>
+{% endblock %}

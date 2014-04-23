@@ -1,0 +1,207 @@
+{% extends "base.html" %}
+
+{% block head %}
+<base href="{% url 'application' %}"/>
+<link rel="stylesheet" href="{{ STATIC_URL }}css/angular-toggle-switch.css"/>
+<link rel="stylesheet" href="{{ STATIC_URL }}css/angular-toggle-switch-bootstrap.css"/>
+<script src="{{ STATIC_URL }}js/moment-with-langs.min.js"></script>
+<script src="{{ STATIC_URL }}js/angular-moment.min.js"></script>
+<!--[if lte IE8]><script src="//cdnjs.cloudflare.com/ajax/libs/json3/3.3.0/json3.min.js"></script><![endif]-->
+{% endblock %}
+
+{% block content %}
+<script type="text/javascript">
+var app = angular.module('app', ['ngRoute', 'ngSanitize', 'ngAnimate', 'ui.bootstrap', 'angularMoment']).run(function($rootScope, $location, $interval, $modal, $http) {
+	$rootScope.$location = $location;
+	$rootScope.askCurrency = 'BTC';
+	$rootScope.bidCurrency = 'USD';
+	$rootScope.currencies = ['USD', 'BTC'];
+	$rootScope.price = 0.0;
+	$interval(function() {
+		$http.get('/api/prices/' + $rootScope.askCurrency + '/' + $rootScope.bidCurrency +'/').success(function(data) {
+			$rootScope.price = data.price;
+		});
+	}, 3000);
+	$rootScope.getDisplayName = function(context, data) {
+		return ({
+			'bank':function(data) { return {left:data.bank_name, right:data.account_number} },
+			'BTC':function(data) { return (data.nickname == "" ? {left:data.address} :  {left:data.nickname, right:data.address}) }
+		})[context](data);
+	};
+	$rootScope.showSuccess = function(message) {
+		$modal.open({
+			templateUrl:'success-modal.html',
+			controller:function($scope, $modalInstance) {
+				$scope.action = message;
+				$scope.dismiss = function() {
+					$modalInstance.close();
+				};
+			}
+		});
+	};
+	$rootScope.showError = function(action, message) {
+		$modal.open({
+			templateUrl:'error-modal.html',
+			controller:function($scope, $modalInstance) {
+				$scope.action = action;	
+				$scope.message = message;
+				$scope.dismiss = function() {
+					$modalInstance.close();
+				};
+			}
+		});
+	};
+	$rootScope.accounts = {{ accounts|safe }};
+	$rootScope.getAccount = function(id) {
+		for(var type in $rootScope.accounts) {
+			if(id in $rootScope.accounts[type]) {
+				return $rootScope.accounts[type][id];
+			}
+		}
+		return null;
+	};
+	$rootScope.user = {{ userData|safe }};
+	$rootScope.transactions = {{transactions|safe}};
+	$rootScope.getPendingTransactionCount = function() {
+		var count = 0;
+		for(var i = 0; i < $rootScope.transactions.length; i++) {
+			if($rootScope.transactions[i].status == 'Pending') {
+				count++;
+			}
+		}
+		return count;
+	};
+	$rootScope.resendEmail = function() {
+		$http.put('/api/profile/', {email:'{{email}}'}).success(function() {
+			$rootScope.resendEmailText = "Email resent!"
+		});
+	};
+	$rootScope.resendEmailText = "Resend the verification email.";
+	$rootScope.resendPhone = "{% url 'users|verify' %}";
+	$rootScope.settings = {{ settings | safe }};
+	$rootScope.getOneClickString = function() {
+		var template = $rootScope.settings.one_click_order_template;
+		return ((template.type == 'B' ? 'Sell' : 'Buy') + ' '
+			 + template.subtotal + ' '
+			 + (template.type == 'B' ? template.bid_currency : template.ask_currency)
+			 + (template.type == 'B' ? ' for ' + template.ask_currency : ' with ' + template.bid_currency));
+	};
+	$rootScope.executeOneClick = function() {
+		$rootScope.pendingOneClick = true;
+		$http.post('/api/orders/', {one_click:true}).success(function() {
+			$rootScope.showSuccess('Hooray! The one-click order was successfully placed');
+			$rootScope.pendingOneClick = false;
+		}).error(function(data) {
+			$rootScope.showError('place a one-click order', data.detail.order_template[0]);
+			$rootScope.pendingOneClick = false;
+		});
+	};
+	$rootScope.cancelTransaction = function(transaction) {
+		transaction.deleted = true;
+		$http.delete('/api/orders/' + transaction.order.id + '/').success(function() {
+			// okay! :D	
+		}).error(function(data) {
+			transaction.deleted = false;
+			$rootScope.showError('deleting a transaction', 'The order may have already been filled.');
+		});
+	};
+});
+app.config(['$interpolateProvider', '$locationProvider', '$routeProvider', '$httpProvider', 
+		function ($interpolateProvider, $locationProvider, $routeProvider, $httpProvider) {
+			$interpolateProvider.startSymbol('{[');
+			$interpolateProvider.endSymbol(']}');
+			$locationProvider.html5Mode(true).hashPrefix('!');
+			$routeProvider
+				.when('/buy', {templateUrl:'buy.html', controller:BuyController})
+				.when('/transactions/:txid', {templateUrl:'transactions.html', controller:HistoryController})
+				.when('/transactions', {templateUrl:'transactions.html', controller:HistoryController})
+				.when('/accounts', {templateUrl:'accounts.html', controller:AccountsController})
+				.when('/recurring-orders', {templateUrl:'recurring-orders.html', controller:RecurringOrdersController})
+				.when('/profile', {templateUrl:'profile.html', controller:ProfileController})
+				.when('/referrals', {templateUrl:'refer.html', controller:ReferralsController})
+				.otherwise({redirectTo:'/transactions'});
+			$httpProvider.defaults.xsrfCookieName = 'csrftoken';
+			$httpProvider.defaults.xsrfHeaderName = 'X-CSRFToken';
+		}]);
+app.animation('.animate', function() {
+	return {
+		enter:function(element, done) {
+			$(element).css('max-height', 0).animate({'max-height':500});
+		},
+		leave:function(element, done) {
+			$(element).css('overflow', 'hidden').animate({'max-height':0}, function() {
+				$(element).remove();
+			});
+		},
+		beforeAddClass:function(element, className, done) {
+			if(!$(element).data('padding-top')) {
+				$(element).data('padding-top', $(element).css('padding-top'));
+				$(element).data('padding-bottom', $(element).css('padding-bottom'));
+				$(element).data('border', $(element).css('border'));
+			}
+			$(element).css('overflow', 'hidden').animate({'max-height':0,'padding-top':0,'padding-bottom':0}, function() { $(element).css('border', 'none') })
+		},
+		removeClass:function(element, className, done) {
+			$(element).css('max-height', 0).animate({'max-height':'500px','padding-top':$(element).data('padding-top'),'padding-bottom':$(element).data('padding-bottom'),'border':$(element).data('border')})
+		}
+	};
+});
+{% include 'main/controllers/HistoryController.js' %}
+{% include 'main/controllers/BuyController.js' %}
+{% include 'main/controllers/AccountsController.js' %}
+{% include 'main/controllers/ProfileController.js' %}
+{% include 'main/controllers/RecurringOrdersController.js' %}
+function ReferralsController($scope) {
+
+}
+</script>
+<div class="container" id="ng-app" ng-app="app">
+	<div class="text-center" ng-hide="user.is_valid.email">
+		<div class="alert alert-info">Your email has not been verified yet. <span class="btn btn-link" ng-click="resendEmail()">{[verifyEmailText]}</span></div>
+	</div>
+	<div class="text-center" ng-hide="user.is_valid.phone || !user.phone">
+		<div class="alert alert-info">Your phone has not been verified yet. <a ng-href="{[resendPhone]}" class="btn btn-link">Get a verification code.</a></div>
+	</div>
+	<script type="text/ng-template" id="buy.html">{% include 'transactions/create.html' %}</script>
+	<script type="text/ng-template" id="transactions.html">{% include 'transactions/index.html' %}</script>
+	<script type="text/ng-template" id="recurring-orders.html">{% include 'transactions/recurring.html' %}</script>
+	<script type="text/ng-template" id="accounts.html">{% include 'users/accounts.html' %}</script>
+	<script type="text/ng-template" id="profile.html">{% include 'users/edit.html' %}</script>
+	<script type="text/ng-template" id="refer.html">{% include 'users/refer.html' %}</script>
+	<div class="row">
+		<div class="col-md-9">
+			<div class="row">
+				<div class="col-md-12">
+				<ul class="nav nav-pills">
+					<li ng-class="($location.path() == '/buy' ? 'active' : '')"><a href="buy">Buy {[askCurrency]}</a></li>
+					<li ng-class="($location.path() == '/recurring-orders' ? 'active' : '')"><a href="recurring-orders">Recurring Orders</a></li>
+					<li ng-class="($location.path() == '/transactions' ? 'active' : '')"><a href="transactions">History <span class="badge" ng-if="getPendingTransactionCount() > 0" ng-bind="getPendingTransactionCount()"></span></a></li>
+					<li ng-class="($location.path() == '/accounts' ? 'active' : '')"><a href="accounts">Manage Accounts</a></li>
+					<li ng-class="($location.path() == '/profile' ? 'active' : '')"><a href="profile">Profile and Settings</a></li>
+					<li ng-class="($location.path() == '/referrals' ? 'active' : '')"><a href="referrals">Refer a Friend</a></li>
+				</ul>
+				</div>
+			</div>
+			<div class="panel panel-default" id="content-body">
+			<div class="panel-body" ng-view>
+			</div>
+			</div>
+		</div>
+		<div class="col-md-3 visible-md visible-lg">
+			<h3>1 {[askCurrency]} = {[price]} {[bidCurrency]}</h3>
+			<div id="one-click" ng-show="settings.one_click">
+				<button ng-click="executeOneClick()" popover-trigger="mouseenter" popover="{[getOneClickString()]}" ng-disabled="pendingOneClick" class="btn btn-success btn-block">One-Click {[settings.one_click_order_template.type == 'B' ? 'Sell' : 'Buy']}</button>
+			</div>
+			<h4>I want to...</h4>
+			<ul id="quick-links" class="fa-ul">
+				<li><a href="/dashboard/buy"><i class="fa-li fa fa-angle-double-right"></i>Set up a recurring purchase</a></li>
+				<li><a href="/dashboard/profile"><i class="fa-li fa fa-angle-double-right"></i>Set up one-click buy</a></li>
+				<li><i class="fa-li fa fa-angle-double-right"></i>Read news relating to Bitcoin</li>
+				<li><a href="{% url 'contact' %}"><i class="fa-li fa fa-angle-double-right"></i>Contact support</a></li>
+			</ul>
+		</div>
+	</div>
+	{% include 'main/modals/error-modal.html' %}
+	{% include 'main/modals/success-modal.html' %}
+</div>
+{% endblock %}
