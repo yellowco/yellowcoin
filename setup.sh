@@ -7,13 +7,13 @@ pip install virtualenv
 virtualenv yc && sudo ln -s ~/yc /var/www/yc && cd yc
 
 # checkout all user-side apps
-git clone https://github.com/kevmo314/yellowcoin.git && cd yellowcoin
-rmdir django_routing_numbers && git clone https://github.com/kevmo314/django_routing_numbers.git
+git clone --recursive https://github.com/kevmo314/yellowcoin.git && cd yellowcoin
 
 # start virtualenv
 . ../bin/activate
 
 # install supplementary apps
+# cf. http://bit.ly/RMBJhx to why ez_setup needs to be installed separately
 pip install ez_setup
 pip install -r requirements.txt
 
