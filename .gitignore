@@ -1,4 +1,6 @@
 *.pyc
 *.swo
 *.swp
-*.db
+*.sqlite3
+*.coverage
+*.log

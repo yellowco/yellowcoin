@@ -41,7 +41,7 @@ class RegisterUser(FormView):
 		if (settings.MAX_USERS >= 0) and (User.objects.count() > settings.MAX_USERS):
 			messages.error(self.request, 'Max users exceeded. We will email you when more space is available.')
 
-			fp = open('./logs/overflow.tsv', 'a')
+			fp = open('./logs/overflow.log', 'a')
 			fp.write(str(timezone.now()) + '\t' + form.cleaned_data['email'] + '\n')
 			fp.close()
 
