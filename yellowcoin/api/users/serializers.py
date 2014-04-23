@@ -137,7 +137,7 @@ class CryptoAccountSerializer(serializers.ModelSerializer):
 		write_only_fields = ('currency',)
 	id = serializers.CharField(source='eid', read_only=True)
 	is_locked = serializers.BooleanField(read_only=True)
-	is_default = serializers.BooleanField()
+	is_default = serializers.BooleanField(required=False)
 	display = serializers.SerializerMethodField('get_display_name')
 	receives = serializers.Field(source='recv')
 	sends = serializers.Field(source='send')
