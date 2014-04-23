@@ -26,7 +26,8 @@ jsonpickle==0.6.1
 kombu==3.0.8
 mock==0.8.0
 phonenumbers==5.9.1
-pyDes==2.0.1
+psycopg2==2.5.2
+https://twhiteman.netfirms.com/pyDES/pyDes-2.0.1.zip
 redis==2.8.0
 requests==2.2.1
 simplejson==3.3.3
