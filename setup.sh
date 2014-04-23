@@ -1,5 +1,6 @@
 # install Apache, mod_wsgi, PostgreSQL bindings, and geoip packages
 sudo aptitude install apache2 libapache2-mod-wsgi python-psycopg2 geoip-database-contrib
+sudo aptitude install libpq-dev python-dev
 
 # run the app in a virtual environment
 pip install virtualenv
