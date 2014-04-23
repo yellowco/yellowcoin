@@ -1,10 +1,10 @@
 # install Apache, mod_wsgi, PostgreSQL bindings, and geoip packages
-aptitude install apache2 libapache2-mod-wsgi python-psycopg2 geoip-database-contrib
+sudo aptitude install apache2 libapache2-mod-wsgi python-psycopg2 geoip-database-contrib
 
 # run the app in a virtual environment
 pip install virtualenv
 
-virtualenv yc && sudo ln -s ~/yc ~/var/www/yc && cd yc
+virtualenv yc && sudo ln -s ~/var/www/yc ~/yc && cd yc
 
 # checkout all user-side apps
 git clone https://github.com/kevmo314/yellowcoin.git && cd yellowcoin
