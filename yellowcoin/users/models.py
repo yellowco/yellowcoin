@@ -127,7 +127,7 @@ class User(AbstractBaseUser, PermissionsMixin):
 		except OrderTemplate.DoesNotExist:
 			pass
 		if template is None:
-			template = OrderTemplate.objects.create(user=self, type='Ask', subtotal=0)
+			template = OrderTemplate.objects.create(user=self, type='A', subtotal=0)
 			template.save()
 			self.store('one_click_order_template', template.id)
 			self.save()
@@ -564,8 +564,8 @@ class BankAccount(object):
 		return Institution.objects.get(routing_number=number).customer_name
 
 PAYMENT_METHODS = (
-	(0, 'CryptoAccount'),
-	(1, 'PaymentNetwork'),
+	('0', 'CryptoAccount'),
+	('1', 'PaymentNetwork'),
 )
 
 # wrapper class around different accounts
