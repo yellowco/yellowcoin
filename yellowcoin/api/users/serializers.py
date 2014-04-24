@@ -224,6 +224,13 @@ class BankAccountSerializer(serializers.Serializer):
 			self._mask = True
 		super(BankAccountSerializer, self).__init__(*args, **kwargs)
 
+	def transform_type(self, obj, value):
+		if value == payment_network.BankAccount.CHECKING:
+			return 'C'
+		if value == payment_network.BankAccount.SAVING:
+			return 'S'
+		return value
+
 	def transform_bank_name(self, obj, value):
 		try:
 			return BankAccount.get_bank_name(value)
