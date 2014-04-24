@@ -26,7 +26,7 @@ class YellowcoinAPITestCase(APITestCase):
 		return self.client.post('/api/accounts/bank/', {
 			'first_name':'Testy','last_name':'McTesterson',
 			'routing_number':'072000326','account_number':'1234567890',
-			'type':balanced.BankAccount.CHECKING
+			'type':'checking'
 		})
 
 	def remove_bank_account(self, id):
@@ -51,7 +51,7 @@ class YellowcoinAPITestCase(APITestCase):
 		return self.client.post('/api/orders/templates/btc/usd/', {
 			'withdrawal_account':bank_id,
 			'deposit_account':btc_id,
-			'type':'A',
+			'type':'ask',
 			'subtotal':0.05
 		})
 

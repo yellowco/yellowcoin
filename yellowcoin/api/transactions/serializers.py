@@ -120,7 +120,7 @@ class OrderTemplateSerializer(OrderSerializer):
 
 	def validate_subtotal(self, attrs, source):
 		if 'type' in self.init_data:
-			if self.init_data['type'] == 'A':
+			if self.init_data['type'].upper()[0] == 'A':
 				return super(OrderTemplateSerializer, self).validate_subtotal(
 					attrs, source, self.init_data['ask_currency'])
 			else:
