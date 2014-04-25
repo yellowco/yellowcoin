@@ -35,3 +35,12 @@ update_profile = create_email_signal([], 'Profile Updated', 'update_profile', 'u
 update_password = create_email_signal([], 'Password Changed', 'update_password', 'users/email/update_password.html')
 create_bank_account = create_email_signal(['bank_account'], 'Bank Account Added', 'create_bank_account', 'users/email/create_bank_account.html')
 create_crypto_account = create_email_signal(['crypto_account'], 'Crypto Account Added', 'create_crypto_account', 'users/email/create_crypto_account.html')
+referral_completed = create_email_signal(['address', 'email'], 'Referral Completd', 'referral_completed', 'users/emails/referral_completed.html')
+
+def check_referral(sender, **kwargs):
+	user = kwargs.get('user', None)
+	if user and user.referrer and not user.referrer_paid:
+		referral_account = user.referrer.crypto_accounts.filter(currency='BTC', is_default=True)
+		if referral_account:
+			# TODO: emit btc transaction
+			referral_completed.send(sender=user, email=user.email, address=referral_account.address)

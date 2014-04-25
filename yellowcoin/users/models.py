@@ -75,6 +75,7 @@ class User(AbstractBaseUser, PermissionsMixin):
 	# if there was a referral from an existing user, note this
 	# User.referrals returns a list of all referred users
 	referrer = models.ForeignKey(settings.AUTH_USER_MODEL, related_name='referred_set', null=True)
+	referrer_paid = models.CharField(max_length=64, null=True, default=None)
 
 	def store(self, key, value):
 		if not self.fingerprint or len(self.fingerprint) == 0:

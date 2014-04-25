@@ -1,3 +1,5 @@
+    <div ng-show="getDefaultBitcoinAddress()" class="alert alert-success">Referral payments will be sent to {{getDefaultBitcoinAddress()}}.</div>
+    <div ng-hide="getDefaultBitcoinAddress()" class="alert alert-danger">You don't have a default Bitcoin address! Payments will not be sent until you have one set.</div>
     <h2>Refer a Friend</h2>
     <p>Send this link to a friend!</p>
     <pre>http://yellowco.in/refer/{{ referrer_key }}/</pre>

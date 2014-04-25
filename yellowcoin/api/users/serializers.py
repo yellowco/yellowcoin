@@ -249,7 +249,7 @@ class BankAccountSerializer(serializers.Serializer):
 	def transform_type(self, obj, value):
 		if value == 'C':
 			return 'Checking'
-		elseif value == 'S':
+		elif value == 'S':
 			return 'Savings'
 		else:
 			return None
