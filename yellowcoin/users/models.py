@@ -564,8 +564,8 @@ class BankAccount(object):
 		return Institution.objects.get(routing_number=number).customer_name
 
 PAYMENT_METHODS = (
-	('0', 'CryptoAccount'),
-	('1', 'PaymentNetwork'),
+	('C', 'CryptoAccount'),
+	('P', 'PaymentNetwork'),
 )
 
 # wrapper class around different accounts
