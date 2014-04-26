@@ -180,10 +180,10 @@ class TransactionSerializer(serializers.ModelSerializer):
 		if not hasattr(self, '_payment_method_cache'):
 			self._payment_method_cache = {}
 		if payment_method.id not in self._payment_method_cache:
-			if payment_method.foreign_model == 'CryptoAccount':
+			if payment_method.foreign_model == 'C':
 				from yellowcoin.api.users.serializers import CryptoAccountSerializer, BankAccountSerializer
 				self._payment_method_cache[payment_method.id] = CryptoAccountSerializer(payment_method.get_object(user), many=False).data
-			elif payment_method.foreign_model == 'PaymentNetwork':
+			elif payment_method.foreign_model == 'P':
 				from yellowcoin.api.users.serializers import CryptoAccountSerializer, BankAccountSerializer
 				self._payment_method_cache[payment_method.id] = BankAccountSerializer(payment_method.get_object(user), many=False).data
 		try:

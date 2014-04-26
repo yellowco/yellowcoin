@@ -7,8 +7,8 @@ from decimal import Decimal
 
 class TestCurrencyPool(TestCase):
 	def setUp(self):
-		self.pool = POOLS[CURRENCIES.USD][CRYPTOCURRENCIES.BTC]
-		self.inverse_pool = POOLS[CRYPTOCURRENCIES.BTC][CURRENCIES.USD]
+		self.pool = POOLS['USD']['BTC']
+		self.inverse_pool = POOLS['BTC']['USD']
 	def test_exchange_rate(self):
 		self.pool.add(10, 5)
 		self.assertAlmostEqual(self.pool.exchange_rate, 5)

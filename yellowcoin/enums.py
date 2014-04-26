@@ -15,6 +15,7 @@ class Enum(object):
 		return tuple([(k, v) for (k, v) in self.data.items()])
 	def iteritems(self):
 		return self.data.iteritems()
-CRYPTOCURRENCIES = Enum(BTC='Bitcoin')
-CURRENCIES = Enum(USD='United States Dollars')
+
+CRYPTOCURRENCIES = Enum(BTC='BTC') # Bitcoin')
+CURRENCIES = Enum(USD='USD') # United States Dollars')
 

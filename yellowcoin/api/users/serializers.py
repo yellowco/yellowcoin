@@ -247,12 +247,18 @@ class BankAccountSerializer(serializers.Serializer):
 			return ("X" * 5) + value[-4:]
 		
 	def transform_type(self, obj, value):
-		if value == 'C':
-			return 'Checking'
-		elseif value == 'S':
-			return 'Savings'
-		else:
-			return None
+		if value == 'Checking':
+			return 'C'
+		elif value == 'Savings':
+			return 'S'
+		return value
+		
+		# if value == 'C':
+		#	return 'Checking'
+		# elif value == 'S':
+		#	return 'Savings'
+		# else:
+		#	return None
 
 	def validate_type(self, attrs, source):
 		attrs[source] = attrs[source].upper()[0]

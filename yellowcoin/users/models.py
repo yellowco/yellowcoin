@@ -515,7 +515,7 @@ class BankAccount(object):
 		if self.is_locked:
 			raise LockedError()
 		try:
-			PaymentMethod.objects.get(foreign_model='PaymentNetwork', foreign_key=self.id).delete()
+			PaymentMethod.objects.get(foreign_model='P', foreign_key=self.id).delete()
 		except PaymentMethod.DoesNotExist:
 			pass
 		return self._account.delete()
@@ -529,7 +529,7 @@ class BankAccount(object):
 
 	@property
 	def eid(self):
-		return PaymentMethod.get_id(foreign_model='PaymentNetwork', foreign_key=self.id)
+		return PaymentMethod.get_id(foreign_model='P', foreign_key=self.id)
 
 	@property
 	def first_name(self):
@@ -627,12 +627,12 @@ class PaymentMethod(models.Model):
 		return PaymentMethod.objects.get(id=str(id)).get_object(user)
 
 	def get_object(self, user):
-		if self.foreign_model == 'CryptoAccount':
+		if self.foreign_model == 'C':
 			try:
 				return CryptoAccount.objects.get(id=self.foreign_key, user=user)
 			except CryptoAccount.DoesNotExist:
 				raise PaymentMethod.DoesNotExist()
-		if self.foreign_model == 'PaymentNetwork':
+		if self.foreign_model == 'P':
 			# don't use BankAccount.retrieve() as that can't filter by user
 			for account in user.profile.payment_network.bank_accounts:
 				if account.id == self.foreign_key:
@@ -698,7 +698,7 @@ class CryptoAccount(models.Model):
 
 	@property
 	def eid(self):
-		return PaymentMethod.get_id(foreign_model='CryptoAccount', foreign_key=self.id)
+		return PaymentMethod.get_id(foreign_model='C', foreign_key=self.id)
 
 	def sale(self, amount):
 		# TODO - may want to reuse addresses at some point
@@ -749,7 +749,7 @@ class CryptoAccount(models.Model):
 	def delete(self):
 		if self.is_locked:
 			raise LockedError()
-		PaymentMethod.objects.get(foreign_model='CryptoAccount', foreign_key=self.id).delete()
+		PaymentMethod.objects.get(foreign_model='C', foreign_key=self.id).delete()
 		return super(CryptoAccount, self).delete()
 
 class APIKey(models.Model):
