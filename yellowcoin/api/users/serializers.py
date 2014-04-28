@@ -225,10 +225,10 @@ class BankAccountSerializer(serializers.Serializer):
 		super(BankAccountSerializer, self).__init__(*args, **kwargs)
 
 	def transform_type(self, obj, value):
-		if value == payment_network.BankAccount.CHECKING:
-			return 'C'
-		if value == payment_network.BankAccount.SAVINGS:
-			return 'S'
+		if value == 'C':
+			return payment_network.BankAccount.CHECKING
+		if value == 'S':
+			return payment_network.BankAccount.SAVINGS
 		return value
 
 	def transform_bank_name(self, obj, value):
