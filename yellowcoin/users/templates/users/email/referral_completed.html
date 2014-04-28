@@ -1,0 +1,16 @@
+{% extends "email/base.html" %}
+
+{% block subject %}Referral Completed{% endblock %}
+{% block heading %}Your Bonus has been Sent{% endblock %}
+{% block body %}
+The user you referred, {{ email }}, has completed all the required steps! Your Bitcoin bonus has been sent to your default Bitcoin address, {{ address }}, with transaction id {{ txid }}.
+
+If you do not recognize this message, please disregard the above and forward this email to abuse@yellowco.in.
+
+Thanks for using Yellowcoin!
+{% endblock %}
+{% block bodyhtml %}
+<p>The user you referred, {{ email }}, has completed all the required steps! Your Bitcoin bonus has been sent to your default Bitcoin address, {{ address }} with transaction id {{ txid }}.</p>
+
+<p>Thanks for using Yellowcoin!</p>
+{% endblock %}
