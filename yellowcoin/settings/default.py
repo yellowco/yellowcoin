@@ -14,6 +14,8 @@ MIN_USD_TX = 0.00
 from decimal import Decimal
 FEE_RATIO = Decimal('0.01')
 
+REFERRAL_BONUS = 0.005 # in BTC
+
 def CALCULATE_FEE(val, currency):
 	if currency == 'BTC':
 		return 0
