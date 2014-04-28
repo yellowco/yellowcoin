@@ -55,6 +55,11 @@ class OrderSerializer(serializers.ModelSerializer):
 		if (currency == u'USD') and (attrs[source] < settings.MIN_USD_TX):
 			raise serializers.ValidationError('Minimum transaction amount of $%.2f USD not met' % settings.MIN_USD_TX)
 
+		if (currency == u'USD'):
+			attrs[source] = round(attrs[source], 2)
+		else:
+			attrs[source] = round(attrs[source], 8)
+
 		return attrs
 
 	def validate_bid_subtotal(self, attrs, source):
