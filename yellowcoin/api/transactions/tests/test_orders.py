@@ -4,6 +4,7 @@ from yellowcoin.currencypool.models import POOLS
 from yellowcoin.transactions.models import Transaction
 from yellowcoin.enums import CURRENCIES, CRYPTOCURRENCIES
 from yellowcoin.api.tests import YellowcoinAPITestCase
+from decimal import Decimal
 
 class TestOrders(YellowcoinAPITestCase):
 	def test_orders(self):
