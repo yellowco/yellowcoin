@@ -1,7 +1,4 @@
 from yellowcoin.settings.contrib import *
-from balanced_yellowcoin import balanced
-
-balanced.Config.config(key='ak-test-2J2vHkB6NERu57mM6vbOMylbd0X5TJSgG')
 
 MAX_USERS = -1
 

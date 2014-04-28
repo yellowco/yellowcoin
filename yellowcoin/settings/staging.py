@@ -1,5 +1,7 @@
 from yellowcoin.settings.default import *
+from balanced_yellowcoin import balanced
 
+balanced.Config.config(key='ak-test-1GGZIycz4QreXAVxxwJWl2xotuvlZsqmW')
 DATABASES = {
 	'default': {
 		'ENGINE': 'django.db.backends.postgresql_psycopg2',
