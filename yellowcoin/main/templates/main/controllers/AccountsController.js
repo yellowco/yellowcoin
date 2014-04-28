@@ -51,7 +51,7 @@ function AccountsController($scope, $http, $timeout) {
 		   	$scope.accounts[context][data.id] = data;
 			$scope.data[context] = {};
 			if(context == 'bank') {
-				$scope.data[context].type = 'checking'; // edge case
+				$scope.data[context].type = 'C'; // edge case
 			}
 			$("#" + context + "-modal").modal('hide');
 	   	}).error(function(data) {
