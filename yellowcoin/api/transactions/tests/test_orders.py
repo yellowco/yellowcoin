@@ -87,7 +87,7 @@ class TestOrders(YellowcoinAPITestCase):
 		self.assertEqual(response.status_code, 201, response.content)
 		self.assertEqual(self.client.delete('/api/orders/%s/' % response.data['id']).status_code, 204)
 	def test_order_from_template(self):
-		POOLS[CURRENCIES.USD][CRYPTOCURRENCIES.BTC].add(10, 2)
+		POOLS['USD']['BTC'].add(10, 2)
 		bank = self.create_bank_account()
 		btc = self.create_btc_account()
 		self.verify_bank_account(bank.data['id'])
@@ -101,7 +101,7 @@ class TestOrders(YellowcoinAPITestCase):
 		self.assertEqual(tx.data['withdrawal_account']['id'], template.data['withdrawal_account'])
 		self.assertEqual(tx.data['deposit_account']['id'], template.data['deposit_account'])
 	def test_one_click_order(self):
-		POOLS[CURRENCIES.USD][CRYPTOCURRENCIES.BTC].add(10, 2)
+		POOLS['USD']['BTC'].add(10, 2)
 		bank = self.create_bank_account()
 		btc = self.create_btc_account()
 		self.verify_bank_account(bank.data['id'])
@@ -122,7 +122,7 @@ class TestOrders(YellowcoinAPITestCase):
 		Transaction.objects.all().update(status='C') # set all to complete
 		self.assertEqual(len(self.client.get('/api/orders/').data), 1)
 	def test_pagination(self):
-		POOLS[CURRENCIES.USD][CRYPTOCURRENCIES.BTC].add(10, 2)
+		POOLS['USD']['BTC'].add(10, 2)
 		bank = self.create_bank_account()
 		btc = self.create_btc_account()
 		self.verify_bank_account(bank.data['id'])

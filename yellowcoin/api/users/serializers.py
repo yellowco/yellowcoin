@@ -188,7 +188,7 @@ class BankAccountSerializer(serializers.Serializer):
 	last_name = serializers.CharField()
 	routing_number = serializers.CharField()
 	account_number = serializers.CharField()
-	type = serializers.ChoiceField(choices=(('C', payment_network.BankAccount.CHECKING), ('S', payment_network.BankAccount.SAVINGS)))
+	type = serializers.CharField()
 
 	display = serializers.SerializerMethodField('get_display_name')
 	receives = serializers.Field(source='recv')
@@ -227,7 +227,7 @@ class BankAccountSerializer(serializers.Serializer):
 	def transform_type(self, obj, value):
 		if value == payment_network.BankAccount.CHECKING:
 			return 'C'
-		if value == payment_network.BankAccount.SAVING:
+		if value == payment_network.BankAccount.SAVINGS:
 			return 'S'
 		return value
 
@@ -242,9 +242,9 @@ class BankAccountSerializer(serializers.Serializer):
 			return value
 		value = str(value)
 		if len(value) < 4:
-			return ("X" * (9 - len(value))) + value
+			return ('X' * (9 - len(value))) + value
 		else:
-			return ("X" * 5) + value[-4:]
+			return ('X' * 5) + value[-4:]
 		
 	def transform_type(self, obj, value):
 		if value == 'C':

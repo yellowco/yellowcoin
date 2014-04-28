@@ -224,7 +224,7 @@ def drain(t):
 	if success:
 		t = success_handler(t)
 		signals.start_transaction.send(sender=None, user=t.user)
-		if t.withdrawal_payment_method.foreign_model == 'CryptoAccount':
+		if t.withdrawal_payment_method.foreign_model == 'C':
 			t.status = 'P'
 			t.fingerprint['address'] = aux['address']
 			signals.action_required.send(sender=None, user=t.user, message='Send %f %s to %s.' % (order.bid_total, order.bid_currency, aux['address']))
@@ -317,7 +317,7 @@ def check(t):
 	order = t.order
 	withdrawal_payment_method = t.withdrawal_payment_method.get_object(t.user)
 
-	if t.withdrawal_payment_method.foreign_model == 'PaymentNetwork':
+	if t.withdrawal_payment_method.foreign_model == 'P':
 		payment_network_tx = payment_network.Transaction.retrieve(id=t.withdrawal_tx_id)
 
 		# possible that the PaymentNetwork transaction cannot be queried yet (i.e. not added to foreign database)
