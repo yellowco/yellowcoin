@@ -60,7 +60,7 @@ class Transaction(models.Model):
 
 	# the original rate of the pool at 'U' => 'I' state change
 	#	set in transactions/tasks.py
-	initial_exchange_rate = models.DecimalField(max_digits=22, decimal_places=10, null=True)
+	initial_exchange_rate = models.DecimalField(max_digits=20, decimal_places=10, null=True)
 
 	objects = TransactionManager()
 
@@ -123,7 +123,7 @@ class OrderTemplate(models.Model):
 
 	type = models.CharField(max_length=1, choices=(('A', 'Ask'), ('B', 'Bid'))) 
 
-	subtotal = models.DecimalField(max_digits=22, decimal_places=10)
+	subtotal = models.DecimalField(max_digits=20, decimal_places=10)
 
 class OrderManager(models.Manager):
 	def create_data_from_template(self, template, comment='', data={}):
@@ -144,6 +144,8 @@ class OrderManager(models.Manager):
 			return(data)
 
 	def create_order(self, is_api, ip, user, bid_currency, ask_currency, data, is_reoccuring=False):
+		ask_subtotal = Decimal(data['ask_subtotal'])
+		bid_subtotal = Decimal(data['bid_subtotal'])
 		tx = Transaction.objects.create(
 			user=user, comment=data.get('comment', ''),
 			is_api=is_api, fingerprint={},
@@ -154,13 +156,13 @@ class OrderManager(models.Manager):
 		)
 		order = Order.objects.create(
 			transaction=tx,
-			bid_subtotal=data['bid_subtotal'],
-			ask_subtotal=data['ask_subtotal'],
+			bid_subtotal=bid_subtotal,
+			ask_subtotal=ask_subtotal,
 			bid_currency=bid_currency,
 			ask_currency=ask_currency,
-			ask_fee=settings.CALCULATE_FEE(data['ask_subtotal'], ask_currency),
-			bid_fee=settings.CALCULATE_FEE(data['bid_subtotal'], bid_currency),
-			exchange_rate=data['bid_subtotal'] / data['ask_subtotal'],
+			ask_fee=settings.CALCULATE_FEE(ask_subtotal, ask_currency),
+			bid_fee=settings.CALCULATE_FEE(bid_subtotal, bid_currency),
+			exchange_rate=(bid_subtotal / ask_subtotal).quantize(Decimal('1.00000000')),
 		)
 		tx.save()
 		order.save()
@@ -189,12 +191,12 @@ class Order(models.Model):
 
 	# cash will only need three decimal places (one-tenth of a cent)
 	#	assuming max amount is 1PetaX
-	bid_subtotal = models.DecimalField(max_digits=22, decimal_places=10)
-	ask_subtotal = models.DecimalField(max_digits=22, decimal_places=10)
-	bid_fee = models.DecimalField(max_digits=22, decimal_places=10)
-	ask_fee = models.DecimalField(max_digits=22, decimal_places=10)
+	bid_subtotal = models.DecimalField(max_digits=20, decimal_places=10)
+	ask_subtotal = models.DecimalField(max_digits=20, decimal_places=10)
+	bid_fee = models.DecimalField(max_digits=20, decimal_places=10)
+	ask_fee = models.DecimalField(max_digits=20, decimal_places=10)
 
-	exchange_rate = models.DecimalField(max_digits=22, decimal_places=10)
+	exchange_rate = models.DecimalField(max_digits=20, decimal_places=10)
 
 	objects = OrderManager()
 
@@ -222,8 +224,8 @@ class TransactionLimit(models.Model):
 	user = models.ForeignKey(settings.AUTH_USER_MODEL, related_name='transaction_limits')
 
 	currency = models.CharField(max_length=3, choices=Order.currencies)
-	cur_amount = models.DecimalField(max_digits=22, decimal_places=10, null=True)
-	max_amount = models.DecimalField(max_digits=22, decimal_places=10, null=True)
+	cur_amount = models.DecimalField(max_digits=20, decimal_places=10, null=True)
+	max_amount = models.DecimalField(max_digits=20, decimal_places=10, null=True)
 	last_reset = models.DateTimeField(default=timezone.now)
 	override = models.BooleanField(default=False)
 

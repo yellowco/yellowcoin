@@ -52,13 +52,13 @@ class OrderSerializer(serializers.ModelSerializer):
 		if Decimal(attrs[source]) > limit:
 			raise serializers.ValidationError('This amount exceeds your total limit for this currency')
 
-		if (currency == u'USD') and (attrs[source] < settings.MIN_USD_TX):
+		if (currency == CURRENCIES.USD) and (attrs[source] < settings.MIN_USD_TX):
 			raise serializers.ValidationError('Minimum transaction amount of $%.2f USD not met' % settings.MIN_USD_TX)
 
-		if (currency == u'USD'):
-			attrs[source] = round(attrs[source], 2)
+		if (currency == CURRENCIES.USD):
+			attrs[source] = attrs[source].quantize(Decimal('1.00'))
 		else:
-			attrs[source] = round(attrs[source], 8)
+			attrs[source] = attrs[source].quantize(Decimal('1.00000000'))
 
 		return attrs
 

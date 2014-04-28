@@ -17,5 +17,5 @@ def CALCULATE_FEE(val, currency):
 	if currency == 'BTC':
 		return 0
 	elif currency == 'USD':
-		return max(val * FEE_RATIO, 7)
+		return max(FEE_RATIO * val, Decimal('7'))
 	return 0
