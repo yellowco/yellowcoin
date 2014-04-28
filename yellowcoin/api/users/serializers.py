@@ -188,7 +188,7 @@ class BankAccountSerializer(serializers.Serializer):
 	last_name = serializers.CharField()
 	routing_number = serializers.CharField()
 	account_number = serializers.CharField()
-	type = serializers.ChoiceField(choices=((payment_network.BankAccount.CHECKING, payment_network.BankAccount.CHECKING), (payment_network.BankAccount.SAVINGS, payment_network.BankAccount.SAVINGS), ('C', payment_network.BankAccount.CHECKING), ('S', payment_network.BankAccount.SAVINGS)))
+	type = serializers.CharField()  # serializers.ChoiceField(choices=((payment_network.BankAccount.CHECKING, payment_network.BankAccount.CHECKING), (payment_network.BankAccount.SAVINGS, payment_network.BankAccount.SAVINGS), ('C', payment_network.BankAccount.CHECKING), ('S', payment_network.BankAccount.SAVINGS)))
 
 	display = serializers.SerializerMethodField('get_display_name')
 	receives = serializers.Field(source='recv')
