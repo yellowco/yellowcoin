@@ -1,8 +1,13 @@
+from bitcoind_emulator import EmulatedBitcoinConnection
 from django.test import TestCase
 from django.test.client import Client
-from yellowcoin.users.models import User, EmailValidation, APIKey
+from django.conf import settings
+from django.test.utils import override_settings
+from yellowcoin.users.models import User, EmailValidation, APIKey, CryptoAccount
+from yellowcoin.users.signals import referral_completed
 from django.contrib.gis.geoip import GeoIP
 
+@override_settings(BTC_CONN=EmulatedBitcoinConnection())
 class TestUser(TestCase):
 	def setUp(self):
 		self.user = User.objects.create_user('test@test.com','test')
@@ -55,6 +60,32 @@ class TestUser(TestCase):
 	def test_referral_id(self):
 		self.assertIsNotNone(self.user.referral_id)
 		self.assertEqual(User.objects.from_referral_id(self.user.referral_id).id, self.user.id)
+		self.assertIsNone(self.user.referrer)
+		self.assertIsNone(self.user.referrer_paid)
+		second_user = User.objects.create_user('test2@test.com','test')
+		self.user.referrer = second_user
+		self.user.save()
+		self.assertIsNone(self.user.referrer_paid)
+
+		address = settings.BTC_CONN.getnewaddress()
+		referral_completed.send(sender=None, user=self.user)
+		self.assertEqual(settings.BTC_CONN.getreceivedbyaddress(address), 0)
+		CryptoAccount.objects.create(user=second_user,
+			address=address,
+			currency='BTC',
+			nickname='asdf',
+			is_default=True
+		).save()
+		referral_completed.send(sender=None, user=self.user)
+		self.assertIsNotNone(self.user.referrer)
+		self.assertIsNotNone(self.user.referrer.crypto_accounts.get(currency='BTC', is_default=True))
+		self.assertEqual(settings.BTC_CONN.getreceivedbyaddress(address), settings.REFERRAL_BONUS)
+		self.assertIsNotNone(self.user.referrer_paid)
+		referral_completed.send(sender=None, user=self.user)
+		self.assertEqual(settings.BTC_CONN.getreceivedbyaddress(address), settings.REFERRAL_BONUS)
+		self.assertIsNotNone(self.user.referrer_paid)
+		second_user.profile.payment_network.delete()
+		
 	def test_api_key(self):
 		APIKey.objects.create(user=self.user, comment='test').save()
 		self.assertEqual(APIKey.objects.filter(user=self.user).count(), 1)
@@ -65,7 +96,6 @@ class TestUser(TestCase):
 		self.user.use_api = True
 		self.user.save()
 		self.assertEqual(Client().get('/api/settings/?key=%s' % api_key.key).status_code, 200)
-
 	def test_geolocation(self):
 		# just check if geoip is functioning
 		try:

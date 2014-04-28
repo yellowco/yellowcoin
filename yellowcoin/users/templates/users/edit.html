@@ -123,6 +123,7 @@
 	<div notification="notify" attribute="update_profile" title="Modify my profile"></div>
 	<div notification="notify" attribute="create_bank_account" title="Add a bank account"></div>
 	<div notification="notify" attribute="create_coin_address" title="Add a Bitcoin address"></div>
+	<div notification="notify" attribute="referral_completed" title="Referral completed"></div>
 </div>
 </div>
 <hr/>
@@ -130,12 +131,13 @@
 <label class="col-md-3 control-label">Two-Factor Authentication</label>
 <p class="col-md-7 form-control-static">Enable two-factor authentication for more security. Yada yada explanation here.</p>
 <div class="col-md-2"><div toggle-switch model="settings.two_factor_authentication" disabled="{[!user.phone && !delta.phone]}"></div></div>
-</div></div>
+</div>
 <hr/>
 <div class="row">
 <label class="col-md-3 control-label">API Access</label>
 <p class="col-md-7 form-control-static">Caution: This permits full access to your account. Trust who you give this key to, or disable API access.</p>
 <div class="col-md-2"><div toggle-switch model="settings.api_access"></div></div>
+</div>
 </form>
 <h2>Login History</h2>
 <table class="table">
