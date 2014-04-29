@@ -29,12 +29,15 @@ if [ "$1" = "VIRTUALENV" ];
 then
 	# start virtualenv
 	. ../bin/activate
-fi
 
-# install supplementary apps
-# cf. http://bit.ly/RMBJhx to why ez_setup needs to be installed separately
-sudo pip install ez_setup
-sudo pip install -r requirements.txt
+	# install supplementary apps
+	# cf. http://bit.ly/RMBJhx to why ez_setup needs to be installed separately
+	pip install ez_setup
+	pip install -r requirements.txt
+else
+	sudo pip install ez_setup
+	sudo pip install -r requirements.txt
+fi
 
 # ensure everything is working correctly
 ./manage.py test
