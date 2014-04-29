@@ -53,4 +53,6 @@ then
 
 	sudo tee -a /etc/apache2/apache2.conf < references/wsgipythonpath.txt
 	sudo /etc/init.d/apache2 restart
+
+	./manage.py syncdb --settings=yellowcoin.settings.staging
 fi
