@@ -16,6 +16,10 @@ from yellowcoin.settings.contrib.logging import *
 # blockscore API key
 from yellowcoin.settings.contrib.blockscore import *
 
+# python decimal rounding defaults to round(x <= 0.5) == 0.0
+from decimal import getcontext, ROUND_HALF_UP
+getcontext().rounding = ROUND_HALF_UP
+
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/1.6/howto/deployment/checklist/
 
