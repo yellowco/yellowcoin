@@ -61,11 +61,11 @@ class TestUser(TestCase):
 		self.assertIsNotNone(self.user.referral_id)
 		self.assertEqual(User.objects.from_referral_id(self.user.referral_id).id, self.user.id)
 		self.assertIsNone(self.user.referrer)
-		self.assertIsNone(self.user.referrer_paid)
+		self.assertIsNone(self.user.is_referrer_paid)
 		second_user = User.objects.create_user('test2@test.com','test')
 		self.user.referrer = second_user
 		self.user.save()
-		self.assertIsNone(self.user.referrer_paid)
+		self.assertIsNone(self.user.is_referrer_paid)
 
 		address = settings.BTC_CONN.getnewaddress()
 		referral_completed.send(sender=None, user=self.user)
@@ -80,10 +80,10 @@ class TestUser(TestCase):
 		self.assertIsNotNone(self.user.referrer)
 		self.assertIsNotNone(self.user.referrer.crypto_accounts.get(currency='BTC', is_default=True))
 		self.assertEqual(settings.BTC_CONN.getreceivedbyaddress(address), settings.REFERRAL_BONUS)
-		self.assertIsNotNone(self.user.referrer_paid)
+		self.assertIsNotNone(self.user.is_referrer_paid)
 		referral_completed.send(sender=None, user=self.user)
 		self.assertEqual(settings.BTC_CONN.getreceivedbyaddress(address), settings.REFERRAL_BONUS)
-		self.assertIsNotNone(self.user.referrer_paid)
+		self.assertIsNotNone(self.user.is_referrer_paid)
 		second_user.profile.payment_network.delete()
 		
 	def test_api_key(self):

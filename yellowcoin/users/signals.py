@@ -41,11 +41,11 @@ referral_completed = create_email_signal(['address', 'email', 'txid'], 'Referral
 
 def check_referral(sender, **kwargs):
 	user = kwargs.get('user', None)
-	if user and user.referrer and not user.referrer_paid:
+	if user and user.referrer and not user.is_referrer_paid:
 		try:
 			referral_account = user.referrer.crypto_accounts.get(currency='BTC', is_default=True)
 			success, txid, aux = referral_account.credit(settings.REFERRAL_BONUS)
-			user.referrer_paid = txid
+			user.is_referrer_paid = txid
 			user.save()
 			referral_completed.send(sender=user, email=user.email, address=referral_account.address, txid=txid)
 		except Exception:
