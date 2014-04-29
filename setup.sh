@@ -3,7 +3,7 @@
 # enable multiverse
 sudo sed -i "/^# deb.*multiverse/ s/^# //" /etc/apt/sources.list
 sudo aptitude update
-sudo aptitude upgrade
+sudo aptitude -y upgrade
 
 # install Apache, mod_wsgi, PostgreSQL bindings, and geoip packages
 sudo aptitude -y install apache2 libapache2-mod-wsgi python-psycopg2 geoip-database-contrib postgresql-client
