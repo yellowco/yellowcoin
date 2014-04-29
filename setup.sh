@@ -33,8 +33,8 @@ fi
 
 # install supplementary apps
 # cf. http://bit.ly/RMBJhx to why ez_setup needs to be installed separately
-pip install ez_setup
-pip install -r requirements.txt
+sudo pip install ez_setup
+sudo pip install -r requirements.txt
 
 # ensure everything is working correctly
 ./manage.py test
