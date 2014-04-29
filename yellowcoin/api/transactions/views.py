@@ -226,9 +226,14 @@ class ListCreateOrder(generics.ListCreateAPIView):
 		except BadProtocolException:
 			raise GenericException({ 'non_field_errors' : [ 'Invalid currencies.' ] }, status=400)
 
+		# cast the data to correct form
+		data['ask_subtotal'] = Decimal(data['ask_subtotal']).quantize(Decimal('1.00000000'))
+		data['bid_subtotal'] = Decimal(data['bid_subtotal']).quantize(Decimal('1.00000000'))
+
 		# cannot invoke with Serializer(request.DATA) because model is not provided
 		#	cf. http://bit.ly/1cCHTXV
 		serializer = self.get_serializer(data=data)
+
 		if serializer.is_valid():
 			serializer.save()
 			return Response(serializer.data, status=201)

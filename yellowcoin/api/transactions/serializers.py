@@ -32,8 +32,8 @@ class OrderSerializer(serializers.ModelSerializer):
 		read_only_fields = ('id', 'bid_fee', 'ask_fee', 'timestamp', 'exchange_rate', 'bid_currency', 'ask_currency')
 
 	# the currency is given in the URL - /bid/ask/
-	bid_subtotal = serializers.DecimalField(max_digits=20, decimal_places=8, default=0)
-	ask_subtotal = serializers.DecimalField(max_digits=20, decimal_places=8, default=0)
+	bid_subtotal = serializers.DecimalField(max_digits=22, decimal_places=8, default=0)
+	ask_subtotal = serializers.DecimalField(max_digits=22, decimal_places=8, default=0)
 	withdrawal_account = serializers.PrimaryKeyRelatedField(many=False, queryset=PaymentMethod._default_manager, write_only=True)
 	deposit_account = serializers.PrimaryKeyRelatedField(many=False, queryset=PaymentMethod._default_manager, write_only=True)
 	comment = serializers.CharField(max_length=255, required=False, default='', write_only=True)
@@ -55,11 +55,10 @@ class OrderSerializer(serializers.ModelSerializer):
 		if (currency == CURRENCIES.USD) and (attrs[source] < settings.MIN_USD_TX):
 			raise serializers.ValidationError('Minimum transaction amount of $%.2f USD not met' % settings.MIN_USD_TX)
 
-		if (currency == CURRENCIES.USD):
+		if (Order.is_cash(currency)):
 			attrs[source] = attrs[source].quantize(Decimal('1.00'))
 		else:
 			attrs[source] = attrs[source].quantize(Decimal('1.00000000'))
-
 		return attrs
 
 	def validate_bid_subtotal(self, attrs, source):
@@ -106,7 +105,8 @@ class OrderSerializer(serializers.ModelSerializer):
 			#	data contains parsed values, which we need, but doesn't contain write_only fields
 			if v:
 				data[k] = v
-		# cheat a little bit lol. have it generate to_native() again. I have no idea where obj is from...
+		# cheat a little bit -- have it generate to_native() again
+		#	no idea where obj is from
 		# TODO: is_api
 		self.object = Order.objects.create_order(self.context['request'].GET.get('key') is not None, self.context['request'].META.get('REMOTE_ADDR'), self.context['request'].user, data['bid_currency'], data['ask_currency'], data)
 		self._data = None
@@ -119,7 +119,7 @@ class OrderTemplateSerializer(OrderSerializer):
 		write_only_fields = tuple()
 		exclude = ('user','bid_subtotal', 'ask_subtotal', 'comment','withdrawal_payment_method','deposit_payment_method')
 	
-	subtotal = serializers.DecimalField(max_digits=20, decimal_places=8, default=0)
+	subtotal = serializers.DecimalField(max_digits=22, decimal_places=8, default=0)
 	withdrawal_account = serializers.PrimaryKeyRelatedField(many=False, queryset=PaymentMethod._default_manager, source='withdrawal_payment_method')
 	deposit_account = serializers.PrimaryKeyRelatedField(many=False, queryset=PaymentMethod._default_manager, source='deposit_payment_method')
 
