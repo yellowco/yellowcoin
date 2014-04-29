@@ -1,12 +1,16 @@
 #!/bin/bash
 
+# enable multiverse
+sudo sed -i "/^# deb.*multiverse/ s/^# //" /etc/apt/sources.list
+sudo aptitude update
+sudo aptitude upgrade
+
 # install Apache, mod_wsgi, PostgreSQL bindings, and geoip packages
 sudo aptitude -y install apache2 libapache2-mod-wsgi python-psycopg2 geoip-database-contrib postgresql-client
-sudo aptitude -y install libpq-dev python-dev
+sudo aptitude -y install git python-pip libpq-dev python-dev
 
 if [ "$1" = "VIRTUALENV" ];
 then
-	sudo aptitude -y install python-pip
 	# run the app in a virtual environment
 	pip install virtualenv
 
