@@ -88,8 +88,8 @@ class TestOrders(YellowcoinAPITestCase):
 			'deposit_account':btc.data['id']
 		})
 		self.assertEqual(response.status_code, 201, response)
-		self.assertEqual('bid_subtotal', Decimal('0.01'), 'USD not rounding properly')
-		self.assertEqual('ask_subtotal', Decimal('0.01'), 'BTC not rounding properly')
+		self.assertEqual(response.data['bid_subtotal'], Decimal('0.01'), 'USD not rounding properly')
+		self.assertEqual(response.data['ask_subtotal'], Decimal('0.01'), 'BTC not rounding properly')
 
 		response = self.client.post('/api/orders/btc/usd/', {
 			'bid_subtotal':Decimal('0.015'),
@@ -98,8 +98,8 @@ class TestOrders(YellowcoinAPITestCase):
 			'deposit_account':btc.data['id']
 		})
 		self.assertEqual(response.status_code, 201)
-		self.assertEqual('bid_subtotal', Decimal('0.02'), 'USD not rounding properly')
-		self.assertEqual('ask_subtotal', Decimal('0.01000001'), 'BTC not rouding properly')
+		self.assertEqual(response.data['bid_subtotal'], Decimal('0.02'), 'USD not rounding properly')
+		self.assertEqual(response.data['ask_subtotal'], Decimal('0.01000001'), 'BTC not rounding properly')
 	def test_delete_order(self):
 		bank = self.create_bank_account()
 		btc = self.create_btc_account()
