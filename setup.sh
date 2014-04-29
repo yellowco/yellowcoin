@@ -40,4 +40,4 @@ else
 fi
 
 # ensure everything is working correctly
-./manage.py test
+./manage.py test --settings=yellowcoin.settings.staging

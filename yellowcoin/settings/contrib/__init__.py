@@ -101,7 +101,6 @@ REST_FRAMEWORK = {
 
 from yellowcoin.settings.contrib.bitcoin import *
 from yellowcoin.settings.contrib.celery import *
-from yellowcoin.settings.contrib.db import *
 from yellowcoin.settings.contrib.email import *
 from yellowcoin.settings.contrib.geoip import *
 from yellowcoin.settings.contrib.i18n import *
