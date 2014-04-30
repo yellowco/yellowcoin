@@ -129,7 +129,10 @@
 <hr/>
 <div class="row">
 <label class="col-md-3 control-label">Two-Factor Authentication</label>
-<p class="col-md-7 form-control-static">Enable two-factor authentication for more security. Yada yada explanation here.</p>
+<div class="col-md-7 form-control-static">
+<div ng-if="!user.phone && !delta.phone" class="alert alert-warning">Verify your phone number to enable two-factor authentication</div>
+<p>Enable two-factor authentication for more security. More explanation...</p>
+</div>
 <div class="col-md-2"><div toggle-switch model="settings.two_factor_authentication" disabled="{[!user.phone && !delta.phone]}"></div></div>
 </div>
 <hr/>

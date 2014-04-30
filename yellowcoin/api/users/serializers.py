@@ -22,7 +22,7 @@ class SettingSerializer(serializers.ModelSerializer):
 	one_click_order_template = OrderTemplateSerializer(required=False)
 
 	def validate_two_factor_authentication(self, attrs, source):
-		if 'two_factor_authentication' in self.init_data and not self.context['request'].user.profile.valid_phone:
+		if 'two_factor_authentication' in self.init_data and not self.context['request'].user.profile.valid_phone and attrs[source]:
 			raise serializers.ValidationError('Phone number not verified')
 		return attrs
 
