@@ -1,5 +1,9 @@
 #!/bin/bash
 
+# TODO -- set up bitcoin client
+
+# may need to dropdb, createdb for postgres if models have changed (to wipe table metadata)
+
 # enable multiverse
 sudo sed -i "/^# deb.*multiverse/ s/^# //" /etc/apt/sources.list
 sudo aptitude update
@@ -40,7 +44,7 @@ else
 fi
 
 # ensure everything is working correctly
-./manage.py test --settings=yellowcoin.settings.staging
+./manage.py test --settings=yellowcoin.settings.staging 2> check.log
 
 # setup Apache
 if [ "$1" != "STAGING" ];
