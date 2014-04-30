@@ -1,5 +1,6 @@
 from yellowcoin.settings.default import *
 from balanced_yellowcoin import balanced
+from urllib import quote
 
 balanced.Config.config(key='ak-test-1GGZIycz4QreXAVxxwJWl2xotuvlZsqmW')
 DATABASES = {
@@ -16,4 +17,5 @@ DATABASES = {
 # celery connection information
 
 # celery broker -- where the active task queue resides
-BROKER_URL = 'redis://localhost:6379/0'
+BROKER_URL = 'sqs://AKIAJOHT4G2TVXQ3HVEA:K2e74QhKftjtoMAXCRPZUbQeTJygismKH2OQrNXy@sqs.us-west-2.amazonaws.com:443/520584774910/Development'
+BROKER_TRANSPORT_OPTIONS = { 'region' : 'us-west-2' }
