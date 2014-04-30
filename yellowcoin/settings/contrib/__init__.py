@@ -29,11 +29,11 @@ SECRET_KEY = '*ygou-hx3(6=$$llo00j5i(j2^v-#61k-6$3yekjngnu_yw-kj'
 # SECURITY WARNING: don't run with debug turned on in production!
 # Note that turning DEBUG = False disables static file hosting
 # Static files should be handled by the web server
-DEBUG = True
+DEBUG = False
 
-TEMPLATE_DEBUG = True
+TEMPLATE_DEBUG = False
 
-CACHE = False # PaymentNetwork connection caching, may lead to unexpected results
+CACHE = False
 
 ALLOWED_HOSTS = ['*']
 
