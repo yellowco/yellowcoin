@@ -13,7 +13,7 @@ sudo aptitude -y upgrade
 sudo aptitude -y install apache2 libapache2-mod-wsgi python-psycopg2 geoip-database-contrib postgresql-client
 sudo aptitude -y install git python-pip libpq-dev python-dev
 
-if [ "$1" = "STAGING" ];
+if [ "$1" = "VIRTUALENV" ];
 then
 	# run the app in a virtual environment
 	pip install STAGING
@@ -29,7 +29,7 @@ fi
 
 cd yellowcoin
 
-if [ "$1" = "STAGING" ];
+if [ "$1" = "VIRTUALENV" ];
 then
 	# start STAGING
 	. ../bin/activate
@@ -47,7 +47,7 @@ fi
 ./manage.py test --settings=yellowcoin.settings.staging 2> check.log
 
 # setup Apache
-if [ "$1" != "STAGING" ];
+if [ "$1" != "VIRTUALENV" ];
 then
 	sudo rm /etc/apache2/sites-enabled/*
 	sudo rm /etc/apache2/sites-available/*
@@ -59,4 +59,7 @@ then
 	sudo /etc/init.d/apache2 restart
 
 	./manage.py syncdb --settings=yellowcoin.settings.staging
+
+	# set the default settings for django to be staging.py -- change manually to production.py to commit to live
+	export DJANGO_SETTINGS_MODULE=yellowcoin.settings.staging
 fi

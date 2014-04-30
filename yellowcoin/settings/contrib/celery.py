@@ -1,3 +1,15 @@
-CELERY_IMPORTS = ('yellowcoin.transactions.tasks',)
+# celery settings
+#	cf. http://bit.ly/1lJvIf1
+
+from __future__ import absolute_import
+from celery import Celery
+import yellowcoin.settings
+
 CELERY_ACCEPT_CONTENT = ['pickle', 'json']
-BROKER_URL = 'redis://localhost:6379/0'
+
+app = Celery('yellowcoin')
+app.config_from_object(yellowcoin.settings)
+
+# could import tasks (e.g. yellowcoin.transactions.tasks) manually
+#	this saves us the time to find it
+app.autodiscover_tasks(lambda: yellowcoin.settings.INSTALLED_APPS)

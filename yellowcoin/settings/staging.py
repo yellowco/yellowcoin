@@ -13,3 +13,7 @@ DATABASES = {
 	}
 }
 
+# celery connection information
+
+# celery broker -- where the active task queue resides
+BROKER_URL = 'redis://localhost:6379/0'
