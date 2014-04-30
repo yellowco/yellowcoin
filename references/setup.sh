@@ -61,5 +61,6 @@ then
 	./manage.py syncdb --settings=yellowcoin.settings.staging
 
 	# set the default settings for django to be staging.py -- change manually to production.py to commit to live
-	export DJANGO_SETTINGS_MODULE=yellowcoin.settings.staging
+	echo 'export DJANGO_SETTINGS_MODULE=yellowcoin.settings.staging' >> ~/.bashrc
+	source ~/.bashrc
 fi

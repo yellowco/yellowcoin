@@ -17,5 +17,5 @@ DATABASES = {
 # celery connection information
 
 # celery broker -- where the active task queue resides
-BROKER_URL = 'sqs://AKIAJOHT4G2TVXQ3HVEA:K2e74QhKftjtoMAXCRPZUbQeTJygismKH2OQrNXy@sqs.us-west-2.amazonaws.com:443/520584774910/Development'
+BROKER_URL = 'sqs://AKIAJOHT4G2TVXQ3HVEA:K2e74QhKftjtoMAXCRPZUbQeTJygismKH2OQrNXy@sqs.us-west-2.amazonaws.com/520584774910/Development'
 BROKER_TRANSPORT_OPTIONS = { 'region' : 'us-west-2' }
