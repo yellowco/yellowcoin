@@ -94,7 +94,7 @@ def clear_orders():
 		tx_dump(t, 'deleting transaction from database')
 		t.order.delete()
 
-# scans recurring orders and adds a new order object if necessary
+# create reoccuring orders and add to database
 @shared_task
 def execute_recurring_orders():
 	now = timezone.now()
@@ -106,7 +106,8 @@ def execute_recurring_orders():
 			ro.save()
 
 # executes all orders in queue
-@shared_task
+# TODO -- prompt and downwards should be executed on .delay()
+#	execute_orders() should be run on a while loop in ./manage.py cycle
 def execute_orders():
 	# get all incomplete transactions, which did not FAIL permanently
 	active_transactions = Transaction.objects.exclude(status='C').exclude(status='A').filter(error_code__lt=status.ERROR_BASE)
