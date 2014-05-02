@@ -71,16 +71,16 @@ def Dashboard(request):
 		accounts['bank'][datum['id']] = datum
 	user = ProfileSerializer(request.user.profile).data
 
-	recurring_orders = RecurringOrderSerializer(request.user.recurring_orders.filter(user=request.user)).data
+	recurring_orders = RecurringOrderSerializer(request.user.recurring_orders.filter(user=request.user), many=True).data
 
-	transactions = TransactionSerializer(request.user.transactions.filter_active(user=request.user).order_by('-order__timestamp')).data
+	transactions = TransactionSerializer(request.user.transactions.filter_active(user=request.user).order_by('-order__timestamp'), many=True).data
 
 	notifications = request.user.retrieve('notifications', RetrieveUpdateNotifications.defaults)
 
 	limits = json.dumps(request.user.get_all_limits(), cls=DjangoJSONEncoder)
 	user_settings = SettingSerializer(request.user).data
 
-	records = LoginRecordSerializer(request.user.login_records.all()).data
+	records = LoginRecordSerializer(request.user.login_records.all(), many=True).data
 
 	return render(request, 'main/application.html', {
 		'accounts':json.dumps(accounts),
