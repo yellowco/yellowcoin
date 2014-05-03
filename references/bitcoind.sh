@@ -4,6 +4,7 @@
 aptitude install -y python-software-properties
 add-apt-repository -y ppa:bitcoin/bitcoin
 aptitude update
+aptitude -y upgrade
 aptitude install -y bitcoind
 
 #
