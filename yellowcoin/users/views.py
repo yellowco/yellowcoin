@@ -102,11 +102,15 @@ def Referral(request, referral_id=None):
 	return HttpResponseRedirect('/')
 
 def ResetUserPassword(request):
-# enter user email
-# redirect to static page successful view
-# change password form
-# change password successful
-	pass
+	# enter user email
+	# redirect to static page successful view
+	# change password form
+	# change password successful
+	if request.user.is_authenticated():
+		return HttpResponseRedirect('/')
+	elif 'username' in request.POST:
+		raise Exception(request)
+	raise Exception(request)
 
 # log into the website
 def Login(request):

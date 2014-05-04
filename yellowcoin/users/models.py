@@ -219,7 +219,7 @@ class LoginRecord(models.Model):
 		super(LoginRecord, self).save(*args, **kwargs)
 		user_records = LoginRecord.objects.filter(user=self.user)
 		if user_records.count() > 10:
-			user_records[10:].delete()
+			user_records.last().delete()
 		
 
 class Profile(models.Model):
