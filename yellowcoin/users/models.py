@@ -298,6 +298,14 @@ class Profile(models.Model):
 		super(Profile, self).save(*args, **kwargs)
 
 	@property
+	def phone(self):
+		return self.payment_network.billing_address.phone
+
+	@phone.setter
+	def phone(self, value):
+		self.payment_network.billing_address.phone = value
+
+	@property
 	def first_name(self):
 		return self.payment_network.billing_address.first_name
 	

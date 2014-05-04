@@ -14,10 +14,23 @@ function BuyController($scope, $http) {
 		if(!$scope.limitOrder && $scope.transaction.sourceLock) {
 			$scope.transaction.ask_subtotal = value / $scope.price;
 		}
+		if($scope.limitOrder) {
+			$scope.transaction.exchange_rate = $scope.transaction.bid_subtotal / $scope.transaction.ask_subtotal;
+		}
 	});
 	$scope.$watch('transaction.ask_subtotal', function(value) {
 		if(!$scope.limitOrder && !$scope.transaction.sourceLock) {
 			$scope.transaction.bid_subtotal = value * $scope.price;
+		}
+		if($scope.limitOrder) {
+			$scope.transaction.exchange_rate = $scope.transaction.bid_subtotal / $scope.transaction.ask_subtotal;
+		}
+	});
+	$scope.$watch('transaction.exchange_rate', function(value) {
+		if($scope.transaction.sourceLock) {
+			$scope.transaction.ask_subtotal = $scope.transaction.bid_subtotal / value;
+		} else {
+			$scope.transaction.bid_subtotal = $scope.transaction.ask_subtotal * value;
 		}
 	});
 	$scope.open = function($event) {
@@ -36,7 +49,8 @@ function BuyController($scope, $http) {
 		withdrawal_account:null,
 		deposit_account:null,
 		comment:'',
-		sourceLock:true
+		sourceLock:true,
+		exchange_rate:0
 	};
 	$scope.execute = function() {
 		$scope.transaction.bid_subtotal = Math.round($scope.transaction.bid_subtotal * 100000000) / 100000000;
