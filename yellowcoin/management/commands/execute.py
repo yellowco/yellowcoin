@@ -4,15 +4,12 @@ from yellowcoin.transactions import tasks as app
 
 minute = 60
 
-# execute all reoccuring tasks which are not executing the actual orders
-#	cf. execute.py
+# execute all outstanding transactions
 
 # wrapper task to run Celery enqueuer
 #	cf. http://bit.ly/1rNkWWb
 class Command(NoArgsCommand):
 	def handle_noargs(self, **options):
 		while(True):
-			app.reset_limits()
-			app.clear_orders()
-			app.execute_recurring_orders()
+			app.execute_orders()
 			sleep(minute)
