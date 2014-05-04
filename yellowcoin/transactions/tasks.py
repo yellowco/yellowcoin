@@ -76,7 +76,6 @@ def reset_pool_handler(t, msg, aux, pool, amount):
 	return error_base_handler(t, msg, aux)
 
 # resets the transaction limits once per day
-@shared_task
 def reset_limits():
 	for transaction_limit in TransactionLimit.objects.filter(cur_amount__gt=0).all():
 		now = timezone.now()
@@ -87,7 +86,6 @@ def reset_limits():
 
 # delete all abandoned transactions
 # do not need to call payment_method.unlock() -- abandoned transactions do not affect locked status
-@shared_task
 def clear_orders():
 	abandoned_transactions = Transaction.objects.filter(status='A')
 	for t in abandoned_transactions:
@@ -95,7 +93,6 @@ def clear_orders():
 		t.order.delete()
 
 # create reoccuring orders and add to database
-@shared_task
 def execute_recurring_orders():
 	now = timezone.now()
 	for ro in RecurringOrder.objects.exclude(first_run__gt=now).all():
