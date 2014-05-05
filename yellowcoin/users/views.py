@@ -33,11 +33,6 @@ def ResetPhone(request):
 
 # consider edge cases
 #	cf. http://bit.ly/1hqlSea
-
-# enter user email
-# redirect to static page successful view
-# change password form
-# change password successful
 class ResetPassword(FormView):
 	form_class = ResetPasswordForm
 	template_name = 'users/reset_password.html'

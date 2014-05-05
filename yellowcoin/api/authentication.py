@@ -5,7 +5,7 @@ from rest_framework import exceptions
 
 class YellowcoinAuthentication(authentication.TokenAuthentication):
 	def authenticate(self, request):
-		self.model = get_model('users', 'self.model')
+		self.model = get_model('users', 'APIKey')
 		key = request.GET.get('key')
 		if key:	
 			return self.authenticate_credentials(key)
