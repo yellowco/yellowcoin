@@ -107,8 +107,7 @@ class OrderSerializer(serializers.ModelSerializer):
 				data[k] = v
 		# cheat a little bit -- have it generate to_native() again
 		#	no idea where obj is from
-		# TODO: is_api
-		self.object = Order.objects.create_order(self.context['request'].GET.get('key') is not None, self.context['request'].META.get('REMOTE_ADDR'), self.context['request'].user, data['bid_currency'], data['ask_currency'], data)
+		self.object = Order.objects.create_order(self.context['request'].META.get('REMOTE_ADDR'), self.context['request'].user, data['bid_currency'], data['ask_currency'], data)
 		self._data = None
 		return self.object
 

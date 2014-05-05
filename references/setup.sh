@@ -92,7 +92,7 @@ case $MODE in
 		sudo cp references/yellowcoin.conf /etc/apache2/sites-enabled/
 		sudo ln -s /etc/apache2/sites-enabled/yellowcoin.conf /etc/apache2/sites-available/
 
-		sudo tee -a /etc/apache2/apache2.conf < references/wsgipythonpath.txt
+		sudo tee -a /etc/apache2/apache2.conf < references/wsgi_setup.txt
 		sudo /etc/init.d/apache2 restart
 
 		./manage.py syncdb

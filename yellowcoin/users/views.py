@@ -58,14 +58,20 @@ class ResetPassword(FormView):
 	def form_valid(self, form):
 		if ('key' not in self.kwargs):
 			user = User.objects.get(email__iexact=form.cleaned_data['email'])
-			ip = request.META.get('HTTP_X_FORWARDED_FOR')
+			ip = self.request.META.get('HTTP_X_FORWARDED_FOR')
 			if ip:
 				ip = ip.split(',')[-1].strip()
 			else:
-				ip = request.META.get('REMOTE_ADDR')
-			record = ResetRecord.objects.create(user=user, ip=ip, type='PW')
+				ip = self.request.META.get('REMOTE_ADDR')
+
+			# save attempts from other IPs as documentation
+			records = ResetRecord.objects.filter(user=user, ip=ip, type='PW', is_valid=True)
+			if not records.exists():
+				record = ResetRecord.objects.create(user=user, ip=ip, type='PW')
+			else:
+				record = records[0]
+
 			messages.success(self.request, 'An email has been sent to your account.')
-			ip = self.request.META.get('HTTP_X_FORWARDED_FOR')
 			signals.reset_password.send(sender=request, user=user, ip=ip, location=record.location, key=record.id)
 			return HttpResponse(status=200)
 
@@ -79,7 +85,8 @@ class ResetPassword(FormView):
 		delta = record.timestamp - datetime.utcnow().replace(tzinfo=timezone.utc)
 		if delta > timedelta(days=3):
 			messages.error(self.request, 'This link has expired.')
-			record.delete()
+			record.is_valid = False
+			record.save()
 			return HttpResponse(status=406)
 
 		# change password
@@ -89,7 +96,8 @@ class ResetPassword(FormView):
 		record.user.set_password(form.cleaned_data['password'])
 		record.user.save()
 		signals.update_password.send(sender=request, user=record.user)
-		record.delete()
+		record.is_valid = False
+		record.save()
 
 		messages.success(self.request, 'Your password has been changed.')
 		return redirect('users|login')

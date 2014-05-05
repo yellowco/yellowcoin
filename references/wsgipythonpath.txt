@@ -1,3 +1,0 @@
-WSGIPythonPath /var/www/yellowcoin
-
-

@@ -1,0 +1,6 @@
+WSGIPythonPath /var/www/yellowcoin
+
+# this can go in either server config, virtual host, directory or .htaccess
+#	cf. http://bit.ly/1nZCqB6
+WSGIPassAuthorization On
+

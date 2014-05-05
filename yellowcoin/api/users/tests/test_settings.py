@@ -7,12 +7,16 @@ class TestSettings(YellowcoinAPITestCase):
 		self.assertEqual(response.status_code, 200)
 		self.assertEqual(response.data['two_factor_authentication'], False)
 		self.assertEqual(response.data['one_click'], False)
+		self.assertEqual(response.data['api_access'], False)
 		self.assertIsNotNone(response.data['one_click_order_template']['id'])
 		response = self.client.put('/api/settings/',{'two_factor_authentication':True})
 		self.assertEqual(response.status_code, 400) # phone number not validated
 		response = self.client.put('/api/settings/',{'one_click':True})
 		self.assertEqual(response.status_code, 200)
 		self.assertEqual(response.data['one_click'], True)
+		response = self.client.put('/api/settings/',{'api_access':True})
+		self.assertEqual(response.status_code, 200)
+		self.assertEqual(response.data['api_access'], True)
 	def test_restrict_settings(self):
 		self.assertEqual(self.client.post('/api/settings/', {}).status_code, 405)
 		self.assertEqual(self.client.delete('/api/settings/', {}).status_code, 405)

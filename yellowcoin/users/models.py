@@ -240,20 +240,8 @@ class Record(models.Model):
 class ResetRecord(Record):
 	id = models.CharField(max_length=16, default=crypto.gen_eid, primary_key=True)
 	user = models.ForeignKey(settings.AUTH_USER_MODEL, related_name='reset_records')
-
-	def __init__(self, *args, **kwargs):
-		super(ResetRecord, self).__init__(*args, **kwargs)
-		type = kwargs.get('type', 'PW')
-		if type not in ('PW', 'PH'):
-			type = 'PW'
-		self.store('type', type)
-
-	@property
-	def type(self):
-		val = self.retrieve('type', None)
-		if val == None:
-			raise KeyError
-		return val
+	is_valid = models.BooleanField(default=True)
+	type = models.CharField(max_length=2, choices=(('PW', 'password'), ('PH', 'phone')), default='PW')
 
 class LoginRecord(Record):
 	user = models.ForeignKey(settings.AUTH_USER_MODEL, related_name='login_records')
@@ -814,7 +802,7 @@ class CryptoAccount(models.Model):
 			raise LockedError()
 		PaymentMethod.objects.get(foreign_model='C', foreign_key=self.id).delete()
 		return super(CryptoAccount, self).delete()
-
+# Don't use the Token object in DRF because it doesn't permit multiple keys per user
 class APIKey(models.Model):
 	key = models.CharField(max_length=32, primary_key=True, default=crypto.gen_random_str)
 	user = models.ForeignKey(settings.AUTH_USER_MODEL, related_name='api_keys')
