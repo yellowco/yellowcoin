@@ -13,7 +13,6 @@ from yellowcoin.api.users.serializers import BankAccountSerializer, CryptoAccoun
 from yellowcoin.api.transactions.serializers import TransactionSerializer, RecurringOrderSerializer
 from template_email import TemplateEmail
 from yellowcoin.users.models import CryptoAccount
-from pyDes import des, PAD_PKCS5
 import binascii, json
 from yellowcoin.users.models import APIKey
 from yellowcoin.crypto import base36encode

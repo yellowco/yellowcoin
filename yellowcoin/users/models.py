@@ -16,7 +16,8 @@ import requests
 import re
 import phonenumbers
 from decimal import Decimal
-from pyDes import des
+from Crypto.Cipher import AES
+from Crypto import Random
 from balanced_yellowcoin import balanced as payment_network
 from django.contrib.gis.geoip import GeoIP
 
@@ -52,8 +53,13 @@ class UserManager(BaseUserManager):
 	def from_referral_id(self, value):
 		if isinstance(value, unicode):
 			value = value.encode("UTF-8")
-		data = urlsafe_b64decode(value)
-		return self.get(id=des(settings.SECRET_KEY[:8]).decrypt(data, pad='\0')[:-8])
+		try:
+			data = urlsafe_b64decode(value)
+			iv = settings.SECRET_KEY[-16:]
+			cipher = AES.new(settings.SECRET_KEY[:32], AES.MODE_CBC, iv)
+			return self.get(id=cipher.decrypt(data).rstrip(b'\0')[:-16])
+		except:
+			return None
 
 class User(AbstractBaseUser, PermissionsMixin):
 	class Meta:
@@ -137,8 +143,12 @@ class User(AbstractBaseUser, PermissionsMixin):
 
 	@property
 	def referral_id(self):
-		referrer_key = des(settings.SECRET_KEY[:8]).encrypt('%d%s' % (self.id, settings.SECRET_KEY[-8:]), pad='\0')
-		return urlsafe_b64encode(referrer_key)
+		def pad(s):
+			return s + b'\0' * (AES.block_size - len(s) % AES.block_size)
+		message = pad(str(self.id) + settings.SECRET_KEY[:16])
+		iv = settings.SECRET_KEY[-16:]
+		cipher = AES.new(settings.SECRET_KEY[:32], AES.MODE_CBC, iv)
+		return urlsafe_b64encode(cipher.encrypt(message))
 
 	def __unicode__(self):
 		return self.email
@@ -190,6 +200,13 @@ class User(AbstractBaseUser, PermissionsMixin):
 		return self.profile.payment_network.bank_accounts
 
 	objects = UserManager()
+
+class ResetRecord(models.Model):
+	id = models.CharField(max_length=16, default=crypto.gen_eid, primary_key=True)
+	user = models.ForeignKey(settings.AUTH_USER_MODEL, related_name='reset_password_records')
+	timestamp = models.DateTimeField(auto_now_add=True)
+	type = models.CharField(max_length=2, choices=(('PW', 'password'), ('PH', 'phone')), default='PW')
+
 
 class LoginRecord(models.Model):
 	class Meta:

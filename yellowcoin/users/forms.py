@@ -3,6 +3,27 @@ from django.contrib.auth.forms import AuthenticationForm
 from yellowcoin.users.models import User, EmailValidation
 from django_otp.forms import OTPTokenForm
 
+class ResetPasswordForm(forms.Form):
+	email = forms.EmailField()
+	password = forms.CharField(required=False)
+	password_confirm = forms.CharField(required=False)
+
+	def clean_email(self):
+		email = self.cleaned_data['email']
+		if not User.objects.filter(email__iexact=email).exists():
+			raise forms.ValidationError('This email is not registered.')
+		return email
+
+	def clean(self):
+		cleaned_data = super(ResetPasswordForm, self).clean()
+		password = cleaned_data.get('password')
+		password_confirm = cleaned_data.get('password_confirm')
+		if (password and password_confirm) and (password != password_confirm):
+			self._errors['password_confirm'] = self.error_class(['Passwords do not match.'])
+			del cleaned_data['password']
+			del cleaned_data['password_confirm']
+		return cleaned_data		
+	
 class RegisterUserForm(forms.Form):
 	email = forms.EmailField()
 	password = forms.CharField()

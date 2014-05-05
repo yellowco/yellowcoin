@@ -26,6 +26,85 @@ import logging
 
 logger = logging.getLogger(__name__)
 
+def ResetPhone(request):
+	if request.user.is_authenticated():
+		return HttpResponseRedirect('/')
+	pass
+
+# consider edge cases
+#	cf. http://bit.ly/1hqlSea
+
+# enter user email
+# redirect to static page successful view
+# change password form
+# change password successful
+class ResetPassword(FormView):
+	form_class = ResetPasswordForm
+	template_name = 'users/reset_password.html'
+
+	def dispatch(self, request, *args, **kwargs):
+		if ('key' in kwargs):
+			try:
+				record = ResetRecord.objects.get(id=kwargs['key'], type='PW')
+			except ResetRecord.DoesNotExist:
+				return HttpResponseNotFound()
+			
+		if request.user.is_authenticated():
+			messages.error(self.request, 'You are already logged in!')
+			return HttpResponseRedirect('/')
+		return super(ResetPassword, self).dispatch(request, *args, **kwargs)
+
+	@transaction.atomic
+	def form_valid(self, form):
+		if ('key' not in self.kwargs):
+			user = User.objects.get(email__iexact=form.cleaned_data['email'])
+			record = ResetRecord.objects.create(user=user, type='PW')
+			record.save()
+			messages.success(self.request, 'An email has been sent to your account.')
+			return redirect('/')
+
+		try:
+			record = ResetRecord.objects.get(id=self.kwargs['key'], type='PW')
+		except ResetRecord.DoesNotExist:
+			return HttpResponseNotFound()
+			# messages.error(self.request, 'You have not made a request to reset your password.')
+			# return super(ResetPassword, self).form_invalid(form)
+
+		# test for time expiration
+		delta = record.timestamp - datetime.utcnow().replace(tzinfo=timezone.utc)
+		if delta > timedelta(days=3):
+			messages.error(self.request, 'This link has expired.')
+			record.delete()
+			return redirect('/')
+
+		# change password
+		# ensure pw != '' -- TODO
+		record.user.set_password(form.cleaned_data['password'])
+		record.user.save()
+		signals.update_password.send(sender=request, user=record.user)
+		record.delete()
+
+		messages.success(self.request, 'Your password has been changed.')
+		return redirect('users|login')
+
+	def form_invalid(self, form):
+		messages.error(self.request, 'Form input is invalid, sorry!')
+		return super(ResetPassword, self).form_invalid(form)
+
+"""
+		ip = request.META.get('HTTP_X_FORWARDED_FOR')
+		if ip:
+			ip = ip.split(',')[-1].strip()
+		else:
+			ip = request.META.get('REMOTE_ADDR')
+		login_record = LoginRecord(user=user, ip=ip)
+		login_record.save()
+		signals.login.send(sender=request, user=user, ip=ip, location=login_record.location)
+
+		messages.success(request, 'An email has been sent to you with the new password.')
+		return redirect('users|login')
+	raise Exception(request)
+"""
 class RegisterUser(FormView):
 	form_class = RegisterUserForm
 	template_name = 'users/register.html'
@@ -100,17 +179,6 @@ def Referral(request, referral_id=None):
 		if user is not None:
 			request.session['referrer'] = user.id
 	return HttpResponseRedirect('/')
-
-def ResetUserPassword(request):
-	# enter user email
-	# redirect to static page successful view
-	# change password form
-	# change password successful
-	if request.user.is_authenticated():
-		return HttpResponseRedirect('/')
-	elif 'username' in request.POST:
-		raise Exception(request)
-	raise Exception(request)
 
 # log into the website
 def Login(request):
