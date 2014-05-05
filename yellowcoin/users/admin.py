@@ -97,4 +97,3 @@ class CustomUserAdmin(UserAdmin):
 
 # Now register the new UserAdmin...
 admin.site.register(User, CustomUserAdmin)
-

@@ -143,12 +143,12 @@ class OrderManager(models.Manager):
 				raise NotImplementedError()
 			return(data)
 
-	def create_order(self, ip, user, bid_currency, ask_currency, data, is_reoccuring=False):
+	def create_order(self, is_api, ip, user, bid_currency, ask_currency, data, is_reoccuring=False):
 		ask_subtotal = Decimal(data['ask_subtotal'])
 		bid_subtotal = Decimal(data['bid_subtotal'])
 		tx = Transaction.objects.create(
 			user=user, comment=data.get('comment', ''),
-			is_api=user.use_api, fingerprint={},
+			is_api=is_api, fingerprint={},
 			withdrawal_payment_method=PaymentMethod.objects.get(id=data['withdrawal_account']),
 			deposit_payment_method=PaymentMethod.objects.get(id=data['deposit_account']),
 			ip=ip,
