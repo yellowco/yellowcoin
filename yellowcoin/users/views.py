@@ -47,7 +47,7 @@ class ResetPassword(FormView):
 			try:
 				record = ResetRecord.objects.get(id=kwargs['key'], type='PW')
 			except ResetRecord.DoesNotExist:
-				return HttpResponseNotFound()
+				return HttpResponse(status=404)
 			
 		if request.user.is_authenticated():
 			messages.error(self.request, 'You are already logged in!')
@@ -61,24 +61,32 @@ class ResetPassword(FormView):
 			record = ResetRecord.objects.create(user=user, type='PW')
 			record.save()
 			messages.success(self.request, 'An email has been sent to your account.')
-			return redirect('/')
+			ip = self.request.META.get('HTTP_X_FORWARDED_FOR')
+			if ip:
+				ip = ip.split(',')[-1].strip()
+			else:
+				ip = self.request.META.get('REMOTE_ADDR')
+			login_record = LoginRecord(user=user, ip=ip)
+			signals.reset_password.send(sender=request, user=user, ip=ip, location=login_record.location, key=record.id)
+			return HttpResponse(status=200)
 
 		try:
 			record = ResetRecord.objects.get(id=self.kwargs['key'], type='PW')
 		except ResetRecord.DoesNotExist:
-			return HttpResponseNotFound()
-			# messages.error(self.request, 'You have not made a request to reset your password.')
-			# return super(ResetPassword, self).form_invalid(form)
+			messages.error(self.request, 'You have not made a request to reset your password.')
+			return HttpResponse(status=406)
 
 		# test for time expiration
 		delta = record.timestamp - datetime.utcnow().replace(tzinfo=timezone.utc)
 		if delta > timedelta(days=3):
 			messages.error(self.request, 'This link has expired.')
 			record.delete()
-			return redirect('/')
+			return HttpResponse(status=406)
 
 		# change password
-		# ensure pw != '' -- TODO
+		if not form.cleaned_data['password']:
+			messages.error(self.request, 'A password is required.')
+			return HttpResponse(status=406)
 		record.user.set_password(form.cleaned_data['password'])
 		record.user.save()
 		signals.update_password.send(sender=request, user=record.user)
@@ -91,20 +99,6 @@ class ResetPassword(FormView):
 		messages.error(self.request, 'Form input is invalid, sorry!')
 		return super(ResetPassword, self).form_invalid(form)
 
-"""
-		ip = request.META.get('HTTP_X_FORWARDED_FOR')
-		if ip:
-			ip = ip.split(',')[-1].strip()
-		else:
-			ip = request.META.get('REMOTE_ADDR')
-		login_record = LoginRecord(user=user, ip=ip)
-		login_record.save()
-		signals.login.send(sender=request, user=user, ip=ip, location=login_record.location)
-
-		messages.success(request, 'An email has been sent to you with the new password.')
-		return redirect('users|login')
-	raise Exception(request)
-"""
 class RegisterUser(FormView):
 	form_class = RegisterUserForm
 	template_name = 'users/register.html'

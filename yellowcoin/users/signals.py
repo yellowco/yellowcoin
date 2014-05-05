@@ -30,6 +30,7 @@ def create_email_signal(providing_args, subject, key, template=None, sms=None):
 	return signal
 
 login = create_email_signal(['ip', 'location'], 'Successful Authorization', 'login', 'users/email/login.html', 'Yellowcoin login authorized from {{ location }}. Contact us at abuse@yellowco.in if you did not expect this.')
+reset_password = create_email_signal(['ip', 'location', 'key'], 'Reset Password Request', 'login', 'users/email/reset_password.html', 'Password reset request from {{ location }}. Go to https://yellowco.in/{% \'users|reset-password\' key %} to change your password. Contact us at abuse@yellowco.in if you did not expect this.')
 create_account = create_email_signal([], 'Account Activation', 'create_account', 'users/email/create_account.html')
 start_transaction = Signal(providing_args=['user', 'transaction'])
 end_transaction = Signal(providing_args=['user', 'transaction'])
