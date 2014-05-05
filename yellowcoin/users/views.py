@@ -58,16 +58,15 @@ class ResetPassword(FormView):
 	def form_valid(self, form):
 		if ('key' not in self.kwargs):
 			user = User.objects.get(email__iexact=form.cleaned_data['email'])
-			record = ResetRecord.objects.create(user=user, type='PW')
-			record.save()
-			messages.success(self.request, 'An email has been sent to your account.')
-			ip = self.request.META.get('HTTP_X_FORWARDED_FOR')
+			ip = request.META.get('HTTP_X_FORWARDED_FOR')
 			if ip:
 				ip = ip.split(',')[-1].strip()
 			else:
-				ip = self.request.META.get('REMOTE_ADDR')
-			login_record = LoginRecord(user=user, ip=ip)
-			signals.reset_password.send(sender=request, user=user, ip=ip, location=login_record.location, key=record.id)
+				ip = request.META.get('REMOTE_ADDR')
+			record = ResetRecord.objects.create(user=user, ip=ip, type='PW')
+			messages.success(self.request, 'An email has been sent to your account.')
+			ip = self.request.META.get('HTTP_X_FORWARDED_FOR')
+			signals.reset_password.send(sender=request, user=user, ip=ip, location=record.location, key=record.id)
 			return HttpResponse(status=200)
 
 		try:
@@ -181,27 +180,31 @@ def Login(request):
 	elif 'username' in request.POST and 'password' in request.POST:
 		email = request.POST.get('username')
 		password = request.POST.get('password')
+		ip = request.META.get('HTTP_X_FORWARDED_FOR')
+		if ip:
+			ip = ip.split(',')[-1].strip()
+		else:
+			ip = request.META.get('REMOTE_ADDR')
 		user = authenticate(username=email, password=password)
 		if user is not None:
 			login(request, user)
 			if user.use_2fa and user.profile.valid_phone:
 				return redirect('users|verify')
 			elif not user.is_superuser:
-				messages.success(request, 'You have been logged in!')
-				ip = request.META.get('HTTP_X_FORWARDED_FOR')
-				if ip:
-					ip = ip.split(',')[-1].strip()
-				else:
-					ip = request.META.get('REMOTE_ADDR')
-				login_record = LoginRecord(user=user, ip=ip)
-				login_record.save()
+				login_record = LoginRecord.objects.create(user=user, ip=ip, is_successful=True)
 				signals.login.send(sender=request, user=user, ip=ip, location=login_record.location)
+				messages.success(request, 'You have been logged in!')
 				return redirect('application')
 			elif user.is_superuser:
-				# TODO - use correct redirect scheme
-				# TODO - probs want to use admin_login() or something instead of manual redirect
 				return redirect('http://kevmo314.uchicago.edu:8000/admin/')
-		messages.error(request, 'Wrong username and password combination.')
+		else:
+			try:
+				user = User.objects.get(email=email)
+				login_record = LoginRecord.objects.create(user=user, ip=ip, is_successful=False)
+				signals.login_failed.send(sender=request, user=user, ip=ip, location=login_record.location)
+			except User.DoesNotExist:
+				pass # email wrong
+			messages.error(request, 'Wrong username and password combination.')
 	return render(request, 'users/login.html', status=400)
 
 # logout of the website

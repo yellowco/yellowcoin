@@ -201,21 +201,27 @@ class User(AbstractBaseUser, PermissionsMixin):
 
 	objects = UserManager()
 
-class ResetRecord(models.Model):
-	id = models.CharField(max_length=16, default=crypto.gen_eid, primary_key=True)
-	user = models.ForeignKey(settings.AUTH_USER_MODEL, related_name='reset_password_records')
-	timestamp = models.DateTimeField(auto_now_add=True)
-	type = models.CharField(max_length=2, choices=(('PW', 'password'), ('PH', 'phone')), default='PW')
-
-
-class LoginRecord(models.Model):
+class Record(models.Model):
 	class Meta:
+		abstract = True
 		ordering = ['-timestamp']
-	
-	user = models.ForeignKey(settings.AUTH_USER_MODEL, related_name='login_records')
+
 	ip = models.GenericIPAddressField()
 	timestamp = models.DateTimeField(auto_now_add=True)
-	
+	content = PickledObjectField()
+
+	def store(self, key, value):
+		if not self.content or len(self.content) == 0:
+			self.content = {}
+		if value is not None:
+			self.content[key] = value
+		else:	# no sense in storing it...
+			self.content.pop(key)
+	def retrieve(self, key, default=None):
+		if not self.content or len(self.content) == 0:
+			self.content = {}
+		return self.content[key] if key in self.content else default
+
 	@property
 	def location(self):
 		try:
@@ -231,13 +237,44 @@ class LoginRecord(models.Model):
 			pass
 		return 'Unknown'
 
+class ResetRecord(Record):
+	id = models.CharField(max_length=16, default=crypto.gen_eid, primary_key=True)
+	user = models.ForeignKey(settings.AUTH_USER_MODEL, related_name='reset_records')
+
+	def __init__(self, *args, **kwargs):
+		super(ResetRecord, self).__init__(*args, **kwargs)
+		type = kwargs.get('type', 'PW')
+		if type not in ('PW', 'PH'):
+			type = 'PW'
+		self.store('type', type)
+
+	@property
+	def type(self):
+		val = self.retrieve('type', None)
+		if val == None:
+			raise KeyError
+		return val
+
+class LoginRecord(Record):
+	user = models.ForeignKey(settings.AUTH_USER_MODEL, related_name='login_records')
+
+	def __init__(self, *args, **kwargs):
+		super(LoginRecord, self).__init__(*args, **kwargs)
+		self.store('is_successful', kwargs.get('is_successful', False))
+
+	@property
+	def is_successful(self):
+		val = self.retrieve('is_successful', None)
+		if val == None:
+			raise KeyError
+		return val
+
 	def save(self, *args, **kwargs):
 		# limit ten records
 		super(LoginRecord, self).save(*args, **kwargs)
 		user_records = LoginRecord.objects.filter(user=self.user)
 		if user_records.count() > 10:
 			user_records.last().delete()
-		
 
 class Profile(models.Model):
 	class Meta:

@@ -47,12 +47,14 @@ class TestUser(TestCase):
 			self.assertEqual(response.status_code, 302)
 			self.assertEqual(self.user.login_records.count(), i)
 			self.assertEqual(self.user.login_records.first().ip, '127.0.0.1')
+			self.assertEqual(self.user.login_records.first().is_successful, True)
 		response = self.client.get('/users/logout/')
 		self.assertEqual(response.status_code, 302)
-		response = self.client.post('/users/login/', {'username':'test@test.com', 'password':'test'})
+		response = self.client.post('/users/login/', {'username':'test@test.com', 'password':'t2est'})
 		self.assertEqual(response.status_code, 302)
 		self.assertEqual(self.user.login_records.count(), 10)
 		self.assertEqual(self.user.login_records.first().ip, '127.0.0.1')
+		self.assertEqual(self.user.login_records.first().is_successful, False)
 		
 	def test_store_retrieve(self):
 		self.assertIsNone(self.user.retrieve('test'))

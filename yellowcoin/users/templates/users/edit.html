@@ -144,14 +144,19 @@
 </form>
 <h2>Login History</h2>
 <table class="table">
-<tr>
+<tr ng-class="{'danger':!record.is_successful}">
+	<th></th>
 	<th>Timestamp</th>
 	<th>IP Address</th>
 	<th>Location</th>
 </tr>
 <tr ng-repeat="record in records">
-	<td ng-bind="record.timestamp">
-	<td ng-bind="record.ip">
-	<td ng-bind="record.location">
+	<td>
+		<i class="fa fa-exclamation-triangle" ng-show="!record.is_successful"></i>
+		<i class="fa" ng-show="record.is_successful"></i>
+	</td>
+	<td am-time-ago="record.timestamp" tooltip="{[record.timestamp]}" tooltip-append-to-body="true"></td>
+	<td ng-bind="record.ip"></td>
+	<td ng-bind="record.location"></td>
 </tr>
 </table>
