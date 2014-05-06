@@ -52,7 +52,7 @@ class ResetPassword(FormView):
 	@transaction.atomic
 	def form_valid(self, form):
 		if ('key' not in self.kwargs):
-			user = User.objects.get(email__iexact=form.cleaned_data['email'])
+			user = User.objects.get(email__iexact=form.cleaned_data['email'], is_active=True)
 			ip = self.request.META.get('HTTP_X_FORWARDED_FOR')
 			if ip:
 				ip = ip.split(',')[-1].strip()
@@ -98,7 +98,7 @@ class ResetPassword(FormView):
 		return redirect('users|login')
 
 	def form_invalid(self, form):
-		messages.error(self.request, 'Form input is invalid, sorry!')
+		messages.error(self.request, 'We couldn\'t find an account with that email address.')
 		return super(ResetPassword, self).form_invalid(form)
 
 class RegisterUser(FormView):
@@ -130,7 +130,7 @@ class RegisterUser(FormView):
 		return redirect('users|login')
 
 	def form_invalid(self, form):
-		messages.error(self.request, 'Form input is invalid, sorry!')
+		messages.error(self.request, 'Some errors occurred when we tried to make your account.')
 		return super(RegisterUser, self).form_invalid(form)
 
 class ActivateUser(FormView):
@@ -199,6 +199,7 @@ def Login(request):
 				messages.success(request, 'You have been logged in!')
 				return redirect('application')
 			elif user.is_superuser:
+				# TODO -- fix this
 				return redirect('http://kevmo314.uchicago.edu:8000/admin/')
 		else:
 			try:

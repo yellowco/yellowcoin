@@ -61,6 +61,7 @@ class UserManager(BaseUserManager):
 		except:
 			return None
 
+
 class User(AbstractBaseUser, PermissionsMixin):
 	class Meta:
 		ordering = ['id']
@@ -90,6 +91,7 @@ class User(AbstractBaseUser, PermissionsMixin):
 			self.fingerprint[key] = value
 		else:	# no sense in storing it...
 			self.fingerprint.pop(key)
+
 	def retrieve(self, key, default=None):
 		if not self.fingerprint or len(self.fingerprint) == 0:
 			self.fingerprint = {}
@@ -217,6 +219,7 @@ class Record(models.Model):
 			self.content[key] = value
 		else:	# no sense in storing it...
 			self.content.pop(key)
+
 	def retrieve(self, key, default=None):
 		if not self.content or len(self.content) == 0:
 			self.content = {}
@@ -245,17 +248,10 @@ class ResetRecord(Record):
 
 class LoginRecord(Record):
 	user = models.ForeignKey(settings.AUTH_USER_MODEL, related_name='login_records')
+	is_successful = models.BooleanField(default=False)
 
 	def __init__(self, *args, **kwargs):
 		super(LoginRecord, self).__init__(*args, **kwargs)
-		self.store('is_successful', kwargs.get('is_successful', False))
-
-	@property
-	def is_successful(self):
-		val = self.retrieve('is_successful', None)
-		if val == None:
-			raise KeyError
-		return val
 
 	def save(self, *args, **kwargs):
 		# limit ten records
