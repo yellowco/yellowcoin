@@ -117,7 +117,8 @@
 <div class="row">
 <label class="col-md-3 control-label">Notifications</label>
 <div class="col-md-9">
-	<div notification="notify" attribute="login" title="Log in"></div>
+	<div notification="notify" attribute="login" title="Successful login"></div>
+	<div notification="notify" attribute="login_failed" title="Failed login"></div>
 	<div notification="notify" attribute="start_transaction" title="Make a transaction"></div>
 	<div notification="notify" attribute="end_transaction" title="Complete a transaction"></div>
 	<div notification="notify" attribute="update_profile" title="Modify my profile"></div>
@@ -144,18 +145,18 @@
 </form>
 <h2>Login History</h2>
 <table class="table">
-<tr ng-class="{'danger':!record.is_successful}">
+<tr>
 	<th></th>
 	<th>Timestamp</th>
 	<th>IP Address</th>
 	<th>Location</th>
 </tr>
-<tr ng-repeat="record in records">
+<tr ng-class="{'danger':!record.is_successful}" ng-repeat="record in records">
 	<td>
-		<i class="fa fa-exclamation-triangle" ng-show="!record.is_successful"></i>
+		<i class="fa fa-exclamation-triangle" ng-show="!record.is_successful" tooltip="Failed login" tooltip-append-to-body="true" tooltip-placement="left"></i>
 		<i class="fa" ng-show="record.is_successful"></i>
 	</td>
-	<td am-time-ago="record.timestamp" tooltip="{[record.timestamp]}" tooltip-append-to-body="true"></td>
+	<td am-time-ago="record.timestamp" tooltip="{[record.timestamp]}" tooltip-append-to-body="true" tooltip-placement="left"></td>
 	<td ng-bind="record.ip"></td>
 	<td ng-bind="record.location"></td>
 </tr>

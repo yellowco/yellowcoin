@@ -3,10 +3,19 @@ from django.contrib.auth.forms import AuthenticationForm
 from yellowcoin.users.models import User, EmailValidation
 from django_otp.forms import OTPTokenForm
 
+class ResetPasswordRequestForm(forms.Form):
+	email = forms.EmailField()
+
+	def clean_email(self):
+		email = self.cleaned_data['email']
+		if not User.objects.filter(email__iexact=email).exists():
+			raise forms.ValidationError('This email is not registered.')
+		return email
+	
 class ResetPasswordForm(forms.Form):
 	email = forms.EmailField()
-	password = forms.CharField(required=False)
-	password_confirm = forms.CharField(required=False)
+	password = forms.CharField()
+	password_confirm = forms.CharField()
 
 	def clean_email(self):
 		email = self.cleaned_data['email']

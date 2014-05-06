@@ -80,8 +80,10 @@ var app = angular.module('app', ['ngRoute', 'ngSanitize', 'ngAnimate', 'ui.boots
 		return count;
 	};
 	$rootScope.resendEmail = function() {
-		$http.put('/api/profile/', {email:'{{email}}'}).success(function() {
-			$rootScope.resendEmailText = "Email resent!"
+		$http.post('/internal/resend-validation-email/').success(function() {
+			$rootScope.resendEmailText = "Email resent!";
+		}).error(function() {
+			$rootScope.user.is_valid.email = true;
 		});
 	};
 	$rootScope.resendEmailText = "Resend the verification email.";
@@ -165,7 +167,7 @@ function ReferralsController($scope) {
 </script>
 <div class="container" id="ng-app" ng-app="app">
 	<div class="text-center" ng-hide="user.is_valid.email">
-		<div class="alert alert-info">Your email has not been verified yet. <span class="btn btn-link" ng-click="resendEmail()">{[verifyEmailText]}</span></div>
+		<div class="alert alert-info">Your email has not been verified yet. <span class="btn btn-link" ng-click="resendEmail()">{[resendEmailText]}</span></div>
 	</div>
 	<div class="text-center" ng-hide="user.is_valid.phone || !user.phone">
 		<div class="alert alert-info">Your phone has not been verified yet. <a ng-href="{[resendPhone]}" class="btn btn-link">Get a verification code.</a></div>

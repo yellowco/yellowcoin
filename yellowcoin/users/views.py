@@ -33,64 +33,47 @@ def ResetPhone(request):
 
 # consider edge cases
 #	cf. http://bit.ly/1hqlSea
+
 class ResetPassword(FormView):
 	form_class = ResetPasswordForm
 	template_name = 'users/reset_password.html'
-
 	def dispatch(self, request, *args, **kwargs):
 		if ('key' in kwargs):
 			try:
-				record = ResetRecord.objects.get(id=kwargs['key'], type='PW')
+				record = ResetRecord.objects.get(id=kwargs.get('key'), type='PW')
 			except ResetRecord.DoesNotExist:
-				return HttpResponse(status=404)
+				raise Http404
 			
 		if request.user.is_authenticated():
-			messages.error(self.request, 'You are already logged in!')
+			messages.error(request, 'You are already logged in!')
 			return HttpResponseRedirect('/')
 		return super(ResetPassword, self).dispatch(request, *args, **kwargs)
 
 	@transaction.atomic
 	def form_valid(self, form):
-		if ('key' not in self.kwargs):
-			user = User.objects.get(email__iexact=form.cleaned_data['email'], is_active=True)
-			ip = self.request.META.get('HTTP_X_FORWARDED_FOR')
-			if ip:
-				ip = ip.split(',')[-1].strip()
-			else:
-				ip = self.request.META.get('REMOTE_ADDR')
-
-			# save attempts from other IPs as documentation
-			records = ResetRecord.objects.filter(user=user, ip=ip, type='PW', is_valid=True)
-			if not records.exists():
-				record = ResetRecord.objects.create(user=user, ip=ip, type='PW')
-			else:
-				record = records[0]
-
-			messages.success(self.request, 'An email has been sent to your account.')
-			signals.reset_password.send(sender=request, user=user, ip=ip, location=record.location, key=record.id)
-			return HttpResponse(status=200)
-
 		try:
-			record = ResetRecord.objects.get(id=self.kwargs['key'], type='PW')
-		except ResetRecord.DoesNotExist:
-			messages.error(self.request, 'You have not made a request to reset your password.')
-			return HttpResponse(status=406)
+			user = User.objects.get(email=form.cleaned_data['email'])
+			record = ResetRecord.objects.get(user=user, id=self.kwargs.get('key'), type='PW')
+		except ResetRecord.DoesNotExist, User.DoesNotExist:
+			messages.error(self.request, 'This password link does not match the email provided.')
+			return render(self.request, 'users/reset_password.html', status=406)
 
 		# test for time expiration
 		delta = record.timestamp - datetime.utcnow().replace(tzinfo=timezone.utc)
-		if delta > timedelta(days=3):
-			messages.error(self.request, 'This link has expired.')
+		if delta > timedelta(minutes=1) or not record.is_valid:
+			messages.error(self.request, 'This password link does not match the email provided.')
 			record.is_valid = False
 			record.save()
-			return HttpResponse(status=406)
+			return render(self.request, 'users/reset_password.html', status=406)
 
 		# change password
 		if not form.cleaned_data['password']:
 			messages.error(self.request, 'A password is required.')
-			return HttpResponse(status=406)
+			return render(self.request, 'users/reset_password.html', status=406)
+
 		record.user.set_password(form.cleaned_data['password'])
 		record.user.save()
-		signals.update_password.send(sender=request, user=record.user)
+		signals.update_password.send(sender=self.request, user=record.user)
 		record.is_valid = False
 		record.save()
 
@@ -98,8 +81,41 @@ class ResetPassword(FormView):
 		return redirect('users|login')
 
 	def form_invalid(self, form):
-		messages.error(self.request, 'We couldn\'t find an account with that email address.')
 		return super(ResetPassword, self).form_invalid(form)
+
+class ResetPasswordRequest(FormView):
+	form_class = ResetPasswordRequestForm
+	template_name = 'users/reset_password_request.html'
+
+	def dispatch(self, request, *args, **kwargs):
+		if request.user.is_authenticated():
+			messages.error(self.request, 'You are already logged in!')
+			return HttpResponseRedirect('/')
+		return super(ResetPasswordRequest, self).dispatch(request, *args, **kwargs)
+
+	@transaction.atomic
+	def form_valid(self, form):
+		user = User.objects.get(email__iexact=form.cleaned_data['email'], is_active=True)
+		ip = self.request.META.get('HTTP_X_FORWARDED_FOR')
+		if ip:
+			ip = ip.split(',')[-1].strip()
+		else:
+			ip = self.request.META.get('REMOTE_ADDR')
+
+		# save attempts from other IPs as documentation
+		records = ResetRecord.objects.filter(user=user, ip=ip, type='PW', is_valid=True)
+		if not records.exists():
+			record = ResetRecord.objects.create(user=user, ip=ip, type='PW')
+		else:
+			record = records[0]
+
+		messages.success(self.request, 'An email has been sent to your account.')
+		signals.reset_password.send(sender=self.request, user=user, ip=ip, location=record.location, key=record.id)
+		return redirect('users|reset-password')
+
+	def form_invalid(self, form):
+		messages.error(self.request, 'We couldn\'t find an account with that email address.')
+		return super(ResetPasswordRequest, self).form_invalid(form)
 
 class RegisterUser(FormView):
 	form_class = RegisterUserForm

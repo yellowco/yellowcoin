@@ -10,7 +10,7 @@
 	<div class="form-group{% if form.email.errors %} has-error{% endif %}">
 		<label for="email" class="col-sm-2 control-label">Email Address</label>
 		<div class="col-sm-4">
-			<input type="email" class="form-control" id="email" name="email" placeholder="Enter your favorite email address" value="{{ form.email.value | default_if_none:"" }}"/>
+			<input type="email" class="form-control" id="register-email" name="email" placeholder="Enter your favorite email address" value="{{ form.email.value | default_if_none:"" }}"/>
 		</div>
 		<div class="col-sm-6 form-control-static">
 			{{ form.email.errors }}
@@ -29,7 +29,7 @@
 	<div class="form-group{% if form.password_confirm.errors %} has-error{% endif %}">
 		<label for="password_confirm" class="col-sm-2 control-label">Confirm</label>
 		<div class="col-sm-4">
-			<input type="password" class="form-control" id="password_confirm" name="password_confirm" placeholder="Your password one more time"/>
+			<input type="password" class="form-control" id="register-password-confirm" name="password_confirm" placeholder="Your password one more time"/>
 		</div>
 		<div class="col-sm-6 form-control-static">
 			{{ form.password_confirm.errors }}

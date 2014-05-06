@@ -3,7 +3,7 @@ from yellowcoin.users.views import *
 
 urlpatterns = patterns('',
 	url(r'^verify/$', Verify, name='users|verify'),
-	url(r'^reset-password/$', ResetPassword.as_view(), name='users|reset-password'),
+	url(r'^reset-password/$', ResetPasswordRequest.as_view(), name='users|reset-password'),
 	url(r'^reset-password/(?P<key>[A-Za-z0-9\+\-\_\=]{16})/$', ResetPassword.as_view(), name='users|reset-password'),
 	# url(r'^reset-phone/$', ResetPhone, name='users|reset-phone'),
 	url(r'^login/$', Login, name='users|login'),

@@ -40,11 +40,11 @@
 					{% csrf_token %}
 					<div class="form-group">
 						<label class="sr-only" for="email">Email Address</label>
-						<input type="email" name="username" class="form-control" id="email" placeholder="Email"/>
+						<input type="email" name="username" class="form-control" placeholder="Email"/>
 					</div>
 					<div class="form-group">
 						<label class="sr-only" for="password">Password</label>
-						<input type="password" name="password" class="form-control" id="password" placeholder="Password"/>
+						<input type="password" name="password" class="form-control" placeholder="Password"/>
 					</div>
 						<button type="submit" class="btn btn-default">Log In</button>
 						<a href="{% url 'users|reset-password' %}">Forgot Password?</a>
