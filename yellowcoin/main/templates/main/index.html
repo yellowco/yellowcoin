@@ -35,6 +35,31 @@
 			<h3>Open a free Yellowcoin account</h3>
 			<form id="register-form" action="{% url 'users|register' %}" role="form" method="post">
 				{% csrf_token %}
+				{% if lock %}
+				<p>Sorry, we've reached our user cap for now. Enter your email below and we'll notify you when more space is available.</p>
+				<div class="form-group">
+					<label for="register-email">Your Email</label>
+					<input type="text" class="form-control" id="register-email" placeholder="Enter email" name="email"/>
+				</div>
+				<div class="text-center" id="waitlist-submit">
+					<button type="submit" class="btn btn-default">Sign Up</button>
+				</div>
+				<script type="text/javascript">
+				$(document).ready(function() {
+					$('#register-form').submit(function(e) {
+						$("#register-email").tooltip('destroy');
+						$.post('/internal/waitlist/', {email:$('#register-email').val()}, function() {
+							$("#waitlist-submit").text('Thanks, you\'ve been added!');
+						}).fail(function(data) {
+							console.log(data);
+							$('#register-email').tooltip({trigger:'manual', title:$.parseJSON(data.responseText)});
+							$('#register-email').tooltip('show');
+						});
+						e.preventDefault();
+					});
+				});
+				</script>
+				{% else %}
 				<div class="form-group">
 					<label for="register-email">Your Email</label>
 					<input type="email" class="form-control" id="register-email" placeholder="Enter email" name="email"/>
@@ -54,6 +79,7 @@
 				<div class="text-center">
 					<button type="submit" class="btn btn-default">Sign Up</button>
 				</div>
+				{% endif %}
 			</form>
 		</div>
 		<div class="col-md-9 col-md-pull-3" id="features">

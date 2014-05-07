@@ -3,17 +3,55 @@ from django.test import TestCase
 from django.test.client import Client
 from django.conf import settings
 from django.test.utils import override_settings
-from yellowcoin.users.models import User, EmailValidation, APIKey, CryptoAccount
+from yellowcoin.users.models import User, EmailValidation, APIKey, CryptoAccount, ResetRecord
 from yellowcoin.users.signals import referral_completed
 from django.contrib.gis.geoip import GeoIP
+from datetime import datetime, timedelta
 
-@override_settings(BTC_CONN=EmulatedBitcoinConnection())
+@override_settings(BTC_CONN=EmulatedBitcoinConnection(), MAX_USERS=5)
 class TestUser(TestCase):
 	def setUp(self):
 		self.user = User.objects.create_user('test@test.com','test')
 	
+	def test_register(self):
+		self.assertEqual(self.client.post('/users/register/', {'email':'wrong@notanemail', 'password':'asdfasdf', 'password_confirm':'asdfasdf', 'tos':True}).status_code, 400, "Invalid email")
+		self.assertEqual(self.client.post('/users/register/', {'email':'email@test.com', 'password':'asdf', 'password_confirm':'asdf', 'tos':True}).status_code, 400, "Password too short")
+		self.assertEqual(self.client.post('/users/register/', {'email':'email@test.com', 'password':'asdfasdf', 'password_confirm':'asdfasd', 'tos':True}).status_code, 400, "Passwords not matching")
+		self.assertEqual(self.client.post('/users/register/', {'email':'test@test.com', 'password':'asdfasdf', 'password_confirm':'asdfasdf', 'tos':True}).status_code, 400, "Duplicate email")
+		self.assertEqual(self.client.post('/users/register/', {'email':'test@asdfasdf.asd', 'password':'asdfasdf', 'password_confirm':'asdfasdf', 'tos':True}).status_code, 400, "Invalid domain name")
+		self.assertEqual(self.client.post('/users/register/', {'email':'email@test.com', 'password':'asdfasdf', 'password_confirm':'asdfasdf', 'tos':False}).status_code, 400, "TOS not checked")
+		self.assertEqual(self.client.post('/users/register/', {'email':'email@test.com', 'password':'asdfasdf', 'password_confirm':'asdfasdf', 'tos':True}).status_code, 201)
+		self.assertEqual(User.objects.count(), 2, "User count doesn't match expected")
+		self.assertEqual(self.client.post('/users/login/', {'username':'email@test.com', 'password':'asdfasdf'}).status_code, 302)
+		self.assertEqual(self.client.post('/users/register/', {'email':'email1@test.com', 'password':'asdfasdf', 'password_confirm':'asdfasdf', 'tos':True}).status_code, 302, "Permitted registration while logged in.")
+		self.assertEqual(User.objects.count(), 2, "User count doesn't match expected")
+
+	def test_max_users(self):
+		for i in range(2, 5):
+			self.assertEqual(self.client.post('/users/register/', {'email':'email%d@test.com' % i, 'password':'asdfasdf', 'password_confirm':'asdfasdf', 'tos':True}).status_code, 302)
+		self.assertEqual(self.client.post('/users/register/', {'email':'emaila@test.com', 'password':'asdfasdf', 'password_confirm':'asdfasdf', 'tos':True}).status_code, 400, "Max users exceeded")
+
+	def test_reset_password(self):
+		self.assertEqual(self.client.post('/users/reset-password/', {'email':'test@test.com'}).status_code, 302)
+		self.assertEqual(ResetRecord.objects.count(), 1)
+		record = ResetRecord.objects.first()
+		self.assertEqual(self.client.post('/users/reset-password/%s/' % record.id, {'email':'wrong@test.com', 'password':'asdfasdf', 'password_confirm':'asdfasdf'}).status_code, 400, "Incorrect email")
+		self.assertEqual(self.client.post('/users/reset-password/%s/' % record.id, {'email':'test@test.com', 'password':'asdf', 'password_confirm':'asdf'}).status_code, 400, "Password too short")
+		self.assertEqual(self.client.post('/users/reset-password/%s/' % record.id, {'email':'test@test.com', 'password':'asdfasdf', 'password_confirm':'asdfasd'}).status_code, 400, "Passwords not matching")
+		record.timestamp = datetime.now() - timedelta(hours=1, seconds=1)
+		record.save()
+		self.assertEqual(self.client.post('/users/reset-password/%s/' % record.id, {'email':'test@test.com', 'password':'testtest', 'password_confirm':'testtest'}).status_code, 400, "Expired link")
+		self.assertEqual(self.client.post('/users/login/', {'username':'test@test.com', 'password':'testtest'}).status_code, 400)
+		record.timestamp = datetime.now()
+		record.save()
+		self.assertEqual(self.client.post('/users/login/', {'username':'test@test.com', 'password':'test'}).status_code, 302)
+		self.assertEqual(self.client.post('/users/logout/').status_code, 302)
+		self.assertEqual(self.client.post('/users/reset-password/%s/' % record.id, {'email':'test@test.com', 'password':'testtest', 'password_confirm':'testtest'}).status_code, 302)
+		self.assertEqual(self.client.post('/users/login/', {'username':'test@test.com', 'password':'testtest'}).status_code, 302)
+		self.assertEqual(self.client.post('/users/logout/').status_code, 302)
+		self.assertEqual(self.client.post('/users/reset-password/%s/' % record.id, {'email':'test@test.com', 'password':'testtest', 'password_confirm':'testtest'}).status_code, 400, "Reused link")
+
 	def test_login(self):
-		self.assertEqual(self.user.login_records.count(), 0)
 		response = self.client.post('/users/login/', {'username':'nope@test.com', 'password':'wrong'})
 		self.assertEqual(response.status_code, 400)
 		response = self.client.post('/users/login/', {'username':'nope@test.com', 'password':'test'})

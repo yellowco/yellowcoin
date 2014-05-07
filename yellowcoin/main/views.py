@@ -14,7 +14,7 @@ from yellowcoin.api.transactions.serializers import TransactionSerializer, Recur
 from template_email import TemplateEmail
 from yellowcoin.users.models import CryptoAccount
 import binascii, json
-from yellowcoin.users.models import APIKey
+from yellowcoin.users.models import User, APIKey
 from yellowcoin.crypto import base36encode
 from django import forms
 from yellowcoin.enums import CRYPTOCURRENCIES
@@ -35,6 +35,14 @@ def documentation(request):
 		doc.short_description = doc.description.split('<br/>')[0] if doc.description else ''
 	# cf. http://bit.ly/1hwcLgH
 	return render(request, 'main/docs.html', {'docs':enumerate(docs), 'keys':APIKey.objects.filter(user=request.user.id)})
+
+def index(request):
+	user_count = User.objects.count()
+	if settings.MAX_USERS == -1:
+		lock = False
+	else:
+		lock = user_count >= settings.MAX_USERS
+	return render(request, 'main/index.html', {'lock':lock})
 
 class ContactForm(forms.Form):
 	subject = forms.CharField(max_length=100)

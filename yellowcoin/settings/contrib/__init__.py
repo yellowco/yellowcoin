@@ -54,6 +54,7 @@ VERSION_INFO = {
 # Application definition
 
 INSTALLED_APPS = (
+	'django_email_validator',
 	'yellowcoin', # required for templatetags...?
 	'grappelli', 'django.contrib.admin',
 	'django.contrib.auth',
@@ -144,5 +145,5 @@ from urllib import urlopen
 from string import strip
 
 # get server IP
-HOST_IP = strip(urlopen('http://wtfismyip.com/text').read())
+HOST_IP = strip(urlopen('http://icanhazip.com/').read())
 

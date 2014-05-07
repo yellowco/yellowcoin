@@ -6,6 +6,7 @@ from yellowcoin.currencypool.models import POOLS
 from yellowcoin.enums import CURRENCIES, CRYPTOCURRENCIES
 from bitcoind_emulator import EmulatedBitcoinConnection
 from django.conf import settings
+from django.core.management import reset_limits
 from django.test.utils import override_settings
 from decimal import Decimal
 
@@ -154,8 +155,38 @@ class TestTransactions(YellowcoinAPITestCase):
 		response = self.client.get('/api/transactions/%s/' % order.data['id'])
 		self.assertEqual(response.status_code, 200)
 		self.assertEqual(response.data['status'], 'Completed', response.data)
-
-		
+	
+	def test_limits(self):
+		order1 = self.create_order(self.bank.data['id'], self.btc.data['id'])
+		order2 = self.client.post('/api/orders/btc/usd/', {
+			'bid_subtotal':0.01,
+			'ask_subtotal':self.client.get('/api/limits/').data['BTC'],
+			'withdrawal_account':self.bank.data['id'],
+			'deposit_account':self.btc.data['id']
+		})
+		POOLS[CURRENCIES.USD][CRYPTOCURRENCIES.BTC].add(10, 1) # lower than the bid 0.02 for ask 0.01 created
+		response = self.client.get('/api/transactions/%s/' % order1.data['id'])
+		self.assertEqual(response.status_code, 200)
+		self.assertEqual(response.data['status'], 'Uninitialized', response.data)
+		response = self.client.get('/api/transactions/%s/' % order2.data['id'])
+		self.assertEqual(response.status_code, 200)
+		self.assertEqual(response.data['status'], 'Uninitialized', response.data)
+		execute_orders()
+		response = self.client.get('/api/transactions/%s/' % order1.data['id'])
+		self.assertEqual(response.status_code, 200)
+		self.assertEqual(response.data['status'], 'Initialized', response.data)
+		response = self.client.get('/api/transactions/%s/' % order2.data['id'])
+		self.assertEqual(response.status_code, 200)
+		self.assertEqual(response.data['status'], 'Uninitialized', response.data)
+		reset_limits()
+		execute_orders()
+		response = self.client.get('/api/transactions/%s/' % order1.data['id'])
+		self.assertEqual(response.status_code, 200)
+		self.assertEqual(response.data['status'], 'Queried', response.data)
+		response = self.client.get('/api/transactions/%s/' % order2.data['id'])
+		self.assertEqual(response.status_code, 200)
+		self.assertEqual(response.data['status'], 'Initialized', response.data)
+	
 	def test_fail_return_to_pool(self):
 		order = self.create_order(self.bank.data['id'], self.btc.data['id'])
 		POOLS[CURRENCIES.USD][CRYPTOCURRENCIES.BTC].add(10, 3)

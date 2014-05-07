@@ -240,6 +240,9 @@ class Record(models.Model):
 			pass
 		return 'Unknown'
 
+class WaitlistRecord(Record):
+	pass # lol
+
 class ResetRecord(Record):
 	id = models.CharField(max_length=16, default=crypto.gen_eid, primary_key=True)
 	user = models.ForeignKey(settings.AUTH_USER_MODEL, related_name='reset_records')

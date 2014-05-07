@@ -1,4 +1,5 @@
 from django import forms
+from django.core.validators import validate_email
 from django.contrib.auth.forms import AuthenticationForm 
 from yellowcoin.users.models import User, EmailValidation
 from django_otp.forms import OTPTokenForm
@@ -10,18 +11,24 @@ class ResetPasswordRequestForm(forms.Form):
 		email = self.cleaned_data['email']
 		if not User.objects.filter(email__iexact=email).exists():
 			raise forms.ValidationError('This email is not registered.')
-		return email
+		try:
+			return super(RegisterUserForm, self).clean_email()
+		except AttributeError:
+			return email
 	
 class ResetPasswordForm(forms.Form):
 	email = forms.EmailField()
-	password = forms.CharField()
-	password_confirm = forms.CharField()
+	password = forms.CharField(min_length=6)
+	password_confirm = forms.CharField(min_length=6)
 
 	def clean_email(self):
 		email = self.cleaned_data['email']
 		if not User.objects.filter(email__iexact=email).exists():
 			raise forms.ValidationError('This email is not registered.')
-		return email
+		try:
+			return super(RegisterUserForm, self).clean_email()
+		except AttributeError:
+			return email
 
 	def clean(self):
 		cleaned_data = super(ResetPasswordForm, self).clean()
@@ -40,10 +47,13 @@ class RegisterUserForm(forms.Form):
 	tos = forms.BooleanField(required=True)
 
 	def clean_email(self):
-		email = self.cleaned_data['email']
+		email = self.cleaned_data.get('email', '')
 		if User.objects.filter(email__iexact=email).exists():
 			raise forms.ValidationError('This email is already registered.')
-		return email
+		try:
+			return super(RegisterUserForm, self).clean_email()
+		except AttributeError:
+			return email
 
 	def clean(self):
 		cleaned_data = super(RegisterUserForm, self).clean()

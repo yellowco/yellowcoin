@@ -2,13 +2,13 @@ from django.conf.urls import patterns, include, url
 from django.conf import settings
 from django.views.generic import *
 from django.contrib import admin
-from yellowcoin.main.views import Dashboard, documentation
+from yellowcoin.main.views import Dashboard, documentation, index
 from yellowcoin.users.views import Referral
 
 admin.autodiscover()
 
 urlpatterns = patterns('',
-	url(r'^$', TemplateView.as_view(template_name="main/index.html"), name='home'),
+	url(r'^$', index, name='home'),
 	url(r'^dashboard/.*$', Dashboard, name='application'),
 	url(r'^grappelli/', include('grappelli.urls')),
 	url(r'^admin/', include(admin.site.urls), name='admin'),

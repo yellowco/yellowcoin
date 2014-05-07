@@ -149,7 +149,6 @@ def init(t):
 		t.save()
 		return
 
-
 	# checking minimum exchange rate which will be fulfilled
 	try:
 		pool = get_pool(order.bid_currency, order.ask_currency)

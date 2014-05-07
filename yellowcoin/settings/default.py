@@ -1,6 +1,6 @@
 from yellowcoin.settings.contrib import *
 
-MAX_USERS = -1
+MAX_USERS = 0
 
 # if a pending order awaiting crypto currency has not received any money in TIMEOUT_SECONDS, abandon transaction and mark for deletion
 #	invoked in transactions/tasks.py

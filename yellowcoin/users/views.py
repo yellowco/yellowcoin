@@ -53,23 +53,23 @@ class ResetPassword(FormView):
 	def form_valid(self, form):
 		try:
 			user = User.objects.get(email=form.cleaned_data['email'])
-			record = ResetRecord.objects.get(user=user, id=self.kwargs.get('key'), type='PW')
+			record = ResetRecord.objects.get(user=user, id=self.kwargs.get('key'), type='PW', is_valid=True)
 		except ResetRecord.DoesNotExist, User.DoesNotExist:
 			messages.error(self.request, 'This password link does not match the email provided.')
-			return render(self.request, 'users/reset_password.html', status=406)
+			return super(ResetPassword, self).form_invalid(form)
 
 		# test for time expiration
-		delta = record.timestamp - datetime.utcnow().replace(tzinfo=timezone.utc)
-		if delta > timedelta(minutes=1) or not record.is_valid:
-			messages.error(self.request, 'This password link does not match the email provided.')
+		delta = datetime.utcnow().replace(tzinfo=timezone.utc) - record.timestamp.replace(tzinfo=timezone.utc)
+		if delta > timedelta(hours=1):
+			messages.error(self.request, 'This password link has expired.')
 			record.is_valid = False
 			record.save()
-			return render(self.request, 'users/reset_password.html', status=406)
+			return super(ResetPassword, self).form_invalid(form)
 
 		# change password
 		if not form.cleaned_data['password']:
 			messages.error(self.request, 'A password is required.')
-			return render(self.request, 'users/reset_password.html', status=406)
+			return super(ResetPassword, self).form_invalid(form)
 
 		record.user.set_password(form.cleaned_data['password'])
 		record.user.save()
@@ -129,13 +129,8 @@ class RegisterUser(FormView):
 
 	@transaction.atomic
 	def form_valid(self, form):
-		if (settings.MAX_USERS >= 0) and (User.objects.count() > settings.MAX_USERS):
-			messages.error(self.request, 'Max users exceeded. We will email you when more space is available.')
-
-			fp = open('./logs/overflow.log', 'a')
-			fp.write(str(timezone.now()) + '\t' + form.cleaned_data['email'] + '\n')
-			fp.close()
-
+		if (settings.MAX_USERS >= 0) and (User.objects.count() >= settings.MAX_USERS):
+			messages.error(self.request, 'Registration is currently closed.')
 			return super(RegisterUser, self).form_invalid(form)
 		user_object = User.objects.create_user(form.cleaned_data['email'], form.cleaned_data['password'])
 		if 'referrer' in self.request.session:
