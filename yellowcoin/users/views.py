@@ -21,7 +21,7 @@ from django.contrib.auth.decorators import login_required
 from django_otp_twilio_yellowcoin.models import RateLimitException
 from django.contrib.auth.models import AnonymousUser
 from django.contrib.gis.geoip import GeoIP
-from datetime import datetime
+from datetime import datetime, timedelta
 import logging
 
 logger = logging.getLogger(__name__)
@@ -56,20 +56,14 @@ class ResetPassword(FormView):
 			record = ResetRecord.objects.get(user=user, id=self.kwargs.get('key'), type='PW', is_valid=True)
 		except ResetRecord.DoesNotExist, User.DoesNotExist:
 			messages.error(self.request, 'This password link does not match the email provided.')
-			return super(ResetPassword, self).form_invalid(form)
+			return self.form_invalid(form)
 
 		# test for time expiration
-		delta = datetime.utcnow().replace(tzinfo=timezone.utc) - record.timestamp.replace(tzinfo=timezone.utc)
-		if delta > timedelta(hours=1):
+		if (timezone.now() - record.timestamp) > timedelta(hours=1):
 			messages.error(self.request, 'This password link has expired.')
 			record.is_valid = False
 			record.save()
-			return super(ResetPassword, self).form_invalid(form)
-
-		# change password
-		if not form.cleaned_data['password']:
-			messages.error(self.request, 'A password is required.')
-			return super(ResetPassword, self).form_invalid(form)
+			return self.form_invalid(form)
 
 		record.user.set_password(form.cleaned_data['password'])
 		record.user.save()
@@ -81,7 +75,7 @@ class ResetPassword(FormView):
 		return redirect('users|login')
 
 	def form_invalid(self, form):
-		return super(ResetPassword, self).form_invalid(form)
+		return self.render_to_response(self.get_context_data(form=form), status=400)
 
 class ResetPasswordRequest(FormView):
 	form_class = ResetPasswordRequestForm
@@ -115,7 +109,7 @@ class ResetPasswordRequest(FormView):
 
 	def form_invalid(self, form):
 		messages.error(self.request, 'We couldn\'t find an account with that email address.')
-		return super(ResetPasswordRequest, self).form_invalid(form)
+		return self.render_to_response(self.get_context_data(form=form), status=400)
 
 class RegisterUser(FormView):
 	form_class = RegisterUserForm
@@ -129,9 +123,9 @@ class RegisterUser(FormView):
 
 	@transaction.atomic
 	def form_valid(self, form):
-		if (settings.MAX_USERS >= 0) and (User.objects.count() >= settings.MAX_USERS):
+		if (settings.MAX_USERS >= 0) and (User.objects.count() >= settings.MAX_USERS - 1):
 			messages.error(self.request, 'Registration is currently closed.')
-			return super(RegisterUser, self).form_invalid(form)
+			return self.form_invalid(form)
 		user_object = User.objects.create_user(form.cleaned_data['email'], form.cleaned_data['password'])
 		if 'referrer' in self.request.session:
 			user_object.referrer = User.objects.get(id=self.request.session['referrer'])
@@ -142,7 +136,7 @@ class RegisterUser(FormView):
 
 	def form_invalid(self, form):
 		messages.error(self.request, 'Some errors occurred when we tried to make your account.')
-		return super(RegisterUser, self).form_invalid(form)
+		return self.render_to_response(self.get_context_data(form=form), status=400)
 
 class ActivateUser(FormView):
 	form_class = ActivateUserForm
@@ -160,7 +154,7 @@ class ActivateUser(FormView):
 
 	def form_invalid(self, form):
 		messages.error(self.request, 'Nope, couldn\'t activate that user account, sorry!')
-		return super(ActivateUser, self).form_invalid(form)
+		return self.render_to_response(self.get_context_data(form=form), status=400)
 
 def activate(request, code):
 	try:

@@ -158,19 +158,6 @@ def init(t):
 		t.save()
 		return
 
-	if success:
-		t.status = 'I'
-		t = success_handler(t)
-
-		# lock accounts
-		t.withdrawal_payment_method.lock()
-		t.deposit_payment_method.lock()
-
-	else:
-		t = info_base_handler(t, msg='This transaction will be fulfilled when the exchange rate condition is met.')
-		t.save()
-		return
-
 	# add the order limit objects if they do not yet exist
 	try:
 		bid_limit = TransactionLimit.objects.get(user=t.user, currency=order.bid_currency)
@@ -189,8 +176,22 @@ def init(t):
 		t.save()
 		return
 
-	bid_limit.increment(order.bid_subtotal)
-	ask_limit.increment(order.ask_subtotal)
+	# exchange rate handler
+	if success:
+		t.status = 'I'
+		t = success_handler(t)
+
+		# lock accounts
+		t.withdrawal_payment_method.lock()
+		t.deposit_payment_method.lock()
+
+		# apply limits
+		bid_limit.increment(order.bid_subtotal)
+		ask_limit.increment(order.ask_subtotal)
+	else:
+		t = info_base_handler(t, msg='This transaction will be fulfilled when the exchange rate condition is met.')
+		t.save()
+		return
 
 	t.save()
 

@@ -1,17 +1,20 @@
+from django.utils import timezone
 from yellowcoin.api.tests import YellowcoinAPITestCase
 from yellowcoin.api.exceptions import InsufficientFundsException
 from yellowcoin.transactions.tasks import execute_orders, execute_recurring_orders
-from yellowcoin.transactions.models import Transaction, RecurringOrder
+from yellowcoin.transactions.models import Transaction, RecurringOrder, TransactionLimit
 from yellowcoin.currencypool.models import POOLS
 from yellowcoin.enums import CURRENCIES, CRYPTOCURRENCIES
 from bitcoind_emulator import EmulatedBitcoinConnection
 from django.conf import settings
-from django.core.management import reset_limits
+from yellowcoin.transactions.tasks import reset_limits
 from django.test.utils import override_settings
 from decimal import Decimal
+from datetime import datetime
 
 def CALCULATE_TEST_FEE(val, currency):
 	return val * Decimal('0.01')
+
 @override_settings(BTC_CONN=EmulatedBitcoinConnection(),
 	CALCULATE_FEE=CALCULATE_TEST_FEE
 )
@@ -135,14 +138,6 @@ class TestTransactions(YellowcoinAPITestCase):
 		self.assertEqual(response.data['status'], 'Pending', response.data) # transactions not confirmed
 		tx[1].confirmations = 10
 		self.assertAlmostEqual(settings.BTC_CONN.getreceivedbyaddress(response.data['deposit_address'], minconf=4), 0.15)
-		# Minke to Kevin -- P -> R directly for bitcoins, no Q stage
-		# execute_orders()
-		# self.assertEqual(len(self.client.get('/api/orders/').data), 0)
-		# self.assertEqual(len(self.client.get('/api/transactions/').data), 1)
-		# response = self.client.get('/api/transactions/%s/' % order.data['id'])
-		# self.assertEqual(response.status_code, 200)
-		# self.assertEqual(response.data['status'], 'Queried', response.data)
-		# self.assertAlmostEqual(settings.BTC_CONN.getreceivedbyaddress('15AeuxTuPQpntVvq4KVGqSxZM3ry39PV6Q', minconf=0), 0.05)
 		execute_orders()
 		self.assertEqual(len(self.client.get('/api/orders/').data), 0)
 		self.assertEqual(len(self.client.get('/api/transactions/').data), 1)
@@ -160,11 +155,11 @@ class TestTransactions(YellowcoinAPITestCase):
 		order1 = self.create_order(self.bank.data['id'], self.btc.data['id'])
 		order2 = self.client.post('/api/orders/btc/usd/', {
 			'bid_subtotal':0.01,
-			'ask_subtotal':self.client.get('/api/limits/').data['BTC'],
+			'ask_subtotal':self.client.get('/api/limits/').data['BTC']['max_amount'],
 			'withdrawal_account':self.bank.data['id'],
 			'deposit_account':self.btc.data['id']
 		})
-		POOLS[CURRENCIES.USD][CRYPTOCURRENCIES.BTC].add(10, 1) # lower than the bid 0.02 for ask 0.01 created
+		POOLS[CURRENCIES.USD][CRYPTOCURRENCIES.BTC].add(10, 0.1) # lower than the bid 0.02 for ask 0.01 created
 		response = self.client.get('/api/transactions/%s/' % order1.data['id'])
 		self.assertEqual(response.status_code, 200)
 		self.assertEqual(response.data['status'], 'Uninitialized', response.data)
@@ -178,6 +173,8 @@ class TestTransactions(YellowcoinAPITestCase):
 		response = self.client.get('/api/transactions/%s/' % order2.data['id'])
 		self.assertEqual(response.status_code, 200)
 		self.assertEqual(response.data['status'], 'Uninitialized', response.data)
+		self.assertGreater(TransactionLimit.objects.count(), 0)
+		TransactionLimit.objects.all().update(last_reset=datetime(2014,1,1,0,0,0,0,timezone.utc))
 		reset_limits()
 		execute_orders()
 		response = self.client.get('/api/transactions/%s/' % order1.data['id'])
