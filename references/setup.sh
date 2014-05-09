@@ -1,5 +1,12 @@
 #!/bin/bash
 
+# syntax: source $0 ( HTTP | VIRTUALENV | ENQ ) ( staging | alpha | beta | production | development )
+
+# to re-link settings module, change environment variable DJANGO_SETTINGS_MODULE in
+#	1.) ~/.bashrc
+#	2.) /etc/apache2/apache2.conf
+# to appropriate settings after installation
+
 MODE="$1"
 MODULE="$2"
 
@@ -29,7 +36,7 @@ case $MODE in
 	"VIRTUALENV")
 		;;
 	*)
-		# set the default settings for django to be staging.py -- change manually to production.py to commit to live
+		# set the default settings for django -- change manually to production.py to commit to live
 		echo "export DJANGO_SETTINGS_MODULE=$SETTINGS" >> ~/.bashrc
 		source ~/.bashrc
 		;;
