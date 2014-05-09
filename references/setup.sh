@@ -1,7 +1,7 @@
 #!/bin/bash
 
 MODE="$1"
-MODULE="2"
+MODULE="$2"
 
 case $MODE in
 	"HTTP" | "VIRTUALENV" | "ENQ")
