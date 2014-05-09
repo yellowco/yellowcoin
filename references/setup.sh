@@ -12,6 +12,17 @@ case $MODE in
 		;;
 esac
 
+
+case $MODE in
+	"VIRTUALENV")
+		;;
+	*)
+		# set the default settings for django to be staging.py -- change manually to production.py to commit to live
+		echo 'export DJANGO_SETTINGS_MODULE=yellowcoin.settings.staging' >> ~/.bashrc
+		source ~/.bashrc
+		;;
+esac
+
 # TODO -- set up bitcoin client
 
 # may need to dropdb, createdb for postgres if models have changed (to wipe table metadata)
@@ -40,9 +51,9 @@ case $MODE in
 		;;
 	"VIRTUALENV")
 		# run the app in a virtual environment
-		pip install STAGING
+		pip install virtualenv
 
-		STAGING yc && sudo ln -s ~/yc /var/www/yc && cd yc
+		virtualenv yc && sudo ln -s ~/yc /var/www/yc && cd yc
 
 		# checkout all user-side apps
 		git clone --recursive https://github.com/kevmo314/yellowcoin.git
@@ -56,7 +67,7 @@ cd yellowcoin
 
 case $MODE in
 	"VIRTUALENV")
-		# start STAGING
+		# start virtualenv
 		. ../bin/activate
 
 		# install supplementary apps
@@ -72,16 +83,6 @@ esac
 
 # ensure everything is working correctly
 ./manage.py test --settings=yellowcoin.settings.staging 2> check.log
-
-case $MODE in
-	"VIRTUALENV")
-		;;
-	*)
-		# set the default settings for django to be staging.py -- change manually to production.py to commit to live
-		echo 'export DJANGO_SETTINGS_MODULE=yellowcoin.settings.staging' >> ~/.bashrc
-		source ~/.bashrc
-		;;
-esac
 
 # setup Apache
 case $MODE in
@@ -99,10 +100,10 @@ case $MODE in
 		;;
 	"ENQ")
 		sudo sed -ie '$d' /etc/rc.local
-		echo 'python /var/www/yellowcoin/manage.py cycle --settings=yellowcoin.settings.staging' | sudo tee -a /etc/rc.local
-		echo 'python /var/www/yellowcoin/manage.py execute --settings=yellowcoin.settings.staging' | sudo tee -a /etc/rc.local
+		echo 'python /var/www/yellowcoin/manage.py cycle' | sudo tee -a /etc/rc.local
+		echo 'python /var/www/yellowcoin/manage.py execute' | sudo tee -a /etc/rc.local
 		echo 'exit 0' | sudo tee -a /etc/rc.local
-		sudo sudo /etc/init.d/rc.local start
+		sudo /etc/init.d/rc.local start
 		nohup ./manage.py cycle &
 		nohup ./manage.py execute &
 		;;
