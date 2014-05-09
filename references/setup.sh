@@ -12,6 +12,17 @@ case $MODE in
 		;;
 esac
 
+
+case $MODE in
+	"VIRTUALENV")
+		;;
+	*)
+		# set the default settings for django to be staging.py -- change manually to production.py to commit to live
+		echo 'export DJANGO_SETTINGS_MODULE=yellowcoin.settings.staging' >> ~/.bashrc
+		source ~/.bashrc
+		;;
+esac
+
 # TODO -- set up bitcoin client
 
 # may need to dropdb, createdb for postgres if models have changed (to wipe table metadata)
@@ -72,16 +83,6 @@ esac
 
 # ensure everything is working correctly
 ./manage.py test --settings=yellowcoin.settings.staging 2> check.log
-
-case $MODE in
-	"VIRTUALENV")
-		;;
-	*)
-		# set the default settings for django to be staging.py -- change manually to production.py to commit to live
-		echo 'export DJANGO_SETTINGS_MODULE=yellowcoin.settings.staging' >> ~/.bashrc
-		source ~/.bashrc
-		;;
-esac
 
 # setup Apache
 case $MODE in
