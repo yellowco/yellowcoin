@@ -100,7 +100,16 @@ case $MODE in
 esac
 
 # ensure everything is working correctly in the almost-live stage
-./manage.py test --settings=yellowcoin.settings.staging 2> check.log
+case $MODULE in
+	"staging")
+		./manage.py test --settings=yellowcoin.settings.staging 2> check.log
+		;;
+	"development")
+		./manage.py test --settings=yellowcoin.settings.development 2> check.log
+		;;
+	*)
+		;;
+esac
 
 ./manage.py syncdb
 
