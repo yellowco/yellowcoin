@@ -7,6 +7,8 @@
 #	2.) /etc/apache2/apache2.conf
 # to appropriate settings after installation
 
+# may need to dropdb, createdb for postgres if models have changed (to wipe table metadata)
+
 MODE="$1"
 MODULE="$2"
 
@@ -41,10 +43,6 @@ case $MODE in
 		source ~/.bashrc
 		;;
 esac
-
-# TODO -- set up bitcoin client
-
-# may need to dropdb, createdb for postgres if models have changed (to wipe table metadata)
 
 # enable multiverse
 sudo sed -i "/^# deb.*multiverse/ s/^# //" /etc/apt/sources.list
