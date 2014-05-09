@@ -103,7 +103,7 @@ case $MODE in
 		echo 'python /var/www/yellowcoin/manage.py cycle' | sudo tee -a /etc/rc.local
 		echo 'python /var/www/yellowcoin/manage.py execute' | sudo tee -a /etc/rc.local
 		echo 'exit 0' | sudo tee -a /etc/rc.local
-		sudo sudo /etc/init.d/rc.local start
+		sudo /etc/init.d/rc.local start
 		nohup ./manage.py cycle &
 		nohup ./manage.py execute &
 		;;
