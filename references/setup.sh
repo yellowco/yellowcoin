@@ -149,3 +149,5 @@ case $MODE in
 	*)
 		;;
 esac
+
+sudo reboot
