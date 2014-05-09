@@ -30,7 +30,7 @@ case $MODE in
 		;;
 	*)
 		# set the default settings for django to be staging.py -- change manually to production.py to commit to live
-		echo 'export DJANGO_SETTINGS_MODULE=$SETTINGS' >> ~/.bashrc
+		echo "export DJANGO_SETTINGS_MODULE=$SETTINGS" >> ~/.bashrc
 		source ~/.bashrc
 		;;
 esac
