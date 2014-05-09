@@ -1,7 +1,6 @@
 # Celery tasks
 
 from __future__ import absolute_import
-from yellowcoin.celery import logger
 from celery import shared_task
 from django.conf import settings
 from yellowcoin.transactions.models import Order, Transaction, TransactionLimit, RecurringOrder

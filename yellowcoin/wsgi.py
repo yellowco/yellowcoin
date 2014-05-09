@@ -7,5 +7,14 @@ For more information on this file, see
 https://docs.djangoproject.com/en/1.6/howto/deployment/wsgi/
 """
 
-from django.core.wsgi import get_wsgi_application
-application = get_wsgi_application()
+import os
+
+from django.core.handlers.wsgi import WSGIHandler
+
+# cf. http://bit.ly/1nuDtq9
+class WSGIEnvironment(WSGIHandler):
+	def __call__(self, environ, start_response):
+		os.environ['DJANGO_SETTINGS_MODULE'] = environ['DJANGO_SETTINGS_MODULE']
+		return super(WSGIEnvironment, self).__call__(environ, start_response)
+
+application = WSGIEnvironment()
