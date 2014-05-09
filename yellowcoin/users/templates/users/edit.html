@@ -7,8 +7,8 @@
 <p>Increase your limits by filling out more of your profile. Have a special request? <a href="{% url 'contact' %}">Send us an email</a> and we'll be in touch.</p>
 <form class="row alert animate alert-warning" ng-show="deltaChanged">
 	<div class="col-md-12 text-center">
-		<label for="current-password">Enter your current password to save your changes:&nbsp;</label><span class="form-inline"><span class="form-group">
-		<input type="password" ng-model="delta.current_password" id="current-password" class="form-control"/></span>
+		<label for="current_password">Enter your current password to save your changes:&nbsp;</label><span class="form-inline"><span class="form-group">
+		<input type="password" ng-model="delta.current_password" id="current_password" class="form-control"/></span>
 		<button type="submit" class="btn btn-default" ng-click="saveChanges()">Save</button></span>
 	</div>
 </form>
@@ -16,24 +16,24 @@
 <form class="form-horizontal">
 <div profile-input="user" title="Email Address" display="user.email" warning="{[(!user.is_valid.email ? 'Not verified' : '')]}">
 	<div class="row alert animate alert-warning">We'll need to confirm that you own this email address before you can make a transaction under it</div>
-	<input type="email" class="form-control" ng-model="delta.email" placeholder="Email address"/>
+	<input type="text" class="form-control" ng-model="delta.email" id="email" placeholder="Email address"/>
 </div>
-<div profile-input="user" title="Password" display="'********'" affects="['password']">
+<div profile-input="user" title="Password" display="'********'" affects="['password']" on-open="invokePasswordMeter()">
 <label for="new-password">New Password</label>
 <input type="password" class="form-control" id="new-password" ng-model="delta.password"/>
-<label for="confirm-password">Confirm Password</label>
-<input type="password" class="form-control" id="confirm-password"/>
+<label for="new-password-confirm">Confirm Password</label>
+<input type="password" class="form-control" id="new-password-confirm"/>
 </div>
 
 <div profile-input="user" title="Identity" display="user.first_name ? user.first_name + ' ' + user.last_name : 'Not set'">
 	<div class="row">
 		<div class="col-sm-6">
 			<label for="first-name">First Name</label>
-			<input type="text" id="first-name" ng-model="delta.first_name" placeholder="John" class="form-control"/>
+			<input type="text" id="first_name" ng-model="delta.first_name" placeholder="John" class="form-control"/>
 		</div>
 		<div class="col-sm-6">
 			<label for="last-name">Last Name</label>
-			<input type="text" id="last-name" ng-model="delta.last_name" placeholder="Doe" class="form-control"/>
+			<input type="text" id="last_name" ng-model="delta.last_name" placeholder="Doe" class="form-control"/>
 		</div>
 	</div>
 </div>
@@ -65,10 +65,10 @@
 	</div>
 </div>
 <div profile-input="user" title="Phone" display="user.phone | tel" warning="{[(!user.is_valid.phone && user.phone ? 'Not verified' : '')]}">
-	<input type="text" class="form-control" ng-model="delta.phone" placeholder="Phone number"/>
+	<input type="text" class="form-control" id="phone" ng-model="delta.phone" placeholder="Phone number"/>
 </div> 
 <div profile-input="user" title="Social Security Number" display="user.ssn">
-	<input type="text" class="form-control" ng-model="delta.ssn" placeholder="Social security number"/>
+	<input type="text" class="form-control" id="ssn" ng-model="delta.ssn" placeholder="Social security number"/>
 </div> 
 </form>
 <h2>Settings <small ng-show="working">Working...</small></h2>

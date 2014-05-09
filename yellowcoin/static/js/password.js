@@ -1,5 +1,8 @@
 $(document).ready(function() {
 	var $password = $("#register-password");
+	if(!$password) {
+		return; // sanity check
+	}
 	var $confirm = $("#register-password-confirm");
 	var $email = $("#register-email");
 	var $tos = $("input[name='tos']");

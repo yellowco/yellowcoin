@@ -62,6 +62,13 @@ function ProfileController($scope, $http, $timeout) {
 		$scope.deltaChanged = false;
 	}, true);
 	$scope.saveChanges = function() {
+		$("input").tooltip('destroy').parent().removeClass('has-error');
+		if($scope.delta['password']) {
+			if($("#new-password").val() != $("#new-password-confirm").val()) {
+				$("#new-password-confirm").tooltip({trigger:'manual', title:"This doesn't match the password above."}).tooltip('show');
+				return;
+			}
+		}
 		$http.put('/api/profile/', $scope.delta).success(function(data) {
 			$.extend(true, $scope.user, data);
 			// must retain reference to object, can't do $scope.delta = {}
@@ -72,6 +79,10 @@ function ProfileController($scope, $http, $timeout) {
 				delete $scope.delta[key];
 			}
 			$scope.$broadcast('clearEditing');
+		}).error(function(data) {
+			for(var error in data.detail) {
+				$("#" + error).tooltip({trigger:'manual', tile:data.detail[error][0]}).tooltip('show').parent().addClass('has-error');
+			}
 		});
 	};
 	$scope.geocode = function(val) {
@@ -107,6 +118,47 @@ function ProfileController($scope, $http, $timeout) {
 				$scope.delta.zip = component.short_name;
 			}
 		}
+	};
+	function setStrength(str) {
+		var $parent = $("#new-password").parent();
+		$parent.removeClass('has-success has-warning has-error');
+		if(str > 80) {
+			$parent.addClass('has-success');
+		} else if(str > 60) {
+			$parent.addClass('has-warning');
+		} else {
+			$parent.addClass('has-error');
+		}
+	}
+	function scorePassword(pass) {
+	    var score = 0;
+	    if (!pass)
+	        return score;
+	    var letters = new Object();
+	    for (var i=0; i<pass.length; i++) {
+	        letters[pass[i]] = (letters[pass[i]] || 0) + 1;
+	        score += 5.0 / letters[pass[i]];
+	    }
+
+	    var variations = {
+	        digits: /\d/.test(pass),
+	        lower: /[a-z]/.test(pass),
+	        upper: /[A-Z]/.test(pass),
+	        nonWords: /\W/.test(pass),
+	    }
+	    variationCount = 0;
+	    for (var check in variations) {
+	        variationCount += (variations[check] == true) ? 1 : 0;
+	    }
+	    score += (variationCount - 1) * 10;
+	    return parseInt(score);
+	}
+	$scope.invokePasswordMeter = function() {
+		var $password = $("#new-password");
+		var $confirm = $("#new-password-confirm");
+		$password.keypress(function() {
+			setStrength(scorePassword($password.val()));
+		});
 	};
 }
 app.directive('toggleSwitch', function () {
@@ -177,7 +229,8 @@ app.directive('profileInput', function() {
 			title: '@',
 			bind:'=profileInput',
 			affects:'@',
-			warning:'@'
+			warning:'@',
+			onOpen:'&'
 		},
 		transclude:true,
 		template: '<div class="form-group row">'
@@ -220,6 +273,9 @@ app.directive('profileInput', function() {
 					$scope.reset();
 				} else {
 					$scope.load();
+					if($scope.onOpen) {
+						$scope.onOpen();
+					}
 				}
 				$scope.editing = !$scope.editing;
 			};

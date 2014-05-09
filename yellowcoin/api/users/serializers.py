@@ -1,5 +1,6 @@
 from django.contrib.auth import authenticate
 from django.core.paginator import Page # for type detection 
+from django.core.validators import validate_email
 from rest_framework import serializers
 from django_routing_numbers import Institution
 from yellowcoin.users.models import *
@@ -76,6 +77,10 @@ class ProfileSerializer(serializers.Serializer):
 	current_password = serializers.CharField()
 	
 	is_valid = serializers.SerializerMethodField('get_validity_object')
+
+	def validate_email(self, attrs, source):
+		validate_email(attrs[source])
+		return attrs
 
 	def validate_ssn(self, attrs, source):
 		return self._restrict_valid_profile(attrs, source)

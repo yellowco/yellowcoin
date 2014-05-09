@@ -6,6 +6,7 @@
 <link rel="stylesheet" href="{{ STATIC_URL }}css/angular-toggle-switch-bootstrap.css"/>
 <script src="{{ STATIC_URL }}js/moment-with-langs.min.js"></script>
 <script src="{{ STATIC_URL }}js/angular-moment.min.js"></script>
+<script src="{{ STATIC_URL }}js/ui-bootstrap-tpls-0.10.0.js"></script>
 <!--[if lte IE8]><script src="//cdnjs.cloudflare.com/ajax/libs/json3/3.3.0/json3.min.js"></script><![endif]-->
 {% endblock %}
 
@@ -86,7 +87,7 @@ var app = angular.module('app', ['ngRoute', 'ngSanitize', 'ngAnimate', 'ui.boots
 			$rootScope.user.is_valid.email = true;
 		});
 	};
-	$rootScope.resendEmailText = "Resend the verification email.";
+	$rootScope.resendEmailText = "Resend the verification email";
 	$rootScope.resendPhone = "{% url 'users|verify' %}";
 	$rootScope.settings = {{ settings | safe }};
 	$rootScope.getOneClickString = function() {
