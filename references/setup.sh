@@ -1,24 +1,36 @@
 #!/bin/bash
 
 MODE="$1"
+MODULE="2"
 
 case $MODE in
 	"HTTP" | "VIRTUALENV" | "ENQ")
 		echo "setting up this node in $MODE mode"
 		;;
 	*)
-		echo "invalid settings -- oneof HTTP | VIRTUALENV | ENQ"
+		echo "invalid settings -- MODE oneof HTTP | VIRTUALENV | ENQ"
 		exit 0
 		;;
 esac
 
+case $MODULE in
+	"staging" | "alpha" | "beta" | "production" | "development")
+		echo "setting up this node in $MODULE environment"
+		;;
+	*)
+		echo "invalid settings -- MODULE oneof staging | alpha | beta | production | development"
+		exit 0
+		;;
+esac
+
+SETTINGS="yellowcoin.settings.$MODULE"
 
 case $MODE in
 	"VIRTUALENV")
 		;;
 	*)
 		# set the default settings for django to be staging.py -- change manually to production.py to commit to live
-		echo 'export DJANGO_SETTINGS_MODULE=yellowcoin.settings.staging' >> ~/.bashrc
+		echo 'export DJANGO_SETTINGS_MODULE=$SETTINGS' >> ~/.bashrc
 		source ~/.bashrc
 		;;
 esac
@@ -60,6 +72,8 @@ case $MODE in
 		;;
 	*)
 		git clone --recursive https://github.com/kevmo314/yellowcoin.git
+		sudo mkdir /var/www
+		sudo ln -s ~/yellowcoin /var/www/yellowcoin
 		;;
 esac
 
@@ -81,8 +95,10 @@ case $MODE in
 		;;
 esac
 
-# ensure everything is working correctly
+# ensure everything is working correctly in the almost-live stage
 ./manage.py test --settings=yellowcoin.settings.staging 2> check.log
+
+./manage.py syncdb
 
 # setup Apache
 case $MODE in
@@ -95,8 +111,6 @@ case $MODE in
 
 		sudo tee -a /etc/apache2/apache2.conf < references/wsgi_setup.txt
 		sudo /etc/init.d/apache2 restart
-
-		./manage.py syncdb
 		;;
 	"ENQ")
 		sudo sed -ie '$d' /etc/rc.local
