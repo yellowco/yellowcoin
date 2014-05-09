@@ -8,7 +8,7 @@ LOGGING = {
 			# if necessary, the logging.handlers.TimedRotatingFileHandler class can also be used
 			#	cf. http://bit.ly/OHBvXe
 			'class' : 'logging.handlers.RotatingFileHandler',
-			'filename' : os.path.join(os.path.dirname(__file__), '..', '..', 'audit.log'),
+			'filename' : os.path.join(os.path.dirname(__file__), '..', '..', '..', 'logs', 'audit.log'),
 			'maxBytes' : 16 * (1024 ** 2),
 		},
 	},

@@ -32,7 +32,7 @@ case $MODE in
 		# set the default settings for django to be staging.py -- change manually to production.py to commit to live
 		echo "export DJANGO_SETTINGS_MODULE=$SETTINGS" >> ~/.bashrc
 		source ~/.bashrc
-		
+
 		# get around the fact that 'source' does not propagate in a script
 		#	cf. http://bit.ly/RwJNlM
 		exec bash
@@ -81,6 +81,10 @@ case $MODE in
 		;;
 esac
 
+# logging for tasks.py
+sudo touch /var/www/yellowcoin/logs/audit.log
+sudo chmod ugo+rw /var/www/yellowcoin/logs/audit.log
+
 cd yellowcoin
 
 case $MODE in
@@ -112,6 +116,8 @@ case $MODE in
 
 		sudo cp references/yellowcoin.conf /etc/apache2/sites-enabled/
 		sudo ln -s /etc/apache2/sites-enabled/yellowcoin.conf /etc/apache2/sites-available/
+
+		echo "SetEnv DJANGO_SETTINGS_MODULE $SETTINGS" >> references/wsgi_setup.txt
 
 		sudo tee -a /etc/apache2/apache2.conf < references/wsgi_setup.txt
 		sudo /etc/init.d/apache2 restart
