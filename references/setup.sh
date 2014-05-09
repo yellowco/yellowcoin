@@ -40,9 +40,9 @@ case $MODE in
 		;;
 	"VIRTUALENV")
 		# run the app in a virtual environment
-		pip install STAGING
+		pip install virtualenv
 
-		STAGING yc && sudo ln -s ~/yc /var/www/yc && cd yc
+		virtualenv yc && sudo ln -s ~/yc /var/www/yc && cd yc
 
 		# checkout all user-side apps
 		git clone --recursive https://github.com/kevmo314/yellowcoin.git
@@ -56,7 +56,7 @@ cd yellowcoin
 
 case $MODE in
 	"VIRTUALENV")
-		# start STAGING
+		# start virtualenv
 		. ../bin/activate
 
 		# install supplementary apps
