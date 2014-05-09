@@ -95,16 +95,6 @@ case $MODE in
 		;;
 esac
 
-# logging for tasks.py test cases
-case $MODULE in
-	"staging" | "development")
-		sudo touch /var/www/yellowcoin/logs/audit.log
-		sudo chmod ugo+rw /var/www/yellowcoin/logs/audit.log
-		;;
-	*)
-		;;
-esac
-
 # ensure everything is working correctly in the almost-live stage
 case $MODULE in
 	"staging")
