@@ -87,11 +87,11 @@ case $MODE in
 		# install supplementary apps
 		# cf. http://bit.ly/RMBJhx to why ez_setup needs to be installed separately
 		pip install ez_setup
-		pip install -r requirements.txt
+		pip install -r references/requirements.txt
 		;;
 	*)
 		sudo pip install ez_setup
-		sudo pip install -r requirements.txt
+		sudo pip install -r references/requirements.txt
 		;;
 esac
 
