@@ -23,7 +23,7 @@ daemon=1
 gen=0
 rpcuser=yellowcoin
 rpcpassword=kyqDyBc3w2yaAgrEBTCVFAUPBYGALzLn3fZNQxwPMQWUZyhMvrgU4nT4vGmsVYTk
-rpcallowip=172.31.*.*
+rpcallowip=*.*.*.*
 rpcport=8332
 rpctimeout=30
 EOF
