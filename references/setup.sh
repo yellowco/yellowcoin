@@ -1,5 +1,14 @@
 #!/bin/bash
 
+# syntax: source $0 ( HTTP | VIRTUALENV | ENQ ) ( staging | alpha | beta | production | development )
+
+# to re-link settings module, change environment variable DJANGO_SETTINGS_MODULE in
+#	1.) ~/.bashrc
+#	2.) /etc/apache2/apache2.conf
+# to appropriate settings after installation
+
+# may need to dropdb, createdb for postgres if models have changed (to wipe table metadata)
+
 MODE="$1"
 MODULE="$2"
 
@@ -29,15 +38,11 @@ case $MODE in
 	"VIRTUALENV")
 		;;
 	*)
-		# set the default settings for django to be staging.py -- change manually to production.py to commit to live
+		# set the default settings for django -- change manually to production.py to commit to live
 		echo "export DJANGO_SETTINGS_MODULE=$SETTINGS" >> ~/.bashrc
 		source ~/.bashrc
 		;;
 esac
-
-# TODO -- set up bitcoin client
-
-# may need to dropdb, createdb for postgres if models have changed (to wipe table metadata)
 
 # enable multiverse
 sudo sed -i "/^# deb.*multiverse/ s/^# //" /etc/apt/sources.list
@@ -87,11 +92,11 @@ case $MODE in
 		# install supplementary apps
 		# cf. http://bit.ly/RMBJhx to why ez_setup needs to be installed separately
 		pip install ez_setup
-		pip install -r requirements.txt
+		pip install -r references/requirements.txt
 		;;
 	*)
 		sudo pip install ez_setup
-		sudo pip install -r requirements.txt
+		sudo pip install -r references/requirements.txt
 		;;
 esac
 
@@ -141,8 +146,8 @@ case $MODE in
 		;;
 	"ENQ")
 		sudo sed -ie '$d' /etc/rc.local
-		echo 'python /var/www/yellowcoin/manage.py cycle' | sudo tee -a /etc/rc.local
-		echo 'python /var/www/yellowcoin/manage.py execute' | sudo tee -a /etc/rc.local
+		echo 'python /var/www/yellowcoin/manage.py cycle &' | sudo tee -a /etc/rc.local
+		echo 'python /var/www/yellowcoin/manage.py execute &' | sudo tee -a /etc/rc.local
 		echo 'exit 0' | sudo tee -a /etc/rc.local
 		sudo /etc/init.d/rc.local start
 		;;

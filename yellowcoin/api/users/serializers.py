@@ -79,7 +79,9 @@ class ProfileSerializer(serializers.Serializer):
 	is_valid = serializers.SerializerMethodField('get_validity_object')
 
 	def validate_email(self, attrs, source):
-		validate_email(attrs.get('source', ''))
+		email = attrs.get(source, '')
+		if email:
+			validate_email(email)
 		return attrs
 
 	def validate_ssn(self, attrs, source):
