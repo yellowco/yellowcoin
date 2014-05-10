@@ -22,6 +22,7 @@ import requests
 from yellowcoin.api.transactions.serializers import OrderTemplateSerializer
 import yellowcoin.users.signals as signals
 import logging
+from yellowcoin.settings.contrib.logging import log
 
 logger = logging.getLogger('tasks.audit')
 
@@ -29,11 +30,7 @@ logger = logging.getLogger('tasks.audit')
 
 # debug
 
-def log(msg):
-	message = '%s\t%s' % ( str(timezone.now()), str(msg), )
-	logger.info(message)
-
-tx_dump = lambda tx, msg: log('\t'.join(str(x) for x in (
+tx_dump = lambda tx, msg: log(logger, '\t'.join(str(x) for x in (
 	tx.user.id, tx.id, tx.order.id, tx.status,
 	tx.deposit_tx_id, tx.withdrawal_tx_id,
 	tx.error_code, tx.error_data.get('error_message', ''), msg, )))
