@@ -9,7 +9,7 @@ DATABASES = {
 		'NAME': 'yellowcoin',
 		'USER': 'yellowcoin',
 		'PASSWORD': 're5aTtxg3QEwsJBN9fNt9jQs',
-		'HOST': 'development.cyacjwnr6zif.us-west-2.rds.amazonaws.com',
+		'HOST': 'yellowcoin.cyacjwnr6zif.us-west-2.rds.amazonaws.com',
 		'PORT': '5432'
 	}
 }
