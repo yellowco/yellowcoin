@@ -102,9 +102,6 @@ esac
 
 # ensure everything is working correctly in the almost-live stage
 case $MODULE in
-	"staging")
-		./manage.py test --settings=yellowcoin.settings.staging 2> check.log
-		;;
 	"development")
 		./manage.py test --settings=yellowcoin.settings.development 2> check.log
 		;;
@@ -114,7 +111,7 @@ esac
 
 # logging for task.py production
 case $MODULE in
-	"staging" | "development")
+	"development")
 		sudo mv /var/www/yellowcoin/logs/audit.log /var/www/yellowcoin/logs/audit.check.log
 		sudo touch /var/www/yellowcoin/logs/audit.log
 		sudo chmod ugo+rw /var/www/yellowcoin/logs/audit.log
