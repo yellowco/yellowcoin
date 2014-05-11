@@ -5,7 +5,6 @@ from yellowcoin.transactions.tasks import execute_orders, execute_recurring_orde
 from yellowcoin.transactions.models import Transaction, RecurringOrder, TransactionLimit
 from yellowcoin.currencypool.models import POOLS
 from yellowcoin.enums import CURRENCIES, CRYPTOCURRENCIES
-from bitcoind_emulator import EmulatedBitcoinConnection
 from django.conf import settings
 from yellowcoin.transactions.tasks import reset_limits
 from django.test.utils import override_settings
@@ -15,7 +14,7 @@ from datetime import datetime
 def CALCULATE_TEST_FEE(val, currency):
 	return val * Decimal('0.01')
 
-@override_settings(BTC_CONN=EmulatedBitcoinConnection(),
+@override_settings(
 	CALCULATE_FEE=CALCULATE_TEST_FEE
 )
 class TestTransactions(YellowcoinAPITestCase):

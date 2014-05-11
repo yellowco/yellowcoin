@@ -1,4 +1,3 @@
-from bitcoind_emulator import EmulatedBitcoinConnection
 from django.test import TestCase
 from django.test.client import Client
 from django.conf import settings
@@ -9,7 +8,7 @@ from yellowcoin.users.signals import referral_completed
 from django.contrib.gis.geoip import GeoIP
 from datetime import timedelta, datetime
 
-@override_settings(BTC_CONN=EmulatedBitcoinConnection(), MAX_USERS=5)
+@override_settings(MAX_USERS=5)
 class TestUser(TestCase):
 	def setUp(self):
 		self.user = User.objects.create_user('test@test.com','test')
