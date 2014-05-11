@@ -3,7 +3,7 @@ from balanced_yellowcoin import balanced
 from urllib import quote
 from bitcoinrpc import connect_to_remote
 
-BTC_CONN = connect_to_remote('Yellowcoin', 'kyqDyBc3w2yaAgrEBTCVFAUPBYGALzLn3fZNQxwPMQWUZyhMvrgU4nT4vGmsVYTk', host='10.0.1.120')
+BTC_CONN = connect_to_remote('Yellowcoin', 'kyqDyBc3w2yaAgrEBTCVFAUPBYGALzLn3fZNQxwPMQWUZyhMvrgU4nT4vGmsVYTk', host='10.0.1.92')
 MIN_CONF = 4
 BTC_ACCT = 'BTC_ACCT'
 
