@@ -114,13 +114,15 @@ case $MODULE in
 	"development")
 		sudo mv /var/www/yellowcoin/logs/audit.log /var/www/yellowcoin/logs/audit.check.log
 		sudo touch /var/www/yellowcoin/logs/audit.log
-		sudo chmod ugo+rw /var/www/yellowcoin/logs/audit.log
 		;;
 	*)
 		;;
 esac
 
 ./manage.py syncdb
+
+sudo touch /var/www/yellowcoin/logs/daemons.log
+sudo chmod ugo+rw /var/www/yellowcoin/logs/*.log
 
 # setup Apache
 case $MODE in
