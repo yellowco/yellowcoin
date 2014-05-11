@@ -35,21 +35,8 @@ TEMPLATE_DEBUG = False
 
 CACHE = False
 
-ALLOWED_HOSTS = ['*']
-
-# Versioning system --
-#	(0.0|0.1|X.0).YY.MM.DD
-#	0.0 -- alpha
-#	0.1 -- beta
-#	X.0 -- release
-VERSION_INFO = {
-	'state' : 'alpha',
-	'version' : 0,
-	'iteration' : 0,
-	'year' : 14,
-	'month' : 2,
-	'day' : 24,
-}
+# cf. http://bit.ly/1nCLPvW
+ALLOWED_HOSTS = [ '.yellowco.in' ]
 
 # Application definition
 
