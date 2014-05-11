@@ -7,6 +7,8 @@ BTC_CONN = connect_to_remote('Yellowcoin', 'kyqDyBc3w2yaAgrEBTCVFAUPBYGALzLn3fZN
 BTC_MINCONF = 4
 BTC_ACCT = 'BTC_ACCT'
 
+MAX_USERS = 10
+
 balanced.Config.config(key='ak-prod-2u8Yyd0Zsg2mPbiZ7XByGixZhI6ZKCyYy')
 DATABASES = {
 	'default': {
