@@ -34,3 +34,12 @@ CELERY_QUEUES = {
 		'binding_key': CELERY_DEFAULT_QUEUE
 	}
 }
+
+# Django caching framework -- for now, we shall use the filesystem to store the cache
+CACHES = {
+	'default': {
+		'BACKEND': 'django.core.cache.backends.filebased.FileBasedCache',
+		'LOCATION': './cache/production/',
+	}
+}
+

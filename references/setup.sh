@@ -84,6 +84,12 @@ esac
 
 cd yellowcoin
 
+sudo chmod -R ugo+rw /var/www/yellowcoin/cache
+sudo chmod -R ugo+rw /var/www/yellowcoin/logs
+
+sudo chmod ugo+s /var/www/yellowcoin/cache
+sudo chmod ugo+s /var/www/yellowcoin/logs
+
 case $MODE in
 	"VIRTUALENV")
 		# start virtualenv
@@ -112,17 +118,14 @@ esac
 # logging for task.py production
 case $MODULE in
 	"development")
-		sudo mv /var/www/yellowcoin/logs/audit.log /var/www/yellowcoin/logs/audit.check.log
-		sudo touch /var/www/yellowcoin/logs/audit.log
+		mv /var/www/yellowcoin/logs/audit.log /var/www/yellowcoin/logs/audit.check.log
+		touch /var/www/yellowcoin/logs/audit.log
 		;;
 	*)
 		;;
 esac
 
 ./manage.py syncdb
-
-sudo touch /var/www/yellowcoin/logs/daemons.log
-sudo chmod ugo+rw /var/www/yellowcoin/logs/*.log
 
 # setup Apache
 case $MODE in
@@ -146,7 +149,6 @@ case $MODE in
 	"ENQ")
 		sudo sed -ie '$d' /etc/rc.local
 		echo 'python /var/www/yellowcoin/manage.py cycle &' | sudo tee -a /etc/rc.local
-		echo 'python /var/www/yellowcoin/manage.py execute &' | sudo tee -a /etc/rc.local
 		echo 'exit 0' | sudo tee -a /etc/rc.local
 		sudo /etc/init.d/rc.local start
 		;;

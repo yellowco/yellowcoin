@@ -133,4 +133,3 @@ from string import strip
 
 # get server IP
 HOST_IP = strip(urlopen('http://icanhazip.com/').read())
-

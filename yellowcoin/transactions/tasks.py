@@ -1,6 +1,8 @@
 # Celery tasks
 
 from __future__ import absolute_import
+import functools
+from django.core.cache import cache
 from time import sleep
 from celery import shared_task
 from django.conf import settings
@@ -26,10 +28,30 @@ import logging
 from yellowcoin.settings.contrib.logging import log
 
 logger = logging.getLogger('tasks.audit')
+daemons = logging.getLogger('tasks.daemons.')
 
-# TODO -- add formatting
+minute = 60
 
-# debug
+# function decorator to ensure serialization
+#	cf. http://bit.ly/1gfu8TB
+#	no timeout is set -- we must manually call cache.delete() if there is some power outage
+def single_instance_task():
+	def task_exc(func):
+		@functools.wraps(func)
+		def wrapper(*args, **kwargs):
+			lock_id = "celery-single-instance-" + func.__name__
+			print "key: " + lock_id
+			acquire_lock = lambda: cache.add(lock_id, True)
+			release_lock = lambda: cache.delete(lock_id)
+			# non-blocking lock -- on cache add failure, task immediately exits
+			if acquire_lock():
+				log(daemons, 'executing ' + func.__name__)
+				try:
+					func(*args, **kwargs)
+				finally:
+					release_lock()
+		return wrapper
+	return task_exc
 
 tx_dump = lambda tx, msg: log(logger, '\t'.join(str(x) for x in (
 	tx.user.id, tx.id, tx.order.id, tx.status,
@@ -49,7 +71,6 @@ def error_base_handler(t, msg='', aux={}):
 def insufficient_funds_handler(t, msg='We\'ve run out of money!'):
 	return status_handler(t, status.INSUFFICIENT_FUNDS, msg)
 
-# status.LIMIT_CEILING is a WARNING -- pauses the task at the current stage to be re-checked on next iteration
 def limit_ceiling_handler(t, msg='Your daily transaction limit has been reached. This order will be fulfilled once your limit has been reset.'):
 	return status_handler(t, status.LIMIT_CEILING, msg=msg)
 
@@ -72,37 +93,38 @@ def reset_pool_handler(t, msg, aux, pool, amount):
 	pool.add(amount, t.fingerprint['currency_pool_exchange_rate'])
 	return error_base_handler(t, msg, aux)
 
-@shared_task
-def test():
-	print('from minke hi')
-	test.apply_async(countdown=1)
-
 # resets the transaction limits once per day
 @shared_task
-def reset_limits():
+@single_instance_task()
+def reset_limits(task=False):
 	for transaction_limit in TransactionLimit.objects.filter(cur_amount__gt=0).all():
 		now = timezone.now()
 		if (now - transaction_limit.last_reset).days > 1:
 			transaction_limit.last_reset = now
 			transaction_limit.cur_amount = 0
 			transaction_limit.save()
-	sleep(60)
-	daemons = logging.getLogger('tasks.daemons')
-	log(daemons, 'reset_limits() executed')
-	reset_limit.delay()
+	if(task):
+		sleep(minute)
+		reset_limits.delay(task=task)
 
 # delete all abandoned transactions
 # do not need to call payment_method.unlock() -- abandoned transactions do not affect locked status
 @shared_task
-def clear_orders():
+@single_instance_task()
+def clear_orders(task=False):
 	abandoned_transactions = Transaction.objects.filter(status='A')
 	for t in abandoned_transactions:
 		tx_dump(t, 'deleting transaction from database')
 		t.order.delete()
+	clear_orders.apply_async(countdown=minute)
+	if(task):
+		sleep(minute)
+		clear_orders.delay(task=task)
 
 # create reoccuring orders and add to database
 @shared_task
-def execute_recurring_orders():
+@single_instance_task()
+def execute_recurring_orders(task=False):
 	now = timezone.now()
 	for ro in RecurringOrder.objects.exclude(first_run__gt=now).all():
 		if now >= ro.last_run + timedelta(seconds=ro.interval):
@@ -110,12 +132,15 @@ def execute_recurring_orders():
 			a = Order.objects.create_order(False, settings.HOST_IP, template.user, template.bid_currency, template.ask_currency, Order.objects.create_data_from_template(template), is_reoccuring=True)
 			ro.last_run = now
 			ro.save()
+	execute_recurring_orders.apply_async(countdown=minute)
+	if(task):
+		sleep(minute)
+		execute_recurring_orders.delay(task=task)
 
 # executes all orders in queue
-# TODO -- prompt and downwards should be executed on .delay()
-#	execute_orders() should be run on a while loop in ./manage.py cycle
 @shared_task
-def execute_orders():
+@single_instance_task()
+def execute_orders(task=False):
 	# get all incomplete transactions, which did not FAIL permanently
 	active_transactions = Transaction.objects.exclude(status='C').exclude(status='A').filter(error_code__lt=status.ERROR_BASE)
 	active_transactions = sorted(active_transactions, key=lambda x: x.order.timestamp)
@@ -144,8 +169,10 @@ def execute_orders():
 		# DELETED - refund money to the user
 		elif t.status == 'D':
 			refund(t)
-
 		tx_dump(t, 'executed transaction')
+	if(task):
+		sleep(minute)
+		execute_orders.delay(task=task)
 
 def init(t):
 	order = t.order
