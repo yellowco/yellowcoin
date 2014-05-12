@@ -13,7 +13,7 @@ MODE="$1"
 MODULE="$2"
 
 case $MODE in
-	"HTTP" | "VIRTUALENV" | "ENQ")
+	"HTTP" | "VIRTUALENV" | "ENQ" | "DEQ")
 		echo "setting up this node in $MODE mode"
 		;;
 	*)
@@ -84,8 +84,8 @@ esac
 
 cd yellowcoin
 
-sudo chmod -R ugo+rw /var/www/yellowcoin/cache
-sudo chmod -R ugo+rw /var/www/yellowcoin/logs
+sudo chmod -R ugo+rwx /var/www/yellowcoin/cache
+sudo chmod -R ugo+rwx /var/www/yellowcoin/logs
 
 sudo chmod ugo+s /var/www/yellowcoin/cache
 sudo chmod ugo+s /var/www/yellowcoin/logs
@@ -148,9 +148,13 @@ case $MODE in
 		;;
 	"ENQ")
 		sudo sed -ie '$d' /etc/rc.local
-		echo 'python /var/www/yellowcoin/manage.py cycle &' | sudo tee -a /etc/rc.local
-		echo 'exit 0' | sudo tee -a /etc/rc.local
+		echo "python /var/www/yellowcoin/manage.py cycle &" | sudo tee -a /etc/rc.local
+		echo "exit 0" | sudo tee -a /etc/rc.local
 		sudo /etc/init.d/rc.local start
+		;;
+	"DEQ")
+		sudo cp "references/celeryd.sh" "/etc/init.d/celeryd"
+		sudo cp "references/celeryd.conf" "/etc/default/celeryd"
 		;;
 	*)
 		;;
