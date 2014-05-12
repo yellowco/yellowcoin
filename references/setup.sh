@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# syntax: source $0 ( HTTP | VIRTUALENV | ENQ ) ( staging | alpha | beta | production | development )
+# syntax: source $0 ( HTTP | VIRTUALENV | ENQ | DEQ ) ( staging | alpha | beta | production | development )
 
 # to re-link settings module, change environment variable DJANGO_SETTINGS_MODULE in
 #	1.) ~/.bashrc
@@ -153,6 +153,7 @@ case $MODE in
 		sudo /etc/init.d/rc.local start
 		;;
 	"DEQ")
+		# cf. http://bit.ly/1gwBT22
 		sudo cp "references/celeryd.sh" "/etc/init.d/celeryd"
 		sudo cp "references/celeryd.conf" "/etc/default/celeryd"
 		;;
