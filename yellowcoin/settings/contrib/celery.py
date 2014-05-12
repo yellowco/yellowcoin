@@ -3,13 +3,13 @@
 
 from __future__ import absolute_import
 from celery import Celery
-import yellowcoin.settings
+from django.conf import settings
 
 CELERY_ACCEPT_CONTENT = ['pickle', 'json']
 
 app = Celery('yellowcoin')
-app.config_from_object(yellowcoin.settings)
+app.config_from_object(settings)
 
 # could import tasks (e.g. yellowcoin.transactions.tasks) manually
 #	this saves us the time to find it
-app.autodiscover_tasks(lambda: yellowcoin.settings.INSTALLED_APPS)
+app.autodiscover_tasks(lambda: settings.INSTALLED_APPS)

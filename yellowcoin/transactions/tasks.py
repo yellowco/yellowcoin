@@ -1,6 +1,7 @@
 # Celery tasks
 
 from __future__ import absolute_import
+from time import sleep
 from celery import shared_task
 from django.conf import settings
 from yellowcoin.transactions.models import Order, Transaction, TransactionLimit, RecurringOrder
@@ -71,7 +72,13 @@ def reset_pool_handler(t, msg, aux, pool, amount):
 	pool.add(amount, t.fingerprint['currency_pool_exchange_rate'])
 	return error_base_handler(t, msg, aux)
 
+@shared_task
+def test():
+	print('from minke hi')
+	test.apply_async(countdown=1)
+
 # resets the transaction limits once per day
+@shared_task
 def reset_limits():
 	for transaction_limit in TransactionLimit.objects.filter(cur_amount__gt=0).all():
 		now = timezone.now()
@@ -79,9 +86,14 @@ def reset_limits():
 			transaction_limit.last_reset = now
 			transaction_limit.cur_amount = 0
 			transaction_limit.save()
+	sleep(60)
+	daemons = logging.getLogger('tasks.daemons')
+	log(daemons, 'reset_limits() executed')
+	reset_limit.delay()
 
 # delete all abandoned transactions
 # do not need to call payment_method.unlock() -- abandoned transactions do not affect locked status
+@shared_task
 def clear_orders():
 	abandoned_transactions = Transaction.objects.filter(status='A')
 	for t in abandoned_transactions:
@@ -89,6 +101,7 @@ def clear_orders():
 		t.order.delete()
 
 # create reoccuring orders and add to database
+@shared_task
 def execute_recurring_orders():
 	now = timezone.now()
 	for ro in RecurringOrder.objects.exclude(first_run__gt=now).all():
@@ -101,6 +114,7 @@ def execute_recurring_orders():
 # executes all orders in queue
 # TODO -- prompt and downwards should be executed on .delay()
 #	execute_orders() should be run on a while loop in ./manage.py cycle
+@shared_task
 def execute_orders():
 	# get all incomplete transactions, which did not FAIL permanently
 	active_transactions = Transaction.objects.exclude(status='C').exclude(status='A').filter(error_code__lt=status.ERROR_BASE)

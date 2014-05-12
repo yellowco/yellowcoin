@@ -25,7 +25,7 @@ ez-setup==0.9
 httplib2==0.8
 iso8601==0.1.4
 jsonpickle==0.6.1
-kombu==3.0.8
+kombu>=3.0.8
 mock==0.8.0
 phonenumbers==5.9.1
 psycopg2==2.5.2

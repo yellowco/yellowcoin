@@ -29,6 +29,10 @@ LOGGING = {
 			'handlers' : [ 'daemons', ],
 			'level' : 'INFO',
 		},
+		'tasks.daemons' : {
+			'handlers' : [ 'daemons', ],
+			'level' : 'INFO',
+		},
 	},
 }
 
