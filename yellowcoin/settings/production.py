@@ -2,6 +2,7 @@ from yellowcoin.settings.default import *
 from balanced_yellowcoin import balanced
 from urllib import quote
 from bitcoinrpc import connect_to_remote
+from yellowcoin.settings.contrib import relative
 
 BTC_CONN = connect_to_remote('Yellowcoin', 'kyqDyBc3w2yaAgrEBTCVFAUPBYGALzLn3fZNQxwPMQWUZyhMvrgU4nT4vGmsVYTk', host='10.0.1.92')
 BTC_MINCONF = 4
@@ -39,7 +40,7 @@ CELERY_QUEUES = {
 CACHES = {
 	'default': {
 		'BACKEND': 'django.core.cache.backends.filebased.FileBasedCache',
-		'LOCATION': './cache/production/',
+		'LOCATION': relative('cache/production/'),
 	}
 }
 

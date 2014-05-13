@@ -87,6 +87,11 @@ REST_FRAMEWORK = {
 	)
 }
 
+# cf. http://bit.ly/1sqK05z
+import os.path
+PROJECT_PATH = os.path.abspath(os.path.dirname(__name__))
+relative = lambda path: os.path.join(PROJECT_PATH, path)
+
 from yellowcoin.settings.contrib.celery import *
 from yellowcoin.settings.contrib.email import *
 from yellowcoin.settings.contrib.geoip import *
