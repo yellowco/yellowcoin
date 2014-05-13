@@ -143,7 +143,7 @@ case $MODE in
 		# set the environment variable in the server instance
 		echo "SetEnv DJANGO_SETTINGS_MODULE $SETTINGS" | sudo tee -a /etc/apache2/apache2.conf
 
-		sudo chown -R www-data:www-data /var/www/yellowcoin
+		sudo chown -R www-data:www-data /var/www/yellowcoin/
 		;;
 	"ENQ")
 		sudo sed -ie '$d' /etc/rc.local
@@ -151,7 +151,7 @@ case $MODE in
 		echo "exit 0" | sudo tee -a /etc/rc.local
 
 		sudo useradd --system yc-enq
-		sudo chown -R yc-enq:yc-enq /var/www/yellowcoin
+		sudo chown -R yc-enq:yc-enq /var/www/yellowcoin/
 		;;
 	"DEQ")
 		# cf. http://bit.ly/1gwBT22
@@ -162,7 +162,7 @@ case $MODE in
 		sudo chmod 400 /etc/default/celeryd
 
 		sudo useradd --system yc-deq
-		sudo chown -R yc-deq:yc-deq /var/www/yellowcoin
+		sudo chown -R yc-deq:yc-deq /var/www/yellowcoin/
 
 		sudo sed -ie '$d' /etc/rc.local
 		echo "sudo /etc/init.d/celeryd start" | sudo tee -a /etc/rc.local
