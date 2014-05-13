@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# syntax: source $0 ( HTTP | VIRTUALENV | ENQ | DEQ ) ( staging | alpha | beta | production | development )
+# syntax: source $0 ( HTTP | VIRTUALENV | ENQ | DEQ ) ( staging | production | development )
 
 # to re-link settings module, change environment variable DJANGO_SETTINGS_MODULE in
 #	1.) ~/.bashrc
@@ -23,11 +23,11 @@ case $MODE in
 esac
 
 case $MODULE in
-	"staging" | "alpha" | "beta" | "production" | "development")
+	"staging" | "production" | "development")
 		echo "setting up this node in $MODULE environment"
 		;;
 	*)
-		echo "invalid settings -- MODULE oneof staging | alpha | beta | production | development"
+		echo "invalid settings -- MODULE oneof staging | production | development"
 		exit 0
 		;;
 esac
