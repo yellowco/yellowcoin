@@ -136,13 +136,10 @@ case $MODE in
 		sudo cp references/yellowcoin.conf /etc/apache2/sites-enabled/
 		sudo ln -s /etc/apache2/sites-enabled/yellowcoin.conf /etc/apache2/sites-available/
 
-		# set the environment variable in the server instance
-		echo "SetEnv DJANGO_SETTINGS_MODULE $SETTINGS" >> references/set_env.txt
-
 		sudo tee -a /etc/apache2/apache2.conf < references/wsgi_setup.txt
-		sudo tee -a /etc/apache2/apache2.conf < references/set_env.txt
 
-		rm references/set_env.txt
+		# set the environment variable in the server instance
+		echo "SetEnv DJANGO_SETTINGS_MODULE $SETTINGS" | sudo tee -a /etc/apache2/apache2.conf
 
 		sudo /etc/init.d/apache2 restart
 		;;
@@ -156,10 +153,13 @@ case $MODE in
 		# cf. http://bit.ly/1gwBT22
 		sudo cp references/celeryd.sh /etc/init.d/celeryd
 		sudo cp references/celeryd.conf /etc/default/celeryd
+		echo "export DJANGO_SETTINGS_MODULE=$SETTINGS" | sudo tee -a /etc/default/celeryd
 		sudo chmod ugo+x /etc/init.d/celeryd
 		;;
 	*)
 		;;
 esac
+
+sudo chown -R www-data:www-data /var/www/yellowcoin
 
 sudo reboot

@@ -5,7 +5,7 @@ from __future__ import absolute_import
 from celery import Celery
 from django.conf import settings
 
-CELERY_ACCEPT_CONTENT = ['pickle', 'json']
+CELERY_ACCEPT_CONTENT = ['json']
 
 app = Celery('yellowcoin')
 app.config_from_object(settings)
