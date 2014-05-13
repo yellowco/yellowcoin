@@ -155,6 +155,9 @@ case $MODE in
 		sudo cp references/celeryd.conf /etc/default/celeryd
 		echo "export DJANGO_SETTINGS_MODULE=$SETTINGS" | sudo tee -a /etc/default/celeryd
 		sudo chmod ugo+x /etc/init.d/celeryd
+
+		sudo adduser --no-create-home --disabled-password --disabled-login --gecos "" yc-deq
+		sudo chown -R yc-deq:yc-deq /var/www/yellowcoin
 		;;
 	*)
 		;;
