@@ -84,11 +84,11 @@ esac
 
 cd yellowcoin
 
-sudo chmod -R ugo+rwx /var/www/yellowcoin/cache
-sudo chmod -R ugo+rwx /var/www/yellowcoin/logs
+sudo chmod -R ugo+rwx /var/www/yellowcoin/cache/
+sudo chmod -R ugo+rwx /var/www/yellowcoin/logs/
 
-sudo chmod ugo+s /var/www/yellowcoin/cache
-sudo chmod ugo+s /var/www/yellowcoin/logs
+sudo chmod ugo+s /var/www/yellowcoin/cache/
+sudo chmod ugo+s /var/www/yellowcoin/logs/
 
 case $MODE in
 	"VIRTUALENV")
