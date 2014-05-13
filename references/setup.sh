@@ -109,7 +109,7 @@ esac
 # ensure everything is working correctly in the almost-live stage
 case $MODULE in
 	"development")
-		./manage.py test --settings=yellowcoin.settings.development 2> check.log
+		./manage.py test 2> check.log
 		;;
 	*)
 		;;
@@ -147,20 +147,25 @@ case $MODE in
 		;;
 	"ENQ")
 		sudo sed -ie '$d' /etc/rc.local
-		echo "python /var/www/yellowcoin/manage.py cycle &" | sudo tee -a /etc/rc.local
+		echo "runuser -l yc-enq -c 'python /var/www/yellowcoin/manage.py cycle &'" | sudo tee -a /etc/rc.local
 		echo "exit 0" | sudo tee -a /etc/rc.local
+
+		sudo adduser --system yc-enq
+		sudo chown -R yc-enq:yc-enq /var/www/yellowcoin
 		;;
 	"DEQ")
 		# cf. http://bit.ly/1gwBT22
 		sudo cp references/celeryd.sh /etc/init.d/celeryd
 		sudo cp references/celeryd.conf /etc/default/celeryd
 		echo "export DJANGO_SETTINGS_MODULE=$SETTINGS" | sudo tee -a /etc/default/celeryd
-		sudo chmod ugo+x /etc/init.d/celeryd
+		sudo chmod +x /etc/init.d/celeryd
+		sudo chmod 400 /etc/default/celeryd
 
-		sudo adduser --no-create-home --disabled-password --disabled-login --gecos "" yc-deq
-		sudo update-rc.d celeryd defaults
-
+		sudo adduser --system yc-deq
 		sudo chown -R yc-deq:yc-deq /var/www/yellowcoin
+
+		echo "sudo /etc/init.d/celeryd start" | sudo tee -a /etc/rc.local
+		# sudo update-rc.d celeryd defaults
 		;;
 	*)
 		;;
