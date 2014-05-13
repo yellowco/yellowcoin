@@ -147,7 +147,7 @@ case $MODE in
 		;;
 	"ENQ")
 		sudo sed -ie '$d' /etc/rc.local
-		echo "runuser -l yc-enq -c 'python /var/www/yellowcoin/manage.py cycle &'" | sudo tee -a /etc/rc.local
+		echo "sudo -u yc-enq python /var/www/yellowcoin/manage.py cycle &" | sudo tee -a /etc/rc.local
 		echo "exit 0" | sudo tee -a /etc/rc.local
 
 		sudo useradd --system yc-enq
