@@ -154,8 +154,9 @@ case $MODE in
 		;;
 	"DEQ")
 		# cf. http://bit.ly/1gwBT22
-		sudo cp "references/celeryd.sh" "/etc/init.d/celeryd"
-		sudo cp "references/celeryd.conf" "/etc/default/celeryd"
+		sudo cp references/celeryd.sh /etc/init.d/celeryd
+		sudo cp references/celeryd.conf /etc/default/celeryd
+		sudo chmod ugo+x /etc/init.d/celeryd
 		;;
 	*)
 		;;
