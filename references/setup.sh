@@ -141,13 +141,13 @@ case $MODE in
 		# set the environment variable in the server instance
 		echo "SetEnv DJANGO_SETTINGS_MODULE $SETTINGS" | sudo tee -a /etc/apache2/apache2.conf
 
+		sudo chown -R www-data:www-data /var/www/yellowcoin
 		sudo /etc/init.d/apache2 restart
 		;;
 	"ENQ")
 		sudo sed -ie '$d' /etc/rc.local
 		echo "python /var/www/yellowcoin/manage.py cycle &" | sudo tee -a /etc/rc.local
 		echo "exit 0" | sudo tee -a /etc/rc.local
-		sudo /etc/init.d/rc.local start
 		;;
 	"DEQ")
 		# cf. http://bit.ly/1gwBT22
@@ -159,7 +159,5 @@ case $MODE in
 	*)
 		;;
 esac
-
-sudo chown -R www-data:www-data /var/www/yellowcoin
 
 sudo reboot
