@@ -142,7 +142,6 @@ case $MODE in
 		echo "SetEnv DJANGO_SETTINGS_MODULE $SETTINGS" | sudo tee -a /etc/apache2/apache2.conf
 
 		sudo chown -R www-data:www-data /var/www/yellowcoin
-		sudo /etc/init.d/apache2 restart
 		;;
 	"ENQ")
 		sudo sed -ie '$d' /etc/rc.local
@@ -157,6 +156,8 @@ case $MODE in
 		sudo chmod ugo+x /etc/init.d/celeryd
 
 		sudo adduser --no-create-home --disabled-password --disabled-login --gecos "" yc-deq
+		sudo update-rc.d celeryd defaults
+
 		sudo chown -R yc-deq:yc-deq /var/www/yellowcoin
 		;;
 	*)
