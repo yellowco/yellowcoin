@@ -6,6 +6,8 @@ from celery import Celery
 from django.conf import settings
 
 CELERY_ACCEPT_CONTENT = ['json']
+CELERY_TASK_SERIALIZER = 'json'
+CELERY_RESULT_SERIALIZER = 'json'
 
 app = Celery('yellowcoin')
 app.config_from_object(settings)

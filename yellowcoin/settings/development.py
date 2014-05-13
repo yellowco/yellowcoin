@@ -5,7 +5,7 @@ from bitcoinrpc import connect_to_remote
 from bitcoind_emulator import EmulatedBitcoinConnection
 
 BTC_CONN = EmulatedBitcoinConnection()
-MIN_CONF = 4
+BTC_MINCONF = 4
 BTC_ACCT = 'BTC_ACCT'
 
 balanced.Config.config(key='ak-test-2J2vHkB6NERu57mM6vbOMylbd0X5TJSgG')
