@@ -119,7 +119,9 @@ esac
 case $MODULE in
 	"development")
 		mv /var/www/yellowcoin/logs/audit.log /var/www/yellowcoin/logs/audit.check.log
+		mv /var/www/yellowcoin/logs/daemons.log /var/www/yellowcoin/logs/daemons.check.log
 		touch /var/www/yellowcoin/logs/audit.log
+		touch /var/www/yellowcoin/logs/daemons.log
 		;;
 	*)
 		;;
