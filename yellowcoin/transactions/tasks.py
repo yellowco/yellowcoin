@@ -40,7 +40,6 @@ def single_instance_task():
 		@functools.wraps(func)
 		def wrapper(*args, **kwargs):
 			lock_id = "celery-single-instance-" + func.__name__
-			print "key: " + lock_id
 			acquire_lock = lambda: cache.add(lock_id, True)
 			release_lock = lambda: cache.delete(lock_id)
 			# non-blocking lock -- on cache add failure, task immediately exits
