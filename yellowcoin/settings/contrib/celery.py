@@ -5,6 +5,8 @@ from __future__ import absolute_import
 from celery import Celery
 from django.conf import settings
 
+# disallowing pickled content
+#	cf. http://bit.ly/1gh3wBx
 CELERY_ACCEPT_CONTENT = ['json']
 CELERY_TASK_SERIALIZER = 'json'
 CELERY_RESULT_SERIALIZER = 'json'
