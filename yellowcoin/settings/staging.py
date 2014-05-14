@@ -2,6 +2,7 @@ from yellowcoin.settings.default import *
 from balanced_yellowcoin import balanced
 from urllib import quote
 from bitcoinrpc import connect_to_remote
+from yellowcoin.settings.contrib import relative
 
 BTC_CONN = connect_to_remote('Yellowcoin', 'kyqDyBc3w2yaAgrEBTCVFAUPBYGALzLn3fZNQxwPMQWUZyhMvrgU4nT4vGmsVYTk', host='10.0.1.92')
 BTC_MINCONF = 4

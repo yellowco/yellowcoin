@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# syntax: source $0 ( HTTP | VIRTUALENV | ENQ | DEQ ) ( staging | alpha | beta | production | development )
+# syntax: source $0 ( HTTP | VIRTUALENV | ENQ | DEQ ) ( staging | production | development )
 
 # to re-link settings module, change environment variable DJANGO_SETTINGS_MODULE in
 #	1.) ~/.bashrc
@@ -23,11 +23,11 @@ case $MODE in
 esac
 
 case $MODULE in
-	"staging" | "alpha" | "beta" | "production" | "development")
+	"staging" | "production" | "development")
 		echo "setting up this node in $MODULE environment"
 		;;
 	*)
-		echo "invalid settings -- MODULE oneof staging | alpha | beta | production | development"
+		echo "invalid settings -- MODULE oneof staging | production | development"
 		exit 0
 		;;
 esac
@@ -84,11 +84,11 @@ esac
 
 cd yellowcoin
 
-sudo chmod -R ugo+rwx /var/www/yellowcoin/cache
-sudo chmod -R ugo+rwx /var/www/yellowcoin/logs
+sudo chmod -R ugo+rwx /var/www/yellowcoin/cache/
+sudo chmod -R ugo+rwx /var/www/yellowcoin/logs/
 
-sudo chmod ugo+s /var/www/yellowcoin/cache
-sudo chmod ugo+s /var/www/yellowcoin/logs
+sudo chmod ugo+s /var/www/yellowcoin/cache/
+sudo chmod ugo+s /var/www/yellowcoin/logs/
 
 case $MODE in
 	"VIRTUALENV")
@@ -109,7 +109,7 @@ esac
 # ensure everything is working correctly in the almost-live stage
 case $MODULE in
 	"development")
-		./manage.py test 2> check.log
+		# ./manage.py test 2> check.log
 		;;
 	*)
 		;;
@@ -118,8 +118,8 @@ esac
 # logging for task.py production
 case $MODULE in
 	"development")
-		mv /var/www/yellowcoin/logs/audit.log /var/www/yellowcoin/logs/audit.check.log
-		mv /var/www/yellowcoin/logs/daemons.log /var/www/yellowcoin/logs/daemons.check.log
+		# mv /var/www/yellowcoin/logs/audit.log /var/www/yellowcoin/logs/audit.check.log
+		# mv /var/www/yellowcoin/logs/daemons.log /var/www/yellowcoin/logs/daemons.check.log
 		touch /var/www/yellowcoin/logs/audit.log
 		touch /var/www/yellowcoin/logs/daemons.log
 		;;
@@ -143,15 +143,16 @@ case $MODE in
 		# set the environment variable in the server instance
 		echo "SetEnv DJANGO_SETTINGS_MODULE $SETTINGS" | sudo tee -a /etc/apache2/apache2.conf
 
-		sudo chown -R www-data:www-data /var/www/yellowcoin
+		sudo chown -R www-data:www-data /var/www/yellowcoin/
 		;;
 	"ENQ")
 		sudo sed -ie '$d' /etc/rc.local
-		echo "runuser -l yc-enq -c 'python /var/www/yellowcoin/manage.py cycle &'" | sudo tee -a /etc/rc.local
+		echo "cd /var/www/yellowcoin/" | sudo tee -a /etc/rc.local
+		echo "sudo -u yc-enq python /var/www/yellowcoin/manage.py cycle --settings=$SETTINGS &" | sudo tee -a /etc/rc.local
 		echo "exit 0" | sudo tee -a /etc/rc.local
 
-		sudo adduser --system yc-enq
-		sudo chown -R yc-enq:yc-enq /var/www/yellowcoin
+		sudo useradd --system yc-enq
+		sudo chown -R yc-enq:yc-enq /var/www/yellowcoin/
 		;;
 	"DEQ")
 		# cf. http://bit.ly/1gwBT22
@@ -161,10 +162,13 @@ case $MODE in
 		sudo chmod +x /etc/init.d/celeryd
 		sudo chmod 400 /etc/default/celeryd
 
-		sudo adduser --system yc-deq
-		sudo chown -R yc-deq:yc-deq /var/www/yellowcoin
+		sudo useradd --system yc-deq
+		sudo chown -R yc-deq:yc-deq /var/www/yellowcoin/
 
+		sudo sed -ie '$d' /etc/rc.local
 		echo "sudo /etc/init.d/celeryd start" | sudo tee -a /etc/rc.local
+		echo "exit 0" | sudo tee -a /etc/rc.local
+
 		# sudo update-rc.d celeryd defaults
 		;;
 	*)

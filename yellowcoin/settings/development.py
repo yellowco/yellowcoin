@@ -3,6 +3,7 @@ from yellowcoin.settings.default import *
 from balanced_yellowcoin import balanced
 from bitcoinrpc import connect_to_remote
 from bitcoind_emulator import EmulatedBitcoinConnection
+from yellowcoin.settings.contrib import relative
 
 BTC_CONN = EmulatedBitcoinConnection()
 BTC_MINCONF = 4
