@@ -39,7 +39,7 @@ CELERY_QUEUES = {
 CACHES = {
 	'default': {
 		'BACKEND': 'django.core.cache.backends.filebased.FileBasedCache',
-		'LOCATION': './cache/staging/',
+		'LOCATION': os.path.join(os.path.dirname(__file__), '..', '..', 'cache', 'staging'),
 	}
 }
 
