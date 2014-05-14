@@ -109,7 +109,7 @@ esac
 # ensure everything is working correctly in the almost-live stage
 case $MODULE in
 	"development")
-		# ./manage.py test 2> check.log
+		# python /var/www/yellowcoin/manage.py test 2> check.log
 		;;
 	*)
 		;;
@@ -127,7 +127,7 @@ case $MODULE in
 		;;
 esac
 
-./manage.py syncdb
+python /var/www/yellowcoin/manage.py syncdb
 
 # setup Apache
 case $MODE in
