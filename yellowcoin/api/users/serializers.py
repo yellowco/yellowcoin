@@ -190,7 +190,7 @@ class BankAccountSerializer(serializers.Serializer):
 	# read-only by default
 	bank_name = serializers.Field(source='routing_number')
 	is_confirmed = serializers.BooleanField(source='can_debit', read_only=True)
-	is_default = serializers.BooleanField()
+	is_default = serializers.BooleanField(required=False)
 	first_name = serializers.CharField()
 	last_name = serializers.CharField()
 	routing_number = serializers.CharField()
