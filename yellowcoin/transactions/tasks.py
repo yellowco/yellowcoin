@@ -34,12 +34,12 @@ minute = 60
 
 # function decorator to ensure serialization
 #	cf. http://bit.ly/1gfu8TB
-#	no timeout is set -- we must manually call cache.delete() if there is some power outage
+#	no timeout is set -- we must manually call cache.delete() if there is some power outage to remove the lock
 def single_instance_task():
 	def task_exc(func):
 		@functools.wraps(func)
 		def wrapper(*args, **kwargs):
-			lock_id = "celery-single-instance-" + func.__name__
+			lock_id = 'single-instance-' + func.__name__
 			acquire_lock = lambda: cache.add(lock_id, True)
 			release_lock = lambda: cache.delete(lock_id)
 			# non-blocking lock -- on cache add failure, task immediately exits
