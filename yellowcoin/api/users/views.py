@@ -357,7 +357,7 @@ class ListCreateBankAccounts(generics.ListCreateAPIView):
 
 			# add bank account
 			serializer.data['is_confirmed'] = False
-			serializer.data['is_default'] = (len(self.request.user.profile.bank_accounts) == 0)
+			serializer.data['is_default'] = False
 			bank_account = BankAccount(payment_network.BankAccount.create(
 				account_holder='%s %s' % (serializer.data['first_name'], serializer.data['last_name']),
 				routing_number=serializer.data['routing_number'],
