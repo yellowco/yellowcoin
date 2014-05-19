@@ -23,6 +23,9 @@
 	color:white;
 	text-shadow:2px 2px 1px black;
 }
+.jumbotron.home h2 {
+	color:white;
+}
 html, body {
 	height:100%;
 	background-color:#F5F5F5;
