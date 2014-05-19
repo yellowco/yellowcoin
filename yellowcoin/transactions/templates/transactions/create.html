@@ -97,13 +97,16 @@
 	</div>
 				</div>
 				<div class="form-group" ng-show="recurrence.recur">
-					<label class="col-sm-2 control-label">Starting</label>
+					<label class="col-sm-2 control-label">Start Date</label>
 					<div class="col-sm-5">
-			<div class="input-group">
-			  <input type="text" class="form-control" datepicker-popup="shortDate" ng-model="recurrence.starting.date" is-open="datepickerOpen" min="minDate" max="'2015-06-22'" ng-required="true" close-text="Close" />
-			  <span class="input-group-addon pointer" ng-click="open($event)"><i class="glyphicon glyphicon-calendar"></i></span>
-			</div>
+						<div class="input-group">
+						  <input type="text" class="form-control" datepicker-popup="shortDate" ng-model="recurrence.starting.date" is-open="datepickerOpen" min="minDate" max="'2015-06-22'" ng-required="true" close-text="Close" />
+						  <span class="input-group-addon pointer" ng-click="open($event)"><i class="fa fa-calendar"></i></span>
+						</div>
+					</div>
 				</div>
+				<div class="form-group" ng-show="recurrence.recur">
+					<label class="col-sm-2 control-label">Start Time</label>
 					<div class="col-sm-5">
 						<timepicker hour-step="1" minute-step="1" show-meridian="true" ng-model="recurrence.starting.time"></timepicker>
 					</div>
