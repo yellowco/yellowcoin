@@ -19,6 +19,12 @@ LOGGING = {
 			'filename' : os.path.join(os.path.dirname(__file__), '..', '..', '..', 'logs', 'daemons.log'),
 			'maxBytes' : 16 * (1024 ** 2),
 		},
+		'deposit' : {
+			'level' : 'INFO',
+			'class' : 'logging.handlers.RotatingFileHandler',
+			'filename' : os.path.join(os.path.dirname(__file__), '..', '..', '..', 'logs', 'deposit.log'),
+			'maxBytes' : 16 * (1024 ** 2),
+		},
 	},
 	'loggers' : {
 		'tasks.audit' : {
@@ -33,6 +39,10 @@ LOGGING = {
 			'handlers' : [ 'daemons', ],
 			'level' : 'INFO',
 		},
+		'manage.deposit' : {
+			'handlers' : [ 'deposit', ],
+			'level' : 'INFO',
+		}
 	},
 }
 

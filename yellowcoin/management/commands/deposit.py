@@ -1,7 +1,12 @@
+from django.conf import settings
 from django.core.management.base import BaseCommand, CommandError
 from yellowcoin.currencypool.models import POOLS
 from yellowcoin.transactions.tasks import get_pool
 from optparse import make_option
+from yellowcoin.settings.contrib.logging import log
+import logging
+
+logger = logging.getLogger('manage.deposit')
 
 class Command(BaseCommand):
 	args = 'amount rate'
@@ -18,11 +23,21 @@ class Command(BaseCommand):
 			'--exchange_rate',
 			action='store',
 			dest='exchange_rate',
-			help='USD:BTC rate')
+			help='USD:<currency> rate'),
+		make_option(
+			'--currency',
+			action='store',
+			dest='currency',
+			help='virual currency (defaults to BTC)'),
 	)
 	def handle(self, *args, **options):
 		if((not options.get('amount')) or (not options.get('exchange_rate'))):
 			raise CommandError(self.help)
-		pool = get_pool('USD', 'BTC')
+		if(not options.get('currency')):
+			options['currency'] =  'BTC'
+		pool = get_pool('USD', options.get('currency'))
 		pool.add(options.get('amount'), options.get('exchange_rate'))
+		address = settings.BTC_CONN.getnewaddress(settings.BTC_ACCT)
+		log(logger, '%s\t%s\t%s\t%s' % (options.get('currency'), address, options.get('amount'), options.get('exchange_rate')))
+		print 'send %s %s to %s' % (options.get('amount'), options.get('currency'), address)
 

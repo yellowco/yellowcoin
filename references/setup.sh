@@ -122,6 +122,7 @@ case $MODULE in
 		mv /var/www/yellowcoin/logs/daemons.log /var/www/yellowcoin/logs/daemons.check.log
 		touch /var/www/yellowcoin/logs/audit.log
 		touch /var/www/yellowcoin/logs/daemons.log
+		touch /var/www/yellowcoin/logs/deposit.log
 		;;
 	*)
 		;;
