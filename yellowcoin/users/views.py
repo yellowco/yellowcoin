@@ -249,19 +249,31 @@ def Verify(request):
 	else:
 		phone_object = TwilioSMSDevice.objects.get(user=request.user)
 
+		ip = request.META.get('HTTP_X_FORWARDED_FOR')
+		if ip:
+			ip = ip.split(',')[-1].strip()
+		else:
+			ip = request.META.get('REMOTE_ADDR')
+
 		# sets user.is_verified()
 		if phone_object.verify_token(request.POST['otp_token']):
-			# cf http://bit.ly/1l3FEgS
 			if request.user.profile.valid_phone:
 				# they are attempting to log in
+				#	cf http://bit.ly/1l3FEgS
 				otp_login(request, phone_object)
+				login_record = LoginRecord.objects.create(user=request.user, ip=ip, is_successful=True)
+				signals.login.send(sender=request, user=request.user, ip=ip, location=login_record.location)
 				messages.success(request, 'You have been logged in!')
-			else: # They are attempting to verify their phone number
+			else:
+				# they are attempting to verify their phone number
 				request.user.profile.valid_phone = True
 				request.user.profile.save()
 				messages.success(request, 'Your phone number has been verified')
 			return redirect('application')
 		else:
+			if request.user.profile.valid_phone:
+				login_record = LoginRecord.objects.create(user=request.user, ip=ip, is_successful=False)
+				signals.login.send(sender=request, user=request.user, ip=ip, location=login_record.location)
 			messages.error(request, 'Incorrect OTP, please try again')
 
 	return render(request, 'users/verify.html', status=400)
