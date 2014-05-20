@@ -65,20 +65,24 @@ class RetrieveUpdateNotifications(generics.RetrieveUpdateAPIView):
 
 	defaults = {
 		'email':{
-			'login':False, 
+			'login':False,
+			'login_failed':False, 
 			'start_transaction':False,
 			'end_transaction':False,
 			'update_profile':False,
 			'create_bank_account':False,
-			'create_coin_address':False
+			'create_coin_address':False,
+			'referral_completed':False
 		},
 		'sms':{
 			'login':False, 
+			'login_failed':False, 
 			'start_transaction':False,
 			'end_transaction':False,
 			'update_profile':False,
 			'create_bank_account':False,
-			'create_coin_address':False
+			'create_coin_address':False,
+			'referral_completed':False
 		}
 	}
 	def get(self, request, medium=None, format=None):

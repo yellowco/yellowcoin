@@ -29,11 +29,13 @@ class SettingSerializer(serializers.ModelSerializer):
 
 class NotificationSerializer(serializers.Serializer):
 	login = serializers.BooleanField(required=False, default=False)
+	login_failed = serializers.BooleanField(required=False, default=False)
 	start_transaction = serializers.BooleanField(required=False, default=False)
 	end_transaction = serializers.BooleanField(required=False, default=False)
-	profile = serializers.BooleanField(required=False, default=False)
-	bank_account = serializers.BooleanField(required=False, default=False)
-	coin_address = serializers.BooleanField(required=False, default=False)
+	update_profile = serializers.BooleanField(required=False, default=False)
+	create_bank_account = serializers.BooleanField(required=False, default=False)
+	create_coin_address = serializers.BooleanField(required=False, default=False)
+	referral_completd = serializers.BooleanField(required=False, default=False)
 
 	def to_native(self, obj):
 		if obj is not None:
