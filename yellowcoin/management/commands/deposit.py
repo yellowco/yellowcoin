@@ -18,7 +18,7 @@ class Command(BaseCommand):
 			'--exchange_rate',
 			action='store',
 			dest='exchange_rate',
-			help='BTC:USD rate')
+			help='USD:BTC rate')
 	)
 	def handle(self, *args, **options):
 		if((not options.get('amount')) or (not options.get('exchange_rate'))):
