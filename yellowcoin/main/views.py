@@ -53,10 +53,10 @@ def Contact(request):
 	if request.method == 'POST':
 		form = ContactForm(request.POST)
 		if form.is_valid():
-			if send_mail(form.cleaned_data['subject'], form.cleaned_data['message'], form.cleaned_data['sender'], recipient_list=['support@yellowco.in'], fail_silently=True):
+			if send_mail(form.cleaned_data['subject'], form.cleaned_data['message'], form.cleaned_data['sender'], recipient_list=['help@yellowco.in'], fail_silently=True):
 				messages.success(request, 'Thanks, we\'ll be in touch shortly!')
 			else:
-				messages.error(request, 'Uh oh, something went wrong. Please email us directly at support@yellowco.in, sorry!')
+				messages.error(request, 'Uh oh, something went wrong. Please email us directly at help@yellowco.in, sorry!')
 	else:
 		form = ContactForm()
 	return render(request, 'main/contact.html', {'form':form})

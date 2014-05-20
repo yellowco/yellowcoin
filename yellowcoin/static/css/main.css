@@ -86,8 +86,7 @@ textarea {
 #register-form .form-group label {
 	text-transform:uppercase;
 }
-#content-body {
-	margin-top:0.5em;
+#content {
 	margin-bottom:3em;
 }
 #content .nav-pills {
@@ -219,7 +218,7 @@ footer .social a i {
 		margin:0 auto -200px;
 	}
 	#push, footer {
-		height:230px;
+		height:200px;
 	}
 	footer {
 		margin-top:-200px;
