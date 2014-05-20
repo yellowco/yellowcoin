@@ -49,9 +49,11 @@ class ValidateBankAccountSerializer(serializers.Serializer):
 class LoginRecordSerializer(serializers.Serializer):
 	class Meta:
 		model = LoginRecord
+		read_only_fields = ('timestamp', 'ip', 'location', 'is_successful',)
 	timestamp = serializers.DateTimeField()
 	ip = serializers.Field(source='ip')
 	location = serializers.CharField()
+	is_successful = serializers.BooleanField()
 
 class ProfileSerializer(serializers.Serializer):
 	class Meta:

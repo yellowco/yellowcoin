@@ -205,7 +205,7 @@ def Login(request):
 				return redirect('application')
 			elif user.is_superuser:
 				# TODO -- fix this
-				return redirect(request.META['HTTP_HOST'] + '/admin/')
+				return redirect('/admin/')
 		else:
 			try:
 				user = User.objects.get(email=email)
