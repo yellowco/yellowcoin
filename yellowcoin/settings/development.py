@@ -1,9 +1,13 @@
 import os
+from django.conf import ALLOWED_HOSTS
 from yellowcoin.settings.default import *
 from balanced_yellowcoin import balanced
 from bitcoinrpc import connect_to_remote
 from bitcoind_emulator import EmulatedBitcoinConnection
 from yellowcoin.settings.contrib import relative
+
+# overrides the allowed hosts property in contrib/__init__.py
+ALLOWED_HOSTS = [ '*' ]
 
 BTC_CONN = EmulatedBitcoinConnection()
 BTC_MINCONF = 4
