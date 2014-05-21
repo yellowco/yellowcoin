@@ -137,6 +137,7 @@ case $MODE in
 		sudo rm /etc/apache2/sites-available/*
 
 		sudo a2enmod rewrite
+		sudo a2enmod headers
 
 		sudo cp references/yellowcoin.conf /etc/apache2/sites-available/
 		sudo ln -s /etc/apache2/sites-available/yellowcoin.conf /etc/apache2/sites-enabled/
@@ -170,8 +171,6 @@ case $MODE in
 		sudo sed -ie '$d' /etc/rc.local
 		echo "sudo /etc/init.d/celeryd start" | sudo tee -a /etc/rc.local
 		echo "exit 0" | sudo tee -a /etc/rc.local
-
-		# sudo update-rc.d celeryd defaults
 		;;
 	*)
 		;;
