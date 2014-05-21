@@ -113,9 +113,6 @@ from yellowcoin.settings.contrib.i18n import *
 from yellowcoin.settings.contrib.static import *
 from yellowcoin.settings.contrib.otp_twilio import *
 
-# Grappelli configuration
-GRAPPELLI_ADMIN_TITLE = 'Yellowcoin'
-
 # Message framework settings
 from django.contrib.messages import constants as message_constants
 MESSAGE_TAGS = {

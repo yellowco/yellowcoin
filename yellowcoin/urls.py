@@ -10,7 +10,6 @@ admin.autodiscover()
 urlpatterns = patterns('',
 	url(r'^$', index, name='home'),
 	url(r'^dashboard/.*$', Dashboard, name='application'),
-	url(r'^grappelli/', include('grappelli.urls')),
 	url(r'^admin/', include(admin.site.urls), name='admin'),
 
 	url(r'^refer/(?P<referral_id>.+)/$', Referral, name='refer'),
