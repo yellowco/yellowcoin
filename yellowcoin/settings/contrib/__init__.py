@@ -57,7 +57,7 @@ except requests.exceptions.RequestException:
 INSTALLED_APPS = (
 	'django_email_validator',
 	'yellowcoin', # required for templatetags...?
-	'grappelli', 'django.contrib.admin',
+	'django.contrib.admin',
 	'django.contrib.auth',
 	'django.contrib.contenttypes',
 	'django.contrib.sessions',
