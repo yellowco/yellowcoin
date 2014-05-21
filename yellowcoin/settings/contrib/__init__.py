@@ -35,7 +35,7 @@ TEMPLATE_DEBUG = False
 
 CACHE = False
 
-# although ALLOWED_HOSTS = [ '.yellowco.in' ] is recommened behavior, we need to set
+# although ALLOWED_HOSTS = [ '.yellowco.in' ] is recommended behavior, we need to set
 #	as allow_all to allow the load balancer to mask as us
 # cf. http://bit.ly/1nCLPvW, http://bit.ly/RSFuBi
 import requests
