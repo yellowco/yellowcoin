@@ -136,8 +136,10 @@ case $MODE in
 		sudo rm /etc/apache2/sites-enabled/*
 		sudo rm /etc/apache2/sites-available/*
 
-		sudo cp references/yellowcoin.conf /etc/apache2/sites-enabled/
-		sudo ln -s /etc/apache2/sites-enabled/yellowcoin.conf /etc/apache2/sites-available/
+		sudo a2enmod rewrite
+
+		sudo cp references/yellowcoin.conf /etc/apache2/sites-available/
+		sudo ln -s /etc/apache2/sites-available/yellowcoin.conf /etc/apache2/sites-enabled/
 
 		sudo tee -a /etc/apache2/apache2.conf < references/wsgi_setup.txt
 
