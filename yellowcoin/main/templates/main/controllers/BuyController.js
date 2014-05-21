@@ -3,16 +3,16 @@ function BuyController($scope, $http) {
 	$scope.$watchCollection('[price, limitOrder]', function(v1, v2) {
 		if(!$scope.limitOrder) {
 			if($scope.transaction.sourceLock) {
-				$scope.transaction.ask_subtotal = $scope.transaction.bid_subtotal / $scope.price;
+				$scope.transaction.ask_subtotal = $scope.transaction.bid_subtotal / parseFloat($scope.price);
 			} else {
-				$scope.transaction.bid_subtotal = $scope.transaction.ask_subtotal * $scope.price;
+				$scope.transaction.bid_subtotal = $scope.transaction.ask_subtotal * parseFloat($scope.price);
 			}
 		}
 	});
 	// written separately to prevent infinite recursion
 	$scope.$watch('transaction.bid_subtotal', function(value) {
 		if(!$scope.limitOrder && $scope.transaction.sourceLock) {
-			$scope.transaction.ask_subtotal = value / $scope.price;
+			$scope.transaction.ask_subtotal = value / parseFloat($scope.price);
 		}
 		if($scope.limitOrder) {
 			$scope.transaction.exchange_rate = $scope.transaction.bid_subtotal / $scope.transaction.ask_subtotal;
@@ -20,7 +20,7 @@ function BuyController($scope, $http) {
 	});
 	$scope.$watch('transaction.ask_subtotal', function(value) {
 		if(!$scope.limitOrder && !$scope.transaction.sourceLock) {
-			$scope.transaction.bid_subtotal = value * $scope.price;
+			$scope.transaction.bid_subtotal = value * parseFloat($scope.price);
 		}
 		if($scope.limitOrder) {
 			$scope.transaction.exchange_rate = $scope.transaction.bid_subtotal / $scope.transaction.ask_subtotal;

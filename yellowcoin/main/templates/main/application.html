@@ -17,12 +17,13 @@ var app = angular.module('app', ['ngRoute', 'ngSanitize', 'ngAnimate', 'ui.boots
 	$rootScope.askCurrency = 'BTC';
 	$rootScope.bidCurrency = 'USD';
 	$rootScope.currencies = ['USD', 'BTC'];
-	$rootScope.price = 0.0;
-	$interval(function() {
+	$rootScope.price = '...';
+	$interval((function() {
 		$http.get('/api/prices/' + $rootScope.askCurrency + '/' + $rootScope.bidCurrency +'/').success(function(data) {
-			$rootScope.price = data.price;
+			$rootScope.price = parseFloat(data.price).toFixed(2);
 		});
-	}, 3000);
+		return this;
+	})(), 3000);
 	$rootScope.getDisplayName = function(context, data) {
 		return ({
 			'bank':function(data) { return {left:data.bank_name, right:data.account_number} },

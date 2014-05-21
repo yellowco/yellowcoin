@@ -7,10 +7,12 @@ function HistoryController($scope, $location, $modal, $http, $routeParams) {
 		'Received':4,
 		'Completed':5
 	};
-	$scope.reloadTransactions = function() {
+	($scope.reloadTransactions = function() {
+		$scope.reloading = true;
 		$http.get('/api/transactions/').success(function(data) {
 			$scope.transactions = data;
+			$scope.reloading = false;
 		});
-	};
+	})();
 }
 

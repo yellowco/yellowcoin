@@ -7,16 +7,15 @@
 			<div class="col-md-6">
 				<div id="flipboard">
 					The current price of Bitcoin is
-					<div id="price">$888.88</div>
+					<div id="price"></div>
 					<script type="text/javascript">
 					$(document).ready(function() {
-						function updatePrice() {
+						setInterval((function() {
 							$.get('/api/prices/btc/usd/', function(data) {
-								$("#price").html("$" + data.price);
+								$("#price").html("$" + parseFloat(data.price).toFixed(2));
 							});
-						}
-						updatePrice();
-						setInterval(updatePrice, 5000);
+							return this;
+						})(), 5000);
 					});
 					</script>
 				</div>

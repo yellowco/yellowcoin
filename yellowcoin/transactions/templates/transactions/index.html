@@ -1,4 +1,4 @@
-<h2>Transaction History</h2>
+<h2>Transaction History <small ng-show="reloading">Reloading...</small></h2>
 <accordion>
 	<accordion-group ng-repeat="transaction in transactions" ng-class="{'panel-info':transaction.error_code >= 100 && transaction.error_code < 200, 'panel-warning':transaction.error_code >= 200 && transaction.error_code < 300, 'panel-danger':transaction.error_code >= 500}">
 		<accordion-heading>
