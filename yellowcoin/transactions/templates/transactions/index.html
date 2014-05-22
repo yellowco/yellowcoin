@@ -9,7 +9,7 @@
 					<div class="col-xs-6">{[transaction.order.ask_subtotal]} {[transaction.order.ask_currency]}</div>
 				</div>
 				<div ng-if="!transaction.deleted">
-					<div class="col-sm-4" ng-if="!transaction.error_code" tooltip="{[transaction.status]}" tooltip-append-to-body="true">
+					<div class="col-sm-4" ng-if="transaction.error_code < 500" tooltip="{[transaction.status]}" tooltip-append-to-body="true">
 						<progressbar value="20" type="success" class="progress-striped" ng-if="ordinal[transaction.status] == 0"></progressbar>
 						<progressbar value="30" type="success" class="progress-striped" ng-if="ordinal[transaction.status] == 1"></progressbar>
 						<progressbar value="40" type="warning" class="progress-striped active" ng-if="ordinal[transaction.status] == 2"></progressbar>
@@ -17,7 +17,7 @@
 						<progressbar value="80" type="success" class="progress-striped" ng-if="ordinal[transaction.status] == 4"></progressbar>
 						<progressbar value="100" type="success" ng-if="ordinal[transaction.status] == 5"></progressbar>
 					</div>
-					<div class="col-sm-4" ng-if="transaction.error_code" tooltip="An error has occurred with this transaction" tooltip-append-to-body="true">
+					<div class="col-sm-4" ng-if="transaction.error_code >= 500" tooltip="An error has occurred with this transaction" tooltip-append-to-body="true">
 						<progressbar value="ordinal[transaction.status] * 20 + 20" type="warning" class="progress-striped active" ng-if="transaction.error_code == 130"></progressbar>
 						<progressbar value="ordinal[transaction.status] * 20 + 20" type="danger" class="progress-striped" ng-if="transaction.error_code != 130"></progressbar>
 					</div>
