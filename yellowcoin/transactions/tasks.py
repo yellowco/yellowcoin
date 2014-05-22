@@ -238,12 +238,14 @@ def drain(t):
 	# reserve currency from the currency pool
 	try:
 		pool = get_pool(order.bid_currency, order.ask_currency)
-		t.fingerprint['currency_pool_exchange_rate'] = pool.get_bid_price(quantity=order.ask_subtotal) / order.ask_subtotal
-		pool.remove(order.ask_total)
+		if ('currency_pool_exchange_rate' not in t.fingerprint):
+			t.fingerprint['currency_pool_exchange_rate'] = pool.get_bid_price(quantity=order.ask_subtotal) / order.ask_subtotal
+			pool.remove(order.ask_total)
 	except NotImplementedError:
 		pass
 	except InsufficientFundsException:
 		t = insufficient_funds_handler(t)
+		# TODO -- maybe add back to the pool here instead of checking for key
 		t.save()
 		return
 
