@@ -369,9 +369,6 @@ def check(t):
 			t = success_handler(t)
 		elif payment_network_tx.status == 'failed':
 			t = external_transaction_failure_handler(t, payment_network_tx)
-		else:
-			t = info_base_handler(t, msg='Your transaction is currently in progress (status: %s)' % (payment_network_tx.status))
-
 	t.save()
 
 def fill(t):
