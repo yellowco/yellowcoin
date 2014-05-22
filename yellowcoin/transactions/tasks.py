@@ -67,8 +67,8 @@ def status_handler(t, status, msg='', aux={}):
 def error_base_handler(t, msg='', aux={}):
 	return status_handler(t, status.ERROR_BASE, msg, aux)
 
-def insufficient_funds_handler(t, msg='We\'ve run out of money!'):
-	return status_handler(t, status.INSUFFICIENT_FUNDS, msg)
+def insufficient_funds_handler(t, msg='We\'ve run out of money!', aux={}):
+	return status_handler(t, status.INSUFFICIENT_FUNDS, msg, aux)
 
 def limit_ceiling_handler(t, msg='Your daily transaction limit has been reached. This order will be fulfilled once your limit has been reset.'):
 	return status_handler(t, status.LIMIT_CEILING, msg=msg)
@@ -189,8 +189,8 @@ def init(t):
 	try:
 		pool = get_pool(order.bid_currency, order.ask_currency)
 		success = (order.bid_subtotal >= pool.get_bid_price(quantity=order.ask_subtotal))
-	except InsufficientFundsException:
-		t = insufficient_funds_handler(t)
+	except InsufficientFundsException as aux:
+		t = insufficient_funds_handler(t, aux=aux)
 		t.save()
 		return
 
@@ -380,6 +380,12 @@ def fill(t):
 	try:
 		( success, tx_id, aux, ) = deposit_payment_method.credit(float(order.ask_total))
 		t.deposit_tx_id = tx_id
+	# BTC account could possibly not have money yet confirmed
+	except InsufficientFundsException as aux:
+		t = insufficient_funds_handler(t, aux=aux)
+		t.save()
+		return
+
 	except Exception as aux:
 		success = False
 

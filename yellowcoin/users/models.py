@@ -24,6 +24,7 @@ from django.contrib.gis.geoip import GeoIP
 
 import bitcoinrpc
 from bitcoinrpc.exceptions import InsufficientFunds
+from yellowcoin.api.exceptions import InsufficientFundsException
 
 from yellowcoin.enums import CRYPTOCURRENCIES, CURRENCIES
 
@@ -758,6 +759,7 @@ class CryptoAccount(models.Model):
 		address = settings.BTC_CONN.getnewaddress(settings.BTC_ACCT)
 		status = { 'amount' : amount, 'address' : address, 'error_data' : {} }
 		return ( True, '', status, )
+
 	def credit(self, amount):
 		status = { 'amount' : amount, }
 		try:
@@ -765,10 +767,8 @@ class CryptoAccount(models.Model):
 			success = bool(tx_id)
 			if not success:
 				status['error_message'] = 'Unknown error - please try again or contact us.'
-		except InsufficientFunds:
-			tx_id = ''
-			success = False
-			status['error_message'] = 'We\'re out of bitcoins! Let us know so we can go to the store and get some more.'
+		except InsufficientFunds as aux:
+			raise InsufficientFundsException(aux)
 		return ( success, tx_id, status, )
 
 	# currencies accepted by the account
