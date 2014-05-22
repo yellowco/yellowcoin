@@ -51,12 +51,12 @@ class CurrencyPool(object):
 				# this acquisition is the terminating acquisition
 				partial_quantity = total_quantity + acquisition.quantity - quantity
 				total_cost = total_cost + (acquisition.quantity - partial_quantity) * acquisition.price_per_unit
-				return total_cost
+				return round(total_cost, 2)
 			else:
 				total_quantity = total_quantity + acquisition.quantity
 				total_cost = total_cost + acquisition.quantity * acquisition.price_per_unit
 		if total_quantity == quantity:
-			return total_cost
+			return round(total_cost, 2)
 		request = requests.get('https://www.bitstamp.net/api/ticker/')
 		if request.status_code == 200:
 			return Decimal(request.json()['bid'])
