@@ -15,20 +15,20 @@ class Command(BaseCommand):
 	#	cf. http://bit.ly/1h1IVMp, http://bit.ly/1jx8VFa
 	option_list = BaseCommand.option_list + (
 		make_option(
+			'--currency',
+			action='store',
+			dest='currency',
+			help='virual currency (defaults to BTC)'),
+		make_option(
 			'--amount',
 			action='store',
 			dest='amount',
-			help='amount of BTC to deposit'),
+			help='amount of <currency> to deposit'),
 		make_option(
 			'--exchange_rate',
 			action='store',
 			dest='exchange_rate',
 			help='USD:<currency> rate'),
-		make_option(
-			'--currency',
-			action='store',
-			dest='currency',
-			help='virual currency (defaults to BTC)'),
 	)
 	def handle(self, *args, **options):
 		if((not options.get('amount')) or (not options.get('exchange_rate'))):
