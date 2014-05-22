@@ -267,6 +267,7 @@ def drain(t):
 			t = awaiting_deposit_handler(t, order.bid_total, aux['address'])
 		# no further user interaction is necessary if the account is 'BankAccount'
 		else:
+			t = info_base_handler(t, msg='ACH pull initiated -- awaiting deposit confirmation on our end')
 			t.status = 'Q'
 
 	# rollback changes
@@ -368,7 +369,6 @@ def check(t):
 		t = success_handler(t)
 	elif payment_network_tx.status == 'failed':
 		t = external_transaction_failure_handler(t, payment_network_tx)
-	else:
 
 	t.save()
 
