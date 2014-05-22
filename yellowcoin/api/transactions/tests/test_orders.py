@@ -77,7 +77,7 @@ class TestOrders(YellowcoinAPITestCase):
 		self.assertTrue('bid_subtotal' in response.data['detail'], response)
 		self.assertTrue('ask_subtotal' not in response.data['detail'])
 
-	def test_routing_behavior(self):
+	def test_rounding_behavior(self):
 		bank = self.create_bank_account()
 		btc = self.create_btc_account()
 		self.verify_bank_account(bank.data['id'])

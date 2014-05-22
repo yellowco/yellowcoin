@@ -45,7 +45,7 @@ class OrderSerializer(serializers.ModelSerializer):
 			limit = TransactionLimit.objects.get(
 						user=self.context['request'].user,
 						currency=currency
-					)
+				)
 		except TransactionLimit.DoesNotExist:
 			limit = self.context['request'].user.get_limit(currency)
 

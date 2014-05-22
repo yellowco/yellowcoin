@@ -140,6 +140,13 @@ class RetrieveDestroyOrder(generics.RetrieveDestroyAPIView):
 		order.transaction.save()
 		return Response([], status=204)
 
+def is_num(s):
+	try:
+		float(str(s))
+	except ValueError:
+		return False
+	return True
+
 # order fulfillment is handled exclusively by the task queue (yellowcoin/transactions/tasks.py)
 class ListCreateOrder(generics.ListCreateAPIView):
 	"""
@@ -227,8 +234,10 @@ class ListCreateOrder(generics.ListCreateAPIView):
 			raise GenericException({ 'non_field_errors' : [ 'Invalid currencies.' ] }, status=400)
 
 		# cast the data to correct form
-		data['ask_subtotal'] = Decimal(data['ask_subtotal']).quantize(Decimal('1.00000000'))
-		data['bid_subtotal'] = Decimal(data['bid_subtotal']).quantize(Decimal('1.00000000'))
+		if is_num(data['ask_subtotal']):
+			data['ask_subtotal'] = Decimal(data['ask_subtotal']).quantize(Decimal('1.00000000'))
+		if is_num(data['bid_subtotal']):
+			data['bid_subtotal'] = Decimal(data['bid_subtotal']).quantize(Decimal('1.00000000'))
 
 		# cannot invoke with Serializer(request.DATA) because model is not provided
 		#	cf. http://bit.ly/1cCHTXV
