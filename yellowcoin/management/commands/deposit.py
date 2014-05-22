@@ -36,8 +36,8 @@ class Command(BaseCommand):
 		if(not options.get('currency')):
 			options['currency'] =  'BTC'
 		pool = get_pool('USD', options.get('currency'))
-		pool.add(options.get('amount'), options.get('exchange_rate'))
 		address = settings.BTC_CONN.getnewaddress(settings.BTC_ACCT)
+		pool.add(options.get('amount'), options.get('exchange_rate'))
 		log(logger, '%s\t%s\t%s\t%s' % (options.get('currency'), address, options.get('amount'), options.get('exchange_rate')))
 		print 'send %s %s to %s' % (options.get('amount'), options.get('currency'), address)
 

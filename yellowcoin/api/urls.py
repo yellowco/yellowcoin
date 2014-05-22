@@ -1,4 +1,5 @@
 from django.conf.urls import patterns, url
+from yellowcoin.api.fees.views import *
 from yellowcoin.api.prices.views import *
 from yellowcoin.api.transactions.views import *
 from yellowcoin.api.users.views import *
@@ -25,6 +26,7 @@ urlpatterns = patterns('',
 	url(r'^orders/templates/$', ListCreateOrderTemplates.as_view(), name='orders|templates'),
 	url(r'^orders/templates/(?P<ask_currency>[A-Za-z]{3})/(?P<bid_currency>[A-Za-z]{3})/$', ListCreateOrderTemplates.as_view()),
 	url(r'^orders/templates/(?P<pk>[A-Za-z0-9\+\-\_\=]{16})/$', RetrieveUpdateDestroyOrderTemplates.as_view(), name='orders|templates|view'),
-	url(r'^prices/(?P<ask_currency>[A-Za-z]{3})/(?P<bid_currency>[A-Za-z]{3})/$', GetPrice.as_view(), name='api|prices|get-price')
+	url(r'^prices/(?P<ask_currency>[A-Za-z]{3})/(?P<bid_currency>[A-Za-z]{3})/$', GetPrice.as_view(), name='api|prices|get-price'),
+	url(r'^fees/(?P<ask_currency>[A-Za-z]{3})/(?P<bid_currency>[A-Za-z]{3})/(?P<ask_val>\d*\.?\d*)/(?P<bid_val>\d*\.?\d*)/$', GetFee.as_view(), name='api|fees|get-fee')
 )
 

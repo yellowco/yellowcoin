@@ -35,7 +35,6 @@ class GetPrice(generics.RetrieveAPIView):
 				ctx.prec = 2 # round decimals
 				price = Price(bid_currency, ask_currency, POOLS[getattr(CURRENCIES + CRYPTOCURRENCIES, bid_currency)][getattr(CURRENCIES + CRYPTOCURRENCIES, ask_currency)].get_bid_price(), timezone.now())
 				serializer = GetPriceSerializer(price)
-				# serializer = GetPriceSerializer(Price(bid_currency, ask_currency, POOLS[bid_currency][ask_currency].get_acquisition_price(1), timezone.now()))
 				return Response(serializer.data, status=200)
-		except Exception as e: # whatever exception
-			return Response({'status':500, 'detail':'An internal error occurred while trying to fetch the latest price.'}, status=500)
+		except Exception as e:
+			return Response({'status' : 500, 'detail' : 'An internal error occurred while trying to fetch the latest price.'}, status=500)

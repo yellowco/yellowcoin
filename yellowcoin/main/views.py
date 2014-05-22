@@ -80,8 +80,6 @@ def Dashboard(request):
 
 	recurring_orders = RecurringOrderSerializer(request.user.recurring_orders.filter(user=request.user), many=True).data
 
-	transactions = TransactionSerializer(request.user.transactions.filter_active(user=request.user).order_by('-order__timestamp'), many=True).data
-
 	notifications = request.user.retrieve('notifications', RetrieveUpdateNotifications.defaults)
 
 	limits = json.dumps(request.user.get_all_limits(), cls=DjangoJSONEncoder)
@@ -94,7 +92,6 @@ def Dashboard(request):
 		'userData':json.dumps(user),
 		'notifications':json.dumps(notifications),
 		'recurring_orders':json.dumps(recurring_orders, cls=DjangoJSONEncoder),
-		'transactions':json.dumps(transactions, cls=DjangoJSONEncoder),
 		'settings':json.dumps(user_settings, cls=DjangoJSONEncoder),
 		'limits':limits,
 		'fee':settings.FEE_RATIO,

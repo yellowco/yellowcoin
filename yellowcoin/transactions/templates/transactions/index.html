@@ -30,16 +30,26 @@
 		<div class="alert" ng-if="transaction.error_code" ng-class="{'alert-info':transaction.error_code < 200, 'alert-warning':transaction.error_code >= 200 && transaction.error_code < 300, 'alert-danger':transaction.error_code >= 500}" ng-bind="transaction.error_message"></div>
 		<div class="well">
 			<div class="row">
-				<div class="col-md-5">{[transaction.withdrawal_account.display]}</div>
+				<div class="col-md-5 text-right">{[transaction.withdrawal_account.display]}</div>
 				<div class="col-md-2"><i class="fa fa-arrow-right"></i> {[transaction.order.bid_subtotal]} {[transaction.order.bid_currency]}</div>
+				<div class="col-md-5">Yellowcoin</div>
+			</div>
+			<div class="row text-muted" ng-if="transaction.order.bid_fee">
+				<div class="col-md-5 text-right">Transaction Fee</div>
+				<div class="col-md-2"><i class="fa fa-arrow-right"></i> {[transaction.order.bid_fee]} {[transaction.order.bid_currency]}</div>
 				<div class="col-md-5">Yellowcoin</div>
 			</div>
 		</div>
 		<div class="well">
 			<div class="row">
-				<div class="col-md-5">Yellowcoin</div>
+				<div class="col-md-5 text-right">Yellowcoin</div>
 				<div class="col-md-2"><i class="fa fa-arrow-right"></i> {[transaction.order.ask_subtotal]} {[transaction.order.ask_currency]}</div>
 				<div class="col-md-5">{[transaction.deposit_account.display]}</div>
+			</div>
+			<div class="row text-muted" ng-if="transaction.order.ask_fee">
+				<div class="col-md-5 text-right">Yellowcoin</div>
+				<div class="col-md-2"><i class="fa fa-arrow-left"></i> {[transaction.order.ask_fee]} {[transaction.order.ask_currency]}</div>
+				<div class="col-md-5">Transaction Fee</div>
 			</div>
 		</div>
 		<div class="row">

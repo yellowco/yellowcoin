@@ -63,7 +63,7 @@ var app = angular.module('app', ['ngRoute', 'ngSanitize', 'ngAnimate', 'ui.boots
 		return null;
 	};
 	$rootScope.user = {{ userData|safe }};
-	$rootScope.transactions = {{transactions|safe}};
+	$rootScope.transactions = {};
 	$rootScope.getDefaultBitcoinAddress = function() {
 		for(var id in $rootScope.accounts['BTC']) {
 			if($rootScope.accounts['BTC'][id].is_default) {

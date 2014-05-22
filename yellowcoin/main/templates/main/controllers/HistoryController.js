@@ -10,7 +10,9 @@ function HistoryController($scope, $location, $modal, $http, $routeParams) {
 	($scope.reloadTransactions = function() {
 		$scope.reloading = true;
 		$http.get('/api/transactions/').success(function(data) {
-			$scope.transactions = data;
+			if(!angular.equals(data, $scope.transactions)) {
+				$scope.transactions = data;
+			}
 			$scope.reloading = false;
 		});
 	})();
