@@ -353,22 +353,23 @@ def check(t):
 	order = t.order
 	withdrawal_payment_method = t.withdrawal_payment_method.get_object(t.user)
 
-	if t.withdrawal_payment_method.foreign_model == 'P':
-		payment_network_tx = payment_network.Transaction.retrieve(id=t.withdrawal_tx_id)
+	payment_network_tx = payment_network.Transaction.retrieve(id=t.withdrawal_tx_id)
 
-		# possible that the PaymentNetwork transaction cannot be queried yet (i.e. not added to foreign database)
-		if not payment_network_tx:
-			return
+	# possible that the PaymentNetwork transaction cannot be queried yet (i.e. not added to foreign database)
+	if not payment_network_tx:
+		return
 
-		# successful action status
-		payment_network_status = 'succeeded'
+	# successful action status
+	payment_network_status = 'succeeded'
 
-		# PaymentNetwork tx_id query will return success if amount has been successfully pulled from the user
-		if payment_network_tx.status == payment_network_status:
-			t.status = 'R'
-			t = success_handler(t)
-		elif payment_network_tx.status == 'failed':
-			t = external_transaction_failure_handler(t, payment_network_tx)
+	# PaymentNetwork tx_id query will return success if amount has been successfully pulled from the user
+	if payment_network_tx.status == payment_network_status:
+		t.status = 'R'
+		t = success_handler(t)
+	elif payment_network_tx.status == 'failed':
+		t = external_transaction_failure_handler(t, payment_network_tx)
+	else:
+
 	t.save()
 
 def fill(t):

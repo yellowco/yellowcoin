@@ -59,7 +59,7 @@ class CurrencyPool(object):
 			return round(total_cost, 2)
 		request = requests.get('https://www.bitstamp.net/api/ticker/')
 		if request.status_code == 200:
-			return Decimal(request.json()['bid'])
+			return Decimal(request.json()['bid']) / quantity
 		raise InsufficientFundsException('No more currency available')
 
 	@transaction.atomic
