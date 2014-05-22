@@ -35,8 +35,12 @@ class Command(BaseCommand):
 			raise CommandError(self.help)
 		if(not options.get('currency')):
 			options['currency'] =  'BTC'
-		pool = get_pool('USD', options.get('currency'))
-		address = settings.BTC_CONN.getnewaddress(settings.BTC_ACCT)
+		try:
+			pool = get_pool('USD', options.get('currency'))
+			address = settings.BTC_CONN.getnewaddress(settings.BTC_ACCT)
+		except Exception as e:
+			print 'Exception (exiting): %s' % str(e)
+			return
 		pool.add(options.get('amount'), options.get('exchange_rate'))
 		log(logger, '%s\t%s\t%s\t%s' % (options.get('currency'), address, options.get('amount'), options.get('exchange_rate')))
 		print 'send %s %s to %s' % (options.get('amount'), options.get('currency'), address)

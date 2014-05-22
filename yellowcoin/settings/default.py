@@ -15,7 +15,7 @@ REFERRAL_BONUS = 0.005 # in BTC
 
 def CALCULATE_FEE(val, currency):
 	if currency == 'BTC':
-		return 0
+		return Decimal('0')
 	elif currency == 'USD':
 		return max(FEE_RATIO * val, Decimal('7'))
 	return 0
