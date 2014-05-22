@@ -33,7 +33,7 @@ class GetPrice(generics.RetrieveAPIView):
 		try:
 			with localcontext() as ctx:
 				ctx.prec = 2 # round decimals
-				price = Price(bid_currency, ask_currency, POOLS[getattr(CURRENCIES + CRYPTOCURRENCIES, bid_currency)][getattr(CURRENCIES + CRYPTOCURRENCIES, ask_currency)].get_bid_price(quantity=0.001), timezone.now())
+				price = Price(bid_currency, ask_currency, POOLS[getattr(CURRENCIES + CRYPTOCURRENCIES, bid_currency)][getattr(CURRENCIES + CRYPTOCURRENCIES, ask_currency)].get_bid_price(quantity=0.001) * 1000, timezone.now())
 				serializer = GetPriceSerializer(price)
 				return Response(serializer.data, status=200)
 		except Exception as e:

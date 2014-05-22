@@ -41,6 +41,8 @@ class CurrencyPool(object):
 		if quantity == 0:
 			return Decimal(0) # special case
 
+		quantity = Decimal(quantity)
+
 		total_quantity = Decimal(0)
 		total_cost = Decimal(0)
 
