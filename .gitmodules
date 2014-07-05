@@ -1,3 +1,6 @@
 [submodule "django_routing_numbers"]
 	path = django_routing_numbers
 	url = https://github.com/kevmo314/django_routing_numbers.git
+[submodule "django_iin_lookup"]
+	path = django_iin_lookup
+	url = https://github.com/cripplet/django_iin_lookup.git
