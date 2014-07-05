@@ -535,9 +535,7 @@ class Client(object):
 		self._check_client_loaded()
 		return str(self._c)
 
-# Don't bother lazy-loading the bankaccount object.
-# There's no child objects and almost every operation requires data in the db.
-class BankAccount(object):
+class CreditDebitAccount(object):
 	class DoesNotExist(Exception):
 		pass
 
@@ -615,9 +613,82 @@ class BankAccount(object):
 	def get_bank_name(number):
 		return Institution.objects.get(routing_number=number).customer_name
 
+# Don't bother lazy-loading the bankaccount object.
+# There's no child objects and almost every operation requires data in the db.
+class BankAccount(object):
+	class DoesNotExist(Exception):
+		pass
+
+	@property
+	def is_locked(self):
+		return PaymentMethod.objects.get(id=self.eid).is_locked
+
+	def __init__(self, account):
+		self._account = account
+	def __getattr__(self, name):
+		try:
+			return getattr(self._account, name)
+		except:
+			return None # because possible key errors
+	def __setattr__(self, name, value):
+		if '_account' not in self.__dict__:
+			self.__dict__[name] = value
+		else:
+			setattr(self._account, name, value)
+	def __iter__(self):
+		yield self
+
+	def __str__(self):
+		return str(self._account)
+
+	def delete(self):
+		if self.is_locked:
+			raise LockedError()
+		try:
+			PaymentMethod.objects.get(foreign_model='C', foreign_key=self.id).delete()
+		except PaymentMethod.DoesNotExist:
+			pass
+		return self._account.delete()
+
+	@staticmethod
+	def retrieve(id, **kwargs):
+		account = payment_network.CreditDebitAccount.retrieve(id, **kwargs)
+		if not account:
+			raise CreditDebit.DoesNotExist()
+		return account
+
+	@property
+	def eid(self):
+		return PaymentMethod.get_id(foreign_model='D', foreign_key=self.id)
+
+	@property
+	def first_name(self):
+		return self.account_holder.split(' ')[0]
+
+	@property
+	def last_name(self):
+		return ' '.join(self.account_holder.split(' ')[1:])
+
+	# TODO - generalize this
+	# currencies accepted by the bank
+	# called on by PaymentMethod.send, PaymentMethod.recv
+	@property
+	def send(self):
+		return ( 'USD', )
+	@property
+	def recv(self):
+		return ( 'USD', )
+
+	# minke
+	@staticmethod
+	def get_bank_name(number):
+		return Institution.objects.get(routing_number=number).customer_name
+
 PAYMENT_METHODS = (
 	('C', 'CryptoAccount'),
+	# bank account
 	('P', 'PaymentNetwork'),
+	('D', 'CreditDebit'),
 )
 
 # wrapper class around different accounts

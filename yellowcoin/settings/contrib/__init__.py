@@ -63,7 +63,7 @@ INSTALLED_APPS = (
 	'django.contrib.sessions',
 	'django.contrib.messages',
 	'django.contrib.staticfiles',
-	'south', 'rest_framework', 'djrill',
+	'rest_framework', 'djrill',
 	'django_gravatar','template_email',
 	'yellowcoin.users', 'yellowcoin.main', 'yellowcoin.transactions', 'yellowcoin.currencypool',
 	'twilio',
@@ -71,6 +71,7 @@ INSTALLED_APPS = (
 	'django_otp_twilio_yellowcoin',
 	'django_rest_framework_docs_yellowcoin',
 	'django_routing_numbers',
+	'django_iin_lookup',
 	'xmltodict',
 	'balanced_yellowcoin'
 )
