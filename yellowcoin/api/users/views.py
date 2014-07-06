@@ -27,7 +27,7 @@ class ListAccounts(generics.RetrieveAPIView):
 	"""
 	Retrieve or create payment accounts
 
-	See the individual endpoints at <code>/api/users/accounts/bank/</code> and <code>/api/users/accounts/&lt;currency&gt;/</code> for details on each account type.
+	See the individual endpoints at <code>/api/users/accounts/(bank|credit)/</code> and <code>/api/users/accounts/&lt;currency&gt;/</code> for details on each account type.
 	"""
 	permission_classes = ( IsAuthenticated, )
 	serializer_class = AccountSerializer
@@ -302,6 +302,101 @@ class RetrieveUpdateDestroyCryptoAccount(generics.RetrieveUpdateDestroyAPIView):
 			raise GenericException(status=404)
 		return Response([], status=204)
 
+class RetrieveUpdateDestroyCreditCard(generics.RetrieveUpdateDestroyAPIView):
+	permission_classes = ( IsAuthenticated, )
+	serializer_class = CreditCardSerializer
+
+	def get_serializer_class(self):
+		if self.request.method == 'PUT':
+			return(serializers.Serializer)
+		return(super(RetrieveUpdateDestroyCreditCard, self).get_serializer_class())
+
+	def put(self, request, id, *args, **kwargs):
+		try:
+			account = PaymentMethod.static_get_object(id, self.request.user)
+		except PaymentMethod.DoesNotExist:
+			raise(GenericException(status=404))
+		if account.can_debit:
+			account.is_default = True
+			account.save()
+			return(Response([], status=200))
+		errors = { 'is_default' : 'Cannot set default on an account which is not verified' }
+		raise(GenericException(status=400, detail=errors))
+
+	def get(self, request, id, *args, **kwargs):
+		try:
+			account = PaymentMethod.static_get_object(id, self.request.user)
+		except PaymentMethod.DoesNotExist:
+			raise GenericException(status=404)
+		serializer = self.get_serializer(CreditCard(account), many=False)
+		return Response(serializer.data, status=200)
+
+	def delete(self, request, id):
+		try:
+			account = PaymentMethod.static_get_object(id, self.request.user)
+		except PaymentMethod.DoesNotExist:
+			raise GenericException(status=404)
+		try:
+			account.delete()
+		except LockedError:
+			raise GenericException({ 'non_field_errors' : [ 'The account is locked at this time due to a pending transaction.' ] }, status=409)
+		return Response([], status=204)
+
+class ListCreateCreditCards(generics.ListCreateAPIView):
+	"""
+	Retrieve or create credit / debit accounts.
+	"""
+	permission_classes = ( IsAuthenticated, )
+	serializer_class = CreditCardSerializer
+	# paginate_by = 100
+
+	@transaction.atomic
+	def post(self, request, format=None):
+		serializer = CreditCardSerializer(data=request.DATA, mask=False)
+		if serializer.is_valid():
+			# create client payment_network_id if none exists yet
+			client = self.request.user.profile.payment_network
+
+			# add account
+			serializer.data['is_confirmed'] = False
+			serializer.data['is_default'] = False
+			credit_debit_account = CreditCard(payment_network.CreditCard.create(
+				account_holder='%s %s' % (serializer.data['first_name'], serializer.data['last_name']),
+				# custom data field
+				iin=serializer.data['account_number'][0:6],
+				# this field is hidden from us from now on
+				account_number=serializer.data['account_number'],
+				expiry=serializer.data['expiry'],
+				is_default=serializer.data['is_default'],
+				is_confirmed=serializer.data['is_confirmed'],
+				cvv2=serializer.data['cvv2'],
+			))
+			if not self.request.user.profile.first_name:
+				self.request.user.profile.first_name = serializer.data['first_name']
+			if not self.request.user.profile.last_name:
+				self.request.user.profile.last_name = serializer.data['last_name']
+			for account in self.request.user.profile.payment_network.credit_cards:
+				if account.account_number == serializer.data['account_number']:
+					serializer.errors['account_number'] = ['This credit / debit account already exists']
+					raise GenericException(serializer.errors, status=400)
+			client.add_payment_method(credit_debit_account)
+			client.save()
+
+			# validate credit card
+			credit_debit_account.is_confirmed = ResponseParser.parse(credit_debit_account.authorize(0))
+			credit_debit_account.save()
+
+			signals.create_bank_account.send(sender=request, user=request.user, account=credit_debit_account)
+			serializer.data['id'] = credit_debit_account.eid
+			serializer.mask = True
+			return Response(serializer.data, status=201)
+
+		raise ParseError(serializer.errors)
+
+	def get_queryset(self):
+		queryset = self.request.user.profile.payment_network.credit_cards
+		return queryset
+
 # get, update, delete single bank account
 class RetrieveUpdateDestroyBankAccount(generics.RetrieveUpdateDestroyAPIView):
 	permission_classes = ( IsAuthenticated, )
@@ -398,6 +493,6 @@ class ListCreateBankAccounts(generics.ListCreateAPIView):
 class ResponseParser():
 	@staticmethod
 	def parse((result, tx_id, response)):
-		if response['pg_preauth_result'] not in ( 'POS', 'UNK' ):
+		if response['respstat'] != 'A':
 			raise VerificationException()
 		return True

@@ -1,6 +1,7 @@
 from django.contrib.auth import authenticate
 from django.core.paginator import Page # for type detection 
 from django.core.validators import validate_email
+from django.utils.checksums import luhn
 from rest_framework import serializers
 from django_routing_numbers import Institution
 from yellowcoin.users.models import *
@@ -187,6 +188,94 @@ class CryptoAccountSerializer(serializers.ModelSerializer):
 			struct.pack_into(">c", data, len(data) - i - 1, chr(n & ((1 << 8) - 1)))
 			n = n >> 8
 		return data
+
+class CreditCardSerializer(serializers.Serializer):
+	id = serializers.CharField(source='eid', read_only=True)
+	is_locked = serializers.BooleanField(source='is_locked', read_only=True)
+	# read-only by default
+	card_brand = serializers.Field(source='iin')
+	is_confirmed = serializers.BooleanField(source='can_debit', read_only=True)
+	is_default = serializers.BooleanField(required=False)
+	first_name = serializers.CharField()
+	last_name = serializers.CharField()
+	account_number = serializers.CharField()
+	expiry = serializers.DateField()
+	cvv2 = serializers.CharField(required=True, write_only=True, max_length=4)
+
+	display = serializers.SerializerMethodField('get_display_name')
+	receives = serializers.Field(source='recv')
+	sends = serializers.Field(source='send')
+	card_type = serializers.Field(source='card_type')
+	
+	def get_display_name(self, obj):
+		# this is true during POST requests
+		if isinstance(obj, dict):
+			return "%s - %s" % ( self.transform_card_brand(obj, obj['iin']), self.transform_account_number(obj, obj['account_number']), )
+		# this is true during object instantiation
+		else:
+			return "%s - %s" % ( CreditCard.get_iin_info(obj.account_number).card_brand, obj.account_number, )
+
+	@property
+	def mask(self):
+		return self._mask
+
+	@mask.setter
+	def mask(self, value):
+		self._mask = value
+		if self._data is not None:
+			if self.many or hasattr(self._data, '__iter__') and not isinstance(self._data, (Page, dict)):
+				for obj in self._data:
+					obj['account_number'] = self.transform_account_number(obj, obj['account_number'])
+			else:
+				self._data['account_number'] = self.transform_account_number(self._data, self._data['account_number'])
+
+	def __init__(self, *args, **kwargs):
+		if 'mask' in kwargs:
+			self._mask = kwargs['mask']
+			del kwargs['mask']
+		else:
+			self._mask = True
+		super(CreditCardSerializer, self).__init__(*args, **kwargs)
+
+	def transform_card_brand(self, obj, value):
+		try:
+			return CreditCard.get_iin_info(value).card_brand
+		except:
+			return ''
+
+	def transform_account_number(self, obj, value):
+		if not self._mask:
+			return value
+		value = str(value)
+		if len(value) < 4:
+			return ('X' * (19 - len(value))) + value
+		else:
+			return ('X' * 15) + value[-4:]
+
+	def transform_expiry(self, obj, value):
+		return(datetime.date(month=value[0:2], year=value[2:2]))
+
+	def validate_expiry(self, attrs, source):
+		now = datetime.now()
+		if(now.year <= attrs[source].year and now.month <= attrs[source].month):
+			attrs[source] = strftime('%m%y', attrs[source])
+		raise serializers.ValidationError('Invalid expiration date')
+
+	def validate_routing_number(self, attrs, source):
+		try:
+			Institution.objects.get(routing_number=attrs[source])
+			return attrs
+		except:
+			raise serializers.ValidationError('Invalid routing number')
+
+	def validate_account_number(self, attrs, source):
+		try:
+			int(source)
+		except ValueError:
+			raise serializers.ValidationError('Invalid account number')
+		if(luhn(attrs[source])):
+			return attrs
+		raise serializers.ValidationError('Invalid account number')
 
 class BankAccountSerializer(serializers.Serializer):
 	id = serializers.CharField(source='eid', read_only=True)

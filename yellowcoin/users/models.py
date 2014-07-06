@@ -22,6 +22,7 @@ from Crypto import Random
 from balanced_yellowcoin import balanced as payment_network
 from django.contrib.gis.geoip import GeoIP
 
+from django_iin_lookup import IINInfo
 import bitcoinrpc
 from bitcoinrpc.exceptions import InsufficientFunds
 from yellowcoin.api.exceptions import InsufficientFundsException
@@ -535,7 +536,7 @@ class Client(object):
 		self._check_client_loaded()
 		return str(self._c)
 
-class CreditDebitAccount(object):
+class CreditCard(object):
 	class DoesNotExist(Exception):
 		pass
 
@@ -546,6 +547,7 @@ class CreditDebitAccount(object):
 	def __init__(self, account):
 		self._account = account
 	def __getattr__(self, name):
+		# remember to set IIN on card setup
 		try:
 			return getattr(self._account, name)
 		except:
@@ -565,21 +567,32 @@ class CreditDebitAccount(object):
 		if self.is_locked:
 			raise LockedError()
 		try:
-			PaymentMethod.objects.get(foreign_model='P', foreign_key=self.id).delete()
+			PaymentMethod.objects.get(foreign_model='D', foreign_key=self.id).delete()
 		except PaymentMethod.DoesNotExist:
 			pass
 		return self._account.delete()
 
+	@property
+	def card_type(self):
+		return self._iin_info.card_type
+
+	@property
+	def _iin_info(self):
+		if self.iin is not None:
+			return CreditCard.get_iin_info(self.iin)
+		else:
+			return None
+
 	@staticmethod
 	def retrieve(id, **kwargs):
-		account = payment_network.BankAccount.retrieve(id, **kwargs)
+		account = payment_network.CreditCard.retrieve(id, **kwargs)
 		if not account:
-			raise BankAccount.DoesNotExist()
+			raise CreditCard.DoesNotExist()
 		return account
 
 	@property
 	def eid(self):
-		return PaymentMethod.get_id(foreign_model='P', foreign_key=self.id)
+		return PaymentMethod.get_id(foreign_model='D', foreign_key=self.id)
 
 	@property
 	def first_name(self):
@@ -589,19 +602,8 @@ class CreditDebitAccount(object):
 	def last_name(self):
 		return ' '.join(self.account_holder.split(' ')[1:])
 
-	@property
-	def bank_name(self):
-		if self.routing_number is not None:
-			try:
-				return BankAccount.get_bank_name(self.routing_number)
-			except:
-				return ''
-		else:
-			return ''
-
 	# TODO - generalize this
-	# currencies accepted by the bank
-	# called on by PaymentMethod.send, PaymentMethod.recv
+	# currencies accepted by the credit / debit card
 	@property
 	def send(self):
 		return ( 'USD', )
@@ -610,8 +612,8 @@ class CreditDebitAccount(object):
 		return ( 'USD', )
 
 	@staticmethod
-	def get_bank_name(number):
-		return Institution.objects.get(routing_number=number).customer_name
+	def get_iin_info(number):
+		return IINInfo.objects.fetch_iin(iin=number[0:6])
 
 # Don't bother lazy-loading the bankaccount object.
 # There's no child objects and almost every operation requires data in the db.
@@ -652,14 +654,14 @@ class BankAccount(object):
 
 	@staticmethod
 	def retrieve(id, **kwargs):
-		account = payment_network.CreditDebitAccount.retrieve(id, **kwargs)
+		account = payment_network.CreditCard.retrieve(id, **kwargs)
 		if not account:
-			raise CreditDebit.DoesNotExist()
+			raise BankAccount.DoesNotExist()
 		return account
 
 	@property
 	def eid(self):
-		return PaymentMethod.get_id(foreign_model='D', foreign_key=self.id)
+		return PaymentMethod.get_id(foreign_model='P', foreign_key=self.id)
 
 	@property
 	def first_name(self):
@@ -671,7 +673,6 @@ class BankAccount(object):
 
 	# TODO - generalize this
 	# currencies accepted by the bank
-	# called on by PaymentMethod.send, PaymentMethod.recv
 	@property
 	def send(self):
 		return ( 'USD', )
@@ -679,7 +680,6 @@ class BankAccount(object):
 	def recv(self):
 		return ( 'USD', )
 
-	# minke
 	@staticmethod
 	def get_bank_name(number):
 		return Institution.objects.get(routing_number=number).customer_name
@@ -687,8 +687,8 @@ class BankAccount(object):
 PAYMENT_METHODS = (
 	('C', 'CryptoAccount'),
 	# bank account
-	('P', 'PaymentNetwork'),
-	('D', 'CreditDebit'),
+	('P', 'PaymentNetworkAccount'),
+	('D', 'CreditCard'),
 )
 
 # wrapper class around different accounts
