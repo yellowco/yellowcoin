@@ -4,3 +4,6 @@
 [submodule "django_iin_lookup"]
 	path = django_iin_lookup
 	url = https://github.com/cripplet/django_iin_lookup.git
+[submodule "CardConnectipy"]
+	path = CardConnectipy
+	url = https://github.com/yellowco/CardConnectipy.git

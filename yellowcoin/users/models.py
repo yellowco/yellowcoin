@@ -693,7 +693,7 @@ PAYMENT_METHODS = (
 
 # wrapper class around different accounts
 class PaymentMethod(models.Model):
-	id = models.CharField(max_length=16, primary_key=True, default=crypto.gen_eid)
+	id = models.CharField(max_length=32, primary_key=True, default=crypto.gen_eid)
 	foreign_model = models.CharField(max_length=1, choices=PAYMENT_METHODS)
 	is_locked = models.BooleanField(default=False)
 
