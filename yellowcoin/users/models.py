@@ -654,7 +654,7 @@ class BankAccount(object):
 
 	@staticmethod
 	def retrieve(id, **kwargs):
-		account = payment_network.CreditCard.retrieve(id, **kwargs)
+		account = payment_network.BankAccount.retrieve(id, **kwargs)
 		if not account:
 			raise BankAccount.DoesNotExist()
 		return account
@@ -873,6 +873,7 @@ class CryptoAccount(models.Model):
 			raise LockedError()
 		PaymentMethod.objects.get(foreign_model='C', foreign_key=self.id).delete()
 		return super(CryptoAccount, self).delete()
+
 # Don't use the Token object in DRF because it doesn't permit multiple keys per user
 class APIKey(models.Model):
 	key = models.CharField(max_length=32, primary_key=True, default=crypto.gen_random_str)
