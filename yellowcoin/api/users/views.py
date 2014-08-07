@@ -362,22 +362,20 @@ class ListCreateCreditCards(generics.ListCreateAPIView):
 			serializer.data['is_default'] = False
 			credit_debit_account = CreditCard(payment_network.CreditCard.create(
 				account_holder='%s %s' % (serializer.data['first_name'], serializer.data['last_name']),
-				# custom data field
-				iin=serializer.data['account_number'][0:6],
-				# this field is hidden from us from now on
-				account_number=serializer.data['account_number'],
+				# these fields are hidden from us from now on
+				card_number=serializer.data['card_number'],
+				cvv2=serializer.data['cvv2'],
 				expiry=serializer.data['expiry'],
 				is_default=serializer.data['is_default'],
 				is_confirmed=serializer.data['is_confirmed'],
-				cvv2=serializer.data['cvv2'],
 			))
 			if not self.request.user.profile.first_name:
 				self.request.user.profile.first_name = serializer.data['first_name']
 			if not self.request.user.profile.last_name:
 				self.request.user.profile.last_name = serializer.data['last_name']
 			for account in self.request.user.profile.payment_network.credit_cards:
-				if account.account_number == serializer.data['account_number']:
-					serializer.errors['account_number'] = ['This credit / debit account already exists']
+				if account.card_number == serializer.data['card_number']:
+					serializer.errors['card_number'] = ['This credit / debit account already exists']
 					raise GenericException(serializer.errors, status=400)
 			client.add_payment_method(credit_debit_account)
 			client.save()

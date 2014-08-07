@@ -193,27 +193,27 @@ class CreditCardSerializer(serializers.Serializer):
 	id = serializers.CharField(source='eid', read_only=True)
 	is_locked = serializers.BooleanField(source='is_locked', read_only=True)
 	# read-only by default
-	card_brand = serializers.Field(source='iin')
 	is_confirmed = serializers.BooleanField(source='can_debit', read_only=True)
 	is_default = serializers.BooleanField(required=False)
 	first_name = serializers.CharField()
 	last_name = serializers.CharField()
-	account_number = serializers.CharField()
+	card_number = serializers.CharField()
 	expiry = serializers.DateField()
+	# write-only
 	cvv2 = serializers.CharField(required=True, write_only=True, max_length=4)
 
 	display = serializers.SerializerMethodField('get_display_name')
 	receives = serializers.Field(source='recv')
 	sends = serializers.Field(source='send')
-	card_type = serializers.Field(source='card_type')
+	type = serializers.Field(source='type')
 	
 	def get_display_name(self, obj):
 		# this is true during POST requests
 		if isinstance(obj, dict):
-			return "%s - %s" % ( self.transform_card_brand(obj, obj['iin']), self.transform_account_number(obj, obj['account_number']), )
+			return self.transform_card_type(obj, obj['type'])
 		# this is true during object instantiation
 		else:
-			return "%s - %s" % ( CreditCard.get_iin_info(obj.account_number).card_brand, obj.account_number, )
+			return 'UNK'
 
 	@property
 	def mask(self):
@@ -237,11 +237,8 @@ class CreditCardSerializer(serializers.Serializer):
 			self._mask = True
 		super(CreditCardSerializer, self).__init__(*args, **kwargs)
 
-	def transform_card_brand(self, obj, value):
-		try:
-			return CreditCard.get_iin_info(value).card_brand
-		except:
-			return ''
+	def transform_type(self, obj, value):
+		return value
 
 	def transform_account_number(self, obj, value):
 		if not self._mask:
@@ -261,14 +258,7 @@ class CreditCardSerializer(serializers.Serializer):
 			attrs[source] = strftime('%m%y', attrs[source])
 		raise serializers.ValidationError('Invalid expiration date')
 
-	def validate_routing_number(self, attrs, source):
-		try:
-			Institution.objects.get(routing_number=attrs[source])
-			return attrs
-		except:
-			raise serializers.ValidationError('Invalid routing number')
-
-	def validate_account_number(self, attrs, source):
+	def validate_card_number(self, attrs, source):
 		try:
 			int(source)
 		except ValueError:

@@ -22,7 +22,6 @@ from Crypto import Random
 from balanced_yellowcoin import balanced as payment_network
 from django.contrib.gis.geoip import GeoIP
 
-from django_iin_lookup import IINInfo
 import bitcoinrpc
 from bitcoinrpc.exceptions import InsufficientFunds
 from yellowcoin.api.exceptions import InsufficientFundsException
@@ -547,7 +546,6 @@ class CreditCard(object):
 	def __init__(self, account):
 		self._account = account
 	def __getattr__(self, name):
-		# remember to set IIN on card setup
 		try:
 			return getattr(self._account, name)
 		except:
@@ -574,14 +572,7 @@ class CreditCard(object):
 
 	@property
 	def card_type(self):
-		return self._iin_info.card_type
-
-	@property
-	def _iin_info(self):
-		if self.iin is not None:
-			return CreditCard.get_iin_info(self.iin)
-		else:
-			return None
+		return self.type
 
 	@staticmethod
 	def retrieve(id, **kwargs):
@@ -610,10 +601,6 @@ class CreditCard(object):
 	@property
 	def recv(self):
 		return ( 'USD', )
-
-	@staticmethod
-	def get_iin_info(number):
-		return IINInfo.objects.fetch_iin(iin=number[0:6])
 
 # Don't bother lazy-loading the bankaccount object.
 # There's no child objects and almost every operation requires data in the db.
@@ -755,9 +742,12 @@ class PaymentMethod(models.Model):
 				return CryptoAccount.objects.get(id=self.foreign_key, user=user)
 			except CryptoAccount.DoesNotExist:
 				raise PaymentMethod.DoesNotExist()
-		if self.foreign_model == 'P':
-			# don't use BankAccount.retrieve() as that can't filter by user
+		elif self.foreign_model == 'P':
 			for account in user.profile.payment_network.bank_accounts:
+				if account.id == self.foreign_key:
+					return account
+		elif self.foreign_model == 'D':
+			for account in user.profile.payment_network.credit_cards:
 				if account.id == self.foreign_key:
 					return account
 		raise PaymentMethod.DoesNotExist()
