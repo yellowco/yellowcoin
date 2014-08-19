@@ -291,6 +291,7 @@ class PNOverride(object):
 			country=d['address']['country_code'],
 			phone=d['phone_number']
 		)
+		print self._billing_address
 		return self._billing_address
 
 	@property
@@ -305,7 +306,6 @@ class PNOverride(object):
 		else:
 			self._hidden = Client(id=self.payment_network_id)
 		return self._hidden
-
 
 	def __getattr__(self, k):
 		if(k == 'billing_address'):
