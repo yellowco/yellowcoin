@@ -267,7 +267,9 @@ class LoginRecord(Record):
 
 class PNOverride(object):
 	def __init__(self, *args, **kwargs):
-		super(PNOverride, self).__init__(*args, **kwargs)
+		self.payment_network_id = None
+		self.__dict__.update(kwargs)
+		super(PNOverride, self).__init__()
 
 	@property
 	def billing_address(self):
@@ -293,7 +295,7 @@ class PNOverride(object):
 
 	@property
 	def hidden(self):
-		if not self.payment_network_id:
+		if not getattr(self, 'payment_network_id'):
 			client = payment_network.Client.create(email=self.email)
 			self.payment_network_id = client.save().id
 			self.profile.save()
@@ -302,11 +304,14 @@ class PNOverride(object):
 			self._hidden = Client.CACHE[self.payment_network_id]
 		else:
 			self._hidden = Client(id=self.payment_network_id)
+		return self._hidden
 
 
 	def __getattr__(self, k):
 		if(k == 'billing_address'):
-			return getattr(self, k)
+			return self.__class__.__dict__[k]
+		if(k == 'payment_network_id'):
+			return self.__dict__[k]
 		return getattr(self.hidden, k)
 
 class Profile(models.Model):
@@ -318,7 +323,7 @@ class Profile(models.Model):
 	valid_profile = models.BooleanField(default=False)
 	valid_phone = models.BooleanField(default=False)
 	retries_remaining = models.IntegerField(default=4)
-	# eid = models.CharField(max_length=64, null=True)
+	eid = models.CharField(max_length=64, null=True)
 
 	@property
 	def valid_email(self):
@@ -463,7 +468,7 @@ class Profile(models.Model):
 	@property
 	def payment_network(self):
 		if not hasattr(self, '_payment_network'):
-			self._payment_network = PNOverrde(profile=self, eid=self.eid, email=self.user.email)
+			self._payment_network = PNOverride(profile=self, eid=self.eid, email=self.user.email)
 		return self._payment_network
 
 	@payment_network.setter
@@ -493,7 +498,7 @@ class Profile(models.Model):
 			payload['gender'] = self.gender
 
 		resp = requests.post(settings.BLOCKSCORE_API_URL, data=payload, headers=headers, auth=(settings.BLOCKSCORE_API_KEY, ''), )
-		# setattr(self.eid, resp.json()['id']);
+		setattr(self.eid, resp.json()['id']);
 		# the response is parsed as per http://bit.ly/1kET9rZ
 		if resp.status_code == 201:
 			return resp.json()['status'] == 'valid'

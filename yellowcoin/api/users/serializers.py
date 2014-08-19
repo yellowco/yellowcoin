@@ -229,7 +229,7 @@ class CreditCardSerializer(serializers.Serializer):
 		if self._data is not None:
 			if self.many or hasattr(self._data, '__iter__') and not isinstance(self._data, (Page, dict)):
 				for obj in self._data:
-					obj[card_number'] = self.transform_account_number(obj, obj['card_number'])
+					obj['card_number'] = self.transform_account_number(obj, obj['card_number'])
 			else:
 				self._data['card_number'] = self.transform_account_number(self._data, self._data['card_number'])
 
