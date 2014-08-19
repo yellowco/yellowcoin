@@ -267,14 +267,19 @@ class LoginRecord(Record):
 
 class PNOverride(object):
 	def __init__(self, *args, **kwargs):
+		# CardConnect ID
 		self.payment_network_id = None
+		# Blockscore ID
+		self.eid = None
+		self.ssn = None
+		self.email = None
 		self._billing_address = payment_network.Address()
 		self.__dict__.update(kwargs)
 		super(PNOverride, self).__init__()
 
 	@property
 	def billing_address(self):
-		if not self.payment_network_id:
+		if not self.eid:
 			return self._billing_address
 		headers = { 'Accept' : 'application/vnd.blockscore+json;version=2', }
 		resp = requests.get('%s/%s' % (settings.BLOCKSCORE_API_URL, self.eid), headers=headers, auth=(settings.BLOCKSCORE_API_KEY, ''), )
@@ -292,24 +297,26 @@ class PNOverride(object):
 			country=d['address']['country_code'],
 			phone=d['phone_number']
 		)
+		self.ssn = d['identification']['ssn']
 		return self._billing_address
 
 	@property
-	def hidden(self):
-		if not getattr(self, 'payment_network_id'):
+	def virtual_client(self):
+		if not self.payment_network_id:
 			client = payment_network.Client.create(email=self.email)
 			self.payment_network_id = client.save().id
+			self.profile.payment_network_id = self.payment_network_id
 			self.profile.save()
-			self._hidden = Client(client=client)
+			self._virtual_client = Client(client=client)
 		elif self.payment_network_id in Client.CACHE:
-			self._hidden = Client.CACHE[self.payment_network_id]
+			self._virtual_client = Client.CACHE[self.payment_network_id]
 		else:
-			self._hidden = Client(id=self.payment_network_id)
-		return self._hidden
+			self._virtual_client = Client(id=self.payment_network_id)
+		return self._virtual_client
 
 	def __getattr__(self, k):
-		if(k != 'billing_address'):
-			return getattr(self.hidden, k)
+		if(k not in ('billing_address', 'ssn', 'email')):
+			return getattr(self.virtual_client, k)
 		super(PNOverride, self).__getattribute__(k)
 
 class Profile(models.Model):
@@ -466,7 +473,7 @@ class Profile(models.Model):
 	@property
 	def payment_network(self):
 		if not hasattr(self, '_payment_network'):
-			self._payment_network = PNOverride(profile=self, eid=self.eid, email=self.user.email)
+			self._payment_network = PNOverride(profile=self, eid=self.eid, email=self.user.email, payment_network_id=self.payment_network_id)
 		return self._payment_network
 
 	@payment_network.setter
