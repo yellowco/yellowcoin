@@ -496,7 +496,7 @@ class Profile(models.Model):
 			payload['gender'] = self.gender
 
 		resp = requests.post(settings.BLOCKSCORE_API_URL, data=payload, headers=headers, auth=(settings.BLOCKSCORE_API_KEY, ''), )
-		setattr(self.eid, resp.json()['id']);
+		setattr(self, 'eid', resp.json()['id']);
 		# the response is parsed as per http://bit.ly/1kET9rZ
 		if resp.status_code == 201:
 			return resp.json()['status'] == 'valid'
