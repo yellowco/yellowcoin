@@ -268,19 +268,20 @@ class LoginRecord(Record):
 class PNOverride(object):
 	def __init__(self, *args, **kwargs):
 		self.payment_network_id = None
+		self._billing_address = payment_network.Address()
 		self.__dict__.update(kwargs)
 		super(PNOverride, self).__init__()
 
 	@property
 	def billing_address(self):
-		if hasattr(self, '_billing_address'):
+		if not self.payment_network_id:
 			return self._billing_address
 		headers = { 'Accept' : 'application/vnd.blockscore+json;version=2', }
 		resp = requests.get('%s/%s' % (settings.BLOCKSCORE_API_URL, self.eid), headers=headers, auth=(settings.BLOCKSCORE_API_KEY, ''), )
 		if(resp.status_code != 200):
-			raise AttributeError('no billing address set')
+			raise AttributeError('PNOverride.payment_network_id == None')
 		d = resp.json()
-		self._billing_address = payment_network.Address(
+		self._billing_address = payment_network.Address( 
 			first_name=d['name']['first'],
 			last_name=d['name']['last'],
 			street1=d['address']['street1'],
@@ -291,7 +292,6 @@ class PNOverride(object):
 			country=d['address']['country_code'],
 			phone=d['phone_number']
 		)
-		print self._billing_address
 		return self._billing_address
 
 	@property
@@ -308,11 +308,9 @@ class PNOverride(object):
 		return self._hidden
 
 	def __getattr__(self, k):
-		if(k == 'billing_address'):
-			return self.__class__.__dict__[k]
-		if(k == 'payment_network_id'):
-			return self.__dict__[k]
-		return getattr(self.hidden, k)
+		if(k != 'billing_address'):
+			return getattr(self.hidden, k)
+		super(PNOverride, self).__getattribute__(k)
 
 class Profile(models.Model):
 	class Meta:
