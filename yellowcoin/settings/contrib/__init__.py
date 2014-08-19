@@ -73,7 +73,8 @@ INSTALLED_APPS = (
 	'django_routing_numbers',
 	'django_iin_lookup',
 	'xmltodict',
-	'balanced_yellowcoin'
+	'balanced_yellowcoin',
+	'CardConnectipy'
 )
 
 MIDDLEWARE_CLASSES = (

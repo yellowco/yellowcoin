@@ -1,0 +1,45 @@
+		<div id="credit-modal" class="modal fade" tabindex="-1">
+			<div class="modal-dialog">
+				<form class="modal-content" role="form" ng-submit="submit('credit')">
+					<div class="modal-header">
+						<button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+						<h4 class="modal-title">Add a New Credit Card</h4>
+					</div>
+					<div class="modal-body">
+						<div class="form-group">
+							<label for="address">Account Holder</label>
+							<div class="row">
+								<div class="col-md-6 input-group" ng-class="{'has-error':errors.credit.first_name}">
+								<input id="first-name" class="form-control" type="text" name="first_name" placeholder="First" ng-model="data.credit.first_name" tooltip="{[errors.credit.first_name[0]]}"/>
+								</div><div class="col-md-6 input-group" ng-class="{'has-error':errors.credit.last_name}">
+								<input id="last-name" class="form-control" type="text" name="last_name" placeholder="Last" ng-model="data.credit.last_name" tooltip="{[errors.credit.last_name[0]]}"/>
+								</div>
+							</div>
+						</div>
+						<div class="form-group" ng-class="{'has-error':errors.credit.account_number}">
+							<label for="account-number">Account Number</label>
+							<input id="account-number" class="form-control" type="text" name="account_number" placeholder="" ng-model="data.credit.account_number" maxlength="17" tooltip="{[errors.credit.account_number[0]]}"/>
+						</div>
+						<div class="row">
+							<div class="col-xs-6">
+								<div class="form-group" ng-class="{'has-error':errors.credit.expiration.month}">
+									<label for="expiration-month">Exp Month</label>
+									<input id="expiration-month" class="form-control" type="text" name="expiration-month" placeholder="09" ng-model="data.credit.expiration.month" maxlength="2" tooltip="{[errors.credit.expiration.month]}"/>
+								</div>
+							</div>
+							<div class="col-xs-6">
+								<div class="form-group" ng-class="{'has-error':errors.credit.expiration.year}">
+									<label for="expiration-year">Year</label>
+									<input id="expiration-year" class="form-control" type="text" name="expiration-year" placeholder="14" ng-model="data.credit.expiration.year" maxlength="2" tooltip="{[errors.credit.expiration.year]}"/>
+								</div>
+							</div>
+						</div>
+						<hr/>
+					</div>
+					<div class="modal-footer">
+						<button type="submit" class="btn btn-primary">Add</button> <button type="submit" class="btn btn-link" data-dismiss="modal">Cancel</button>
+					</div>
+				</form>
+			</div>
+		</div>
+

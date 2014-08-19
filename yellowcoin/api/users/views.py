@@ -368,6 +368,11 @@ class ListCreateCreditCards(generics.ListCreateAPIView):
 				expiry=serializer.data['expiry'],
 				is_default=serializer.data['is_default'],
 				is_confirmed=serializer.data['is_confirmed'],
+				address='%s %s' % (serializer.data['address1'] % serializer.data['address2']),
+				city=serializer.data['city'],
+				region=serializer.data['state'],
+				postal=serializer.data['zip'],
+				country=serializer.data['country']
 			))
 			if not self.request.user.profile.first_name:
 				self.request.user.profile.first_name = serializer.data['first_name']

@@ -19,7 +19,7 @@ import phonenumbers
 from decimal import Decimal
 from Crypto.Cipher import AES
 from Crypto import Random
-from balanced_yellowcoin import balanced as payment_network
+from CardConnectipy import cardconnectipy as payment_network
 from django.contrib.gis.geoip import GeoIP
 
 import bitcoinrpc
@@ -265,6 +265,50 @@ class LoginRecord(Record):
 		if user_records.count() > 10:
 			user_records.last().delete()
 
+class PNOverride(object):
+	def __init__(self, *args, **kwargs):
+		super(PNOverride, self).__init__(*args, **kwargs)
+
+	@property
+	def billing_address(self):
+		if hasattr(self, '_billing_address'):
+			return self._billing_address
+		headers = { 'Accept' : 'application/vnd.blockscore+json;version=2', }
+		resp = requests.get('%s/%s' % (settings.BLOCKSCORE_API_URL, self.eid), headers=headers, auth=(settings.BLOCKSCORE_API_KEY, ''), )
+		if(resp.status_code != 200):
+			raise AttributeError('no billing address set')
+		d = resp.json()
+		self._billing_address = payment_network.Address(
+			first_name=d['name']['first'],
+			last_name=d['name']['last'],
+			street1=d['address']['street1'],
+			street2=d['address']['street2'],
+			city=d['address']['city'],
+			state=d['address']['state'],
+			postal=d['address']['postal'],
+			country=d['address']['country_code'],
+			phone=d['phone_number']
+		)
+		return self._billing_address
+
+	@property
+	def hidden(self):
+		if not self.payment_network_id:
+			client = payment_network.Client.create(email=self.email)
+			self.payment_network_id = client.save().id
+			self.profile.save()
+			self._hidden = Client(client=client)
+		elif self.payment_network_id in Client.CACHE:
+			self._hidden = Client.CACHE[self.payment_network_id]
+		else:
+			self._hidden = Client(id=self.payment_network_id)
+
+
+	def __getattr__(self, k):
+		if(k == 'billing_address'):
+			return getattr(self, k)
+		return getattr(self.hidden, k)
+
 class Profile(models.Model):
 	class Meta:
 		ordering = ['user__id']
@@ -274,6 +318,7 @@ class Profile(models.Model):
 	valid_profile = models.BooleanField(default=False)
 	valid_phone = models.BooleanField(default=False)
 	retries_remaining = models.IntegerField(default=4)
+	# eid = models.CharField(max_length=64, null=True)
 
 	@property
 	def valid_email(self):
@@ -418,20 +463,12 @@ class Profile(models.Model):
 	@property
 	def payment_network(self):
 		if not hasattr(self, '_payment_network'):
-			if not self.payment_network_id:
-				client = payment_network.Client.create(email=self.user.email)
-				self.payment_network_id = client.save().id
-				self.save()
-				self._payment_network = Client(client=client)
-			elif self.payment_network_id in Client.CACHE:
-				self._payment_network = Client.CACHE[self.payment_network_id]
-			else:
-				self._payment_network = Client(id=self.payment_network_id)
+			self._payment_network = PNOverrde(profile=self, eid=self.eid, email=self.user.email)
 		return self._payment_network
 
 	@payment_network.setter
 	def payment_network(self, value):
-		self.payment_network_id = value.id
+		self.payment_network.payment_network_id = value.id
 
 	def verify(self):
 		type = 'us_citizen' if self.country_code == 'US' else 'international_citizen'
@@ -456,6 +493,7 @@ class Profile(models.Model):
 			payload['gender'] = self.gender
 
 		resp = requests.post(settings.BLOCKSCORE_API_URL, data=payload, headers=headers, auth=(settings.BLOCKSCORE_API_KEY, ''), )
+		# setattr(self.eid, resp.json()['id']);
 		# the response is parsed as per http://bit.ly/1kET9rZ
 		if resp.status_code == 201:
 			return resp.json()['status'] == 'valid'

@@ -76,6 +76,7 @@ def Dashboard(request):
 	data = BankAccountSerializer(bank_accounts, many=True).data
 	for datum in data:
 		accounts['bank'][datum['id']] = datum
+	accounts['credit'] = {}
 	user = ProfileSerializer(request.user.profile).data
 
 	recurring_orders = RecurringOrderSerializer(request.user.recurring_orders.filter(user=request.user), many=True).data

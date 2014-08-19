@@ -1,5 +1,5 @@
 function AccountsController($scope, $http, $timeout) {
-	$scope.data = {BTC:{}, bank:{}}
+	$scope.data = {BTC:{}, bank:{}, 'credit':{}}
 	$scope.pending = {};
 	$scope.errors = {};
 	$scope.validationId = 0;
@@ -32,7 +32,8 @@ function AccountsController($scope, $http, $timeout) {
 	};
 	$scope.readable = {
 		'bank':{icon:'money', text:'Bank Accounts'},
-		'BTC':{icon:'btc',text:'Bitcoin Addresses'}
+		'BTC':{icon:'btc',text:'Bitcoin Addresses'},
+		'credit':{icon:'credit-card', text:'Credit Cards'}
 	};
 	$scope.$watch('data.bank.routing_number', function(value) {
 		if(value && value.length == 9) {

@@ -192,13 +192,17 @@ class CryptoAccountSerializer(serializers.ModelSerializer):
 class CreditCardSerializer(serializers.Serializer):
 	id = serializers.CharField(source='eid', read_only=True)
 	is_locked = serializers.BooleanField(source='is_locked', read_only=True)
-	# read-only by default
 	is_confirmed = serializers.BooleanField(source='can_debit', read_only=True)
 	is_default = serializers.BooleanField(required=False)
-	first_name = serializers.CharField()
-	last_name = serializers.CharField()
-	card_number = serializers.CharField()
-	expiry = serializers.DateField()
+	first_name = serializers.CharField(source='first_name')
+	last_name = serializers.CharField(source='last_name')
+	card_number = serializers.CharField(source='card_number')
+	expiry = serializers.DateField(source='expiry')
+	address1 = serializers.CharField(source='address')
+	address2 = serializers.CharField(source='address')
+	city = serializers.CharField(source='city')
+	state = serializers.CharField(source='region')
+	zip = serializers.CharField(source='postal')
 	# write-only
 	cvv2 = serializers.CharField(required=True, write_only=True, max_length=4)
 
@@ -225,9 +229,9 @@ class CreditCardSerializer(serializers.Serializer):
 		if self._data is not None:
 			if self.many or hasattr(self._data, '__iter__') and not isinstance(self._data, (Page, dict)):
 				for obj in self._data:
-					obj['account_number'] = self.transform_account_number(obj, obj['account_number'])
+					obj[card_number'] = self.transform_account_number(obj, obj['card_number'])
 			else:
-				self._data['account_number'] = self.transform_account_number(self._data, self._data['account_number'])
+				self._data['card_number'] = self.transform_account_number(self._data, self._data['card_number'])
 
 	def __init__(self, *args, **kwargs):
 		if 'mask' in kwargs:
