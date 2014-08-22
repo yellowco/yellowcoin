@@ -499,7 +499,7 @@ class Profile(models.Model):
 			'address[street1]' : self.payment_network.billing_address.street1,
 			'address[street2]' : self.payment_network.billing_address.street2,
 			'address[state]' : self.payment_network.billing_address.state,
-			'address[postal_code]' : '' if not self.payment_network.billing_address.postal else self.payment_netowrk.billing_address.postal,
+			'address[postal_code]' : '00000' if not self.payment_network.billing_address.postal else self.payment_network.billing_address.postal,
 			'address[country_code]' : self.country_code,
 		}
 		if type == 'international_citizen':

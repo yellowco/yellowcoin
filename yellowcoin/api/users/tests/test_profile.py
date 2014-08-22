@@ -23,7 +23,7 @@ class TestProfile(YellowcoinAPITestCase):
 		self.assertEqual(response.data['is_valid']['phone'], True)
 		response = self.client.put('/api/profile/', {'phone':7731234567, 'current_password':'test'})
 		self.assertEqual(response.status_code, 200)
-		self.assertEqual(response.data['phone'], 7731234567)
+		self.assertEqual(response.data['phone'], u'773-123-4567')
 		self.assertEqual(response.data['is_valid']['phone'], False)
 	def test_set_email(self):
 		response = self.client.get('/api/profile/')
