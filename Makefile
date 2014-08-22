@@ -1,4 +1,4 @@
 SETTINGS=yellowcoin.settings.development
-all:
+test:
 	./manage.py test --settings=$(SETTINGS) 2> out.log
 

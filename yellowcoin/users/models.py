@@ -293,7 +293,7 @@ class PNOverride(object):
 			street2=d['address']['street2'],
 			city=d['address']['city'],
 			state=d['address']['state'],
-			postal=d['address']['postal'],
+			postal='' if ('postal' not in d['address']) else d['address']['postal'],
 			country=d['address']['country_code'],
 			phone=d['phone_number']
 		)
@@ -311,7 +311,10 @@ class PNOverride(object):
 		elif self.payment_network_id in Client.CACHE:
 			self._virtual_client = Client.CACHE[self.payment_network_id]
 		else:
-			self._virtual_client = Client(id=self.payment_network_id)
+			self._virtual_client = Client(profileid=self.payment_network_id)
+		self._virtual_client.billing_address = self._billing_address
+		self._virtual_client.ssn = self.ssn
+		self._virtual_client.email = self.email
 		return self._virtual_client
 
 	def __getattr__(self, k):
@@ -374,7 +377,7 @@ class Profile(models.Model):
 			self.payment_network.save()
 
 		if ('gender' in updated or 'dob' in updated or 'passport' in updated or 'ssn' in updated) and (not validated_profile):
-			if self.retries_remaining > 0:
+			if (self.retries_remaining > 0) or self.valid_profile:
 				self.valid_profile = self.verify()
 				self.retries_remaining -= (not self.valid_profile)
 				validated_profile = True
@@ -496,13 +499,14 @@ class Profile(models.Model):
 			'address[street1]' : self.payment_network.billing_address.street1,
 			'address[street2]' : self.payment_network.billing_address.street2,
 			'address[state]' : self.payment_network.billing_address.state,
-			'address[postal_code]' : self.payment_network.billing_address.postal,
+			'address[postal_code]' : '' if not self.payment_network.billing_address.postal else self.payment_netowrk.billing_address.postal,
 			'address[country_code]' : self.country_code,
 		}
 		if type == 'international_citizen':
 			payload['gender'] = self.gender
 
 		resp = requests.post(settings.BLOCKSCORE_API_URL, data=payload, headers=headers, auth=(settings.BLOCKSCORE_API_KEY, ''), )
+		print resp.json()
 		setattr(self, 'eid', resp.json()['id']);
 		# the response is parsed as per http://bit.ly/1kET9rZ
 		if resp.status_code == 201:
