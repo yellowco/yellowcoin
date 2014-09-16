@@ -14,7 +14,7 @@ from yellowcoin.api.users.serializers import *
 from yellowcoin import crypto
 from yellowcoin.users import signals
 from random import random
-from balanced_yellowcoin import balanced as payment_network
+from CardConnectipy import cardconnectipy as payment_network
 from django_otp_twilio_yellowcoin.models import TwilioSMSDevice
 import requests
 import time
@@ -368,16 +368,12 @@ class ListCreateCreditCards(generics.ListCreateAPIView):
 				expiry=serializer.data['expiry'],
 				is_default=serializer.data['is_default'],
 				is_confirmed=serializer.data['is_confirmed'],
-				address='%s %s' % (serializer.data['address1'] % serializer.data['address2']),
-				city=serializer.data['city'],
-				region=serializer.data['state'],
-				postal=serializer.data['zip'],
-				country=serializer.data['country']
+				address='%s %s' % (self.request.user.profile.payment_network.billing_address.street1, self.request.user.profile.payment_network.billing_addresss.street2),
+				city=self.request.uesr.profile.payment_network.billing_address.city,
+				region=self.request.uesr.profile.payment_network.billing_address.state,
+				postal=self.request.uesr.profile.payment_network.billing_address.postal,
+				country=self.request.uesr.profile.payment_network.billing_address.country,
 			))
-			if not self.request.user.profile.first_name:
-				self.request.user.profile.first_name = serializer.data['first_name']
-			if not self.request.user.profile.last_name:
-				self.request.user.profile.last_name = serializer.data['last_name']
 			for account in self.request.user.profile.payment_network.credit_cards:
 				if account.card_number == serializer.data['card_number']:
 					serializer.errors['card_number'] = ['This credit / debit account already exists']

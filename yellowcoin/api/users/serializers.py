@@ -194,15 +194,8 @@ class CreditCardSerializer(serializers.Serializer):
 	is_locked = serializers.BooleanField(source='is_locked', read_only=True)
 	is_confirmed = serializers.BooleanField(source='can_debit', read_only=True)
 	is_default = serializers.BooleanField(required=False)
-	first_name = serializers.CharField(source='first_name')
-	last_name = serializers.CharField(source='last_name')
 	card_number = serializers.CharField(source='card_number')
 	expiry = serializers.DateField(source='expiry')
-	address1 = serializers.CharField(source='address')
-	address2 = serializers.CharField(source='address')
-	city = serializers.CharField(source='city')
-	state = serializers.CharField(source='region')
-	zip = serializers.CharField(source='postal')
 	# write-only
 	cvv2 = serializers.CharField(required=True, write_only=True, max_length=4)
 

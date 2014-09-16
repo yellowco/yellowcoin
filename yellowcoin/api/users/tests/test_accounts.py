@@ -4,6 +4,24 @@ from rest_framework.test import force_authenticate
 from decimal import Decimal
 
 class TestAccounts(YellowcoinAPITestCase):
+	def test_credit_card(self):
+		self.assertEqual(len(self.client.get('/api/accounts/credit/').data), 0)
+		self.assertEqual(self.client.post('/api/accounts/bank/', {}).status_code, 400)
+		response = self.create_credit_account()
+		self.assertEqual(response.status_code, 201)
+		self.assertEqual(self.create_credit_account().status_code, 400, "Duplicate account permitted")
+		self.assertIsNotNone(response.data.get('id', None))
+		self.assertTrue(response.data['card_number'].endswith('1111'))
+		self.assertEqual(response.data['is_confirmed'], False)
+		self.assertEqual(len(self.client.get('/api/accounts/credit/').data), 1)
+		self.assertEqual(len(self.client.get('/api/accounts/').data['credit']), 1)
+		response = self.client.get("/api/accounts/credit/%s/" % response.data['id'])
+		self.assertEqual(response.status_code, 200)
+		self.assertTrue(response.data['card_number'].endswith('1111'))
+		self.assertEqual(self.remove_credit_account(response.data['id']).status_code, 204)
+		self.assertEqual(self.remove_credit_account(response.data['id']).status_code, 404)
+		self.assertEqeual(len(self.client.get('/api/accounts/credit/').data), 0)
+
 	def test_bank_account(self):
 		self.assertEqual(len(self.client.get('/api/accounts/bank/').data), 0)
 		self.assertEqual(self.client.post('/api/accounts/bank/', {}).status_code, 400)
@@ -74,16 +92,20 @@ class TestAccounts(YellowcoinAPITestCase):
 
 	def test_account_crossover(self):
 		bank = self.create_bank_account()
+		credit = self.create_credit_account()
 		btc = self.create_btc_account()
 		self.assertEqual(len(self.client.get('/api/accounts/bank/').data), 1)
+		self.assertEqual(len(self.client.get('/api/accounts/credit/').data), 1)
 		self.assertEqual(len(self.client.get('/api/accounts/btc/').data), 1)
 		
 		secondary = self.create_user('test2@test.com', 'test')
 		self.client.logout()
 		self.assertTrue(self.client.login(username='test2@test.com', password='test'))
 		self.assertEqual(len(self.client.get('/api/accounts/bank/').data), 0)
+		self.assertEqual(len(self.client.get('/api/accounts/credit/').data), 0)
 		self.assertEqual(len(self.client.get('/api/accounts/btc/').data), 0)
 		self.assertEqual(self.client.get("/api/accounts/bank/%s/" % bank.data['id']).status_code, 404)
+		self.assertEqual(self.client.get("/api/accounts/credit/%s/" % credit.data['id']).status_code, 404)
 		self.assertEqual(self.client.get("/api/accounts/btc/%s/" % btc.data['id']).status_code, 404)
 		self.assertEqual(self.client.put("/api/accounts/bank/%s/verify/" % bank.data['id']).status_code, 404)
 		secondary.profile.payment_network.delete() # clean up a bit

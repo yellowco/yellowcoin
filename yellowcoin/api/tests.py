@@ -21,6 +21,20 @@ class YellowcoinAPITestCase(APITestCase):
 		user.save()
 		return user
 	
+	def create_credit_account(self):
+		return self.client.post('/api/accounts/credit/', {
+			'first_name':'Testy','last_name':'McTesterson',
+			'card_number':'4111111111111111','expiry':'2016-01-01',
+			'address1':'123 Test Street',
+			'address2':'',
+			'city':'TestCity',
+			'state':'IL','zip':'60637',
+			'cvv2':'123'
+		})
+	
+	def remove_credit_account(self, id):
+		return self.client.delete("/api/accounts/credit/%s/" % id)
+
 	def create_bank_account(self):
 		# create an account
 		return self.client.post('/api/accounts/bank/', {
