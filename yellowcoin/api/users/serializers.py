@@ -13,6 +13,7 @@ import struct
 import ctypes
 import requests
 from balanced_yellowcoin import balanced as payment_network
+import datetime
 
 class SettingSerializer(serializers.ModelSerializer):
 	class Meta:
@@ -194,8 +195,8 @@ class CreditCardSerializer(serializers.Serializer):
 	is_locked = serializers.BooleanField(source='is_locked', read_only=True)
 	is_confirmed = serializers.BooleanField(source='can_debit', read_only=True)
 	is_default = serializers.BooleanField(required=False)
-	card_number = serializers.CharField(source='card_number')
-	expiry = serializers.DateField(source='expiry')
+	card_number = serializers.CharField()
+	expiry = serializers.DateField()
 	# write-only
 	cvv2 = serializers.CharField(required=True, write_only=True, max_length=4)
 
@@ -247,6 +248,8 @@ class CreditCardSerializer(serializers.Serializer):
 			return ('X' * 15) + value[-4:]
 
 	def transform_expiry(self, obj, value):
+		if(value == None):
+			return(datetime.datetime.now())
 		return(datetime.date(month=value[0:2], year=value[2:2]))
 
 	def validate_expiry(self, attrs, source):

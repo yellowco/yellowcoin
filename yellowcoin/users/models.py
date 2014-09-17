@@ -583,6 +583,12 @@ class Client(object):
 		return [BankAccount(x) for x in filter(
 				lambda y: isinstance(y, payment_network.BankAccount), self.payment_methods)]
 
+	@property
+	def credit_cards(self):
+		self._check_client_loaded()
+		return [CreditCard(x) for x in filter(
+				lambda y: isinstance(y, payment_network.CreditCard), self.payment_methods)]
+
 	def __str__(self):
 		self._check_client_loaded()
 		return str(self._c)
