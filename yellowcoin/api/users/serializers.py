@@ -253,7 +253,7 @@ class CreditCardSerializer(serializers.Serializer):
 		return(datetime.date(month=value[0:2], year=value[2:2]))
 
 	def validate_expiry(self, attrs, source):
-		now = datetime.now()
+		now = datetime.datetime.now()
 		if(now.year <= attrs[source].year and now.month <= attrs[source].month):
 			attrs[source] = strftime('%m%y', attrs[source])
 		raise serializers.ValidationError('Invalid expiration date')
