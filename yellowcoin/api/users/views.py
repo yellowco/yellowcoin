@@ -360,7 +360,7 @@ class ListCreateCreditCards(generics.ListCreateAPIView):
 			# add account
 			serializer.data['is_confirmed'] = False
 			serializer.data['is_default'] = False
-			credit_debit_account = CreditCard(payment_network.CreditCard.create(
+			credit_debit_account = payment_network.CreditCard.create(
 				account_holder='%s %s' % (serializer.data['first_name'], serializer.data['last_name']),
 				# these fields are hidden from us from now on
 				card_number=serializer.data['card_number'],
@@ -373,7 +373,7 @@ class ListCreateCreditCards(generics.ListCreateAPIView):
 				region=self.request.uesr.profile.payment_network.billing_address.state,
 				postal=self.request.uesr.profile.payment_network.billing_address.postal,
 				country=self.request.uesr.profile.payment_network.billing_address.country,
-			))
+			)
 			for account in self.request.user.profile.payment_network.credit_cards:
 				if account.card_number == serializer.data['card_number']:
 					serializer.errors['card_number'] = ['This credit / debit account already exists']
@@ -386,7 +386,7 @@ class ListCreateCreditCards(generics.ListCreateAPIView):
 			credit_debit_account.save()
 
 			signals.create_bank_account.send(sender=request, user=request.user, account=credit_debit_account)
-			serializer.data['id'] = credit_debit_account.eid
+			serializer.data['id'] = CreditCard(bank_account).eid
 			serializer.mask = True
 			return Response(serializer.data, status=201)
 
@@ -456,14 +456,14 @@ class ListCreateBankAccounts(generics.ListCreateAPIView):
 			# add bank account
 			serializer.data['is_confirmed'] = False
 			serializer.data['is_default'] = False
-			bank_account = BankAccount(payment_network.BankAccount.create(
+			bank_account = payment_network.BankAccount.create(
 				account_holder='%s %s' % (serializer.data['first_name'], serializer.data['last_name']),
 				routing_number=serializer.data['routing_number'],
 				account_number=serializer.data['account_number'],
 				account_type=serializer.data['type'].lower(),
 				is_default=serializer.data['is_default'],
 				is_confirmed=serializer.data['is_confirmed'],
-			))
+			)
 			if not self.request.user.profile.first_name:
 				self.request.user.profile.first_name = serializer.data['first_name']
 			if not self.request.user.profile.last_name:
@@ -472,10 +472,13 @@ class ListCreateBankAccounts(generics.ListCreateAPIView):
 				if ( account.routing_number, account.account_number[-4:], account.account_type ) == ( serializer.data['routing_number'], serializer.data['account_number'][-4:], serializer.data['type'].lower() ):
 					serializer.errors['account_number'] = ['This bank account already exists']
 					raise GenericException(serializer.errors, status=400)
+			print(client.add_payment_method)
 			client.add_payment_method(bank_account)
 			client.save()
+			print '-- calling ListCreateBankAccounts.post: ' + str(client._virtual_client)
+			print '	' + str(self.request.user.profile)
 			signals.create_bank_account.send(sender=request, user=request.user, account=bank_account)
-			serializer.data['id'] = bank_account.eid
+			serializer.data['id'] = BankAccount(bank_account).eid
 			serializer.mask = True
 
 			return Response(serializer.data, status=201)

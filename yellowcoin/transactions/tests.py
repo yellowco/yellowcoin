@@ -19,10 +19,14 @@ def CALCULATE_TEST_FEE(val, currency):
 )
 class TestTransactions(YellowcoinAPITestCase):
 	def setUp(self):
+		print 'setting up new test ------------------------------------------------------'
 		super(TestTransactions, self).setUp()
+		print '	super(TestTransactions, self).setUp()'
 		self.bank = self.create_bank_account()
 		self.btc = self.create_btc_account()
 		self.verify_bank_account(self.bank.data['id'])
+		print '	' + str(self.base_user.profile)
+		print "	print '	' + str(self.base_user.profile)"
 
 	def test_btc_order(self):
 		order = self.create_order(self.bank.data['id'], self.btc.data['id'])
@@ -152,6 +156,8 @@ class TestTransactions(YellowcoinAPITestCase):
 	
 	def test_limits(self):
 		order1 = self.create_order(self.bank.data['id'], self.btc.data['id'])
+		print(self.client.get('/api/accounts/').data)
+		print(order1)
 		order2 = self.client.post('/api/orders/btc/usd/', {
 			'bid_subtotal':0.01,
 			'ask_subtotal':self.client.get('/api/limits/').data['BTC']['max_amount'],
@@ -194,7 +200,11 @@ class TestTransactions(YellowcoinAPITestCase):
 		self.assertEqual(POOLS[CURRENCIES.USD][CRYPTOCURRENCIES.BTC].exchange_rate, 1)
 
 	def test_fail_queried(self):
+		print '-- STATUS: starting test for test_fail_queried'
+		print self.bank.data
 		order = self.create_order(self.bank.data['id'], self.btc.data['id'])
+		print(self.client.get('/api/accounts/bank/'))
+		print(order)
 		POOLS[CURRENCIES.USD][CRYPTOCURRENCIES.BTC].add(10, 1)
 		execute_orders() # init
 		execute_orders() # queried

@@ -200,8 +200,11 @@ class User(AbstractBaseUser, PermissionsMixin):
 
 	@property
 	def bank_accounts(self):
-		# reserved for future expansion
 		return self.profile.payment_network.bank_accounts
+
+	@property
+	def credit_cards(self):
+		return self.profile.payment_network.credit_cards
 
 	objects = UserManager()
 
@@ -274,8 +277,11 @@ class PNOverride(object):
 		self.ssn = None
 		self.email = None
 		self._billing_address = payment_network.Address()
+		self._virtual_client = None
 		self.__dict__.update(kwargs)
 		super(PNOverride, self).__init__()
+		print '-- calling PNOverride.__init__ -- ' + str(self.__dict__)
+
 
 	@property
 	def billing_address(self):
@@ -302,19 +308,22 @@ class PNOverride(object):
 
 	@property
 	def virtual_client(self):
-		if not self.payment_network_id:
-			client = payment_network.Client.create(email=self.email)
-			self.payment_network_id = client.save().id
-			self.profile.payment_network_id = self.payment_network_id
-			self.profile.save()
-			self._virtual_client = Client(client=client)
-		elif self.payment_network_id in Client.CACHE:
-			self._virtual_client = Client.CACHE[self.payment_network_id]
-		else:
-			self._virtual_client = Client(profileid=self.payment_network_id)
-		self._virtual_client.billing_address = self._billing_address
-		self._virtual_client.ssn = self.ssn
-		self._virtual_client.email = self.email
+		if not self._virtual_client:
+			if not self.payment_network_id:
+				client = payment_network.Client.create(email=self.email)
+				self.payment_network_id = client.save().id
+				print '-- calling PNOverride.virtual_client -- new pn_id == ' + str(self.payment_network_id) + ', self.eid = ' + str(self.eid)
+				self.profile.payment_network_id = self.payment_network_id
+				self.profile.save()
+				self._virtual_client = Client(client=client)
+			elif self.payment_network_id in Client.CACHE:
+				self._virtual_client = Client.CACHE[self.payment_network_id]
+			else:
+				client = payment_network.Client.retrieve(self.payment_network_id)
+				self._virtual_client = Client(client=client)
+			self._virtual_client.billing_address = self._billing_address
+			self._virtual_client.ssn = self.ssn
+			self._virtual_client.email = self.email
 		return self._virtual_client
 
 	def __getattr__(self, k):
@@ -332,6 +341,11 @@ class Profile(models.Model):
 	valid_phone = models.BooleanField(default=False)
 	retries_remaining = models.IntegerField(default=4)
 	eid = models.CharField(max_length=64, null=True)
+
+	def __str__(self):
+		print '-- calling profile __str__: ' + hex(id(self))
+		print '	client id: ' + str(self.payment_network.profileid) + ', ' + str(self.payment_network.bank_accounts) + str(self.payment_network.credit_cards)
+		return super(Profile, self).__str__()
 
 	@property
 	def valid_email(self):
@@ -506,7 +520,6 @@ class Profile(models.Model):
 			payload['gender'] = self.gender
 
 		resp = requests.post(settings.BLOCKSCORE_API_URL, data=payload, headers=headers, auth=(settings.BLOCKSCORE_API_KEY, ''), )
-		print resp.json()
 		setattr(self, 'eid', resp.json()['id']);
 		# the response is parsed as per http://bit.ly/1kET9rZ
 		if resp.status_code == 201:
@@ -580,6 +593,8 @@ class Client(object):
 	@property
 	def bank_accounts(self):
 		self._check_client_loaded()
+		print '-- calling Client.bank_accounts'
+		print '	' + str(self._c) # self._c.payment_methods
 		return [BankAccount(x) for x in filter(
 				lambda y: isinstance(y, payment_network.BankAccount), self.payment_methods)]
 
