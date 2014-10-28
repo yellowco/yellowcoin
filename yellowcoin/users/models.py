@@ -280,7 +280,6 @@ class PNOverride(object):
 		self._virtual_client = None
 		self.__dict__.update(kwargs)
 		super(PNOverride, self).__init__()
-		print '-- calling PNOverride.__init__ -- ' + str(self.__dict__)
 
 
 	@property
@@ -312,7 +311,6 @@ class PNOverride(object):
 			if not self.payment_network_id:
 				client = payment_network.Client.create(email=self.email)
 				self.payment_network_id = client.save().id
-				print '-- calling PNOverride.virtual_client -- new pn_id == ' + str(self.payment_network_id) + ', self.eid = ' + str(self.eid)
 				self.profile.payment_network_id = self.payment_network_id
 				self.profile.save()
 				self._virtual_client = Client(client=client)
@@ -343,8 +341,6 @@ class Profile(models.Model):
 	eid = models.CharField(max_length=64, null=True)
 
 	def __str__(self):
-		print '-- calling profile __str__: ' + hex(id(self))
-		print '	client id: ' + str(self.payment_network.profileid) + ', ' + str(self.payment_network.bank_accounts) + str(self.payment_network.credit_cards)
 		return super(Profile, self).__str__()
 
 	@property
@@ -490,8 +486,23 @@ class Profile(models.Model):
 	@property
 	def payment_network(self):
 		if not hasattr(self, '_payment_network'):
-			self._payment_network = PNOverride(profile=self, eid=self.eid, email=self.user.email, payment_network_id=self.payment_network_id)
+			if not self.payment_network_id:
+				client = payment_network.Client.create(email=self.user.email)
+				self.payment_network_id = client.save().id
+				self.save()
+				self._payment_network = Client(client=client)
+			elif self.payment_network_id in Client.CACHE:
+				self._payment_network = Client.CACHE[self.payment_network_id]
+			else:
+				self._payment_network = Client(id=self.payment_network_id)
+		self._payment_network._virtual_client = None
 		return self._payment_network
+
+	# @property
+	# def payment_network(self):
+	#	if not hasattr(self, '_payment_network'):
+	#		self._payment_network = PNOverride(profile=self, eid=self.eid, email=self.user.email, payment_network_id=self.payment_network_id)
+	#	return self._payment_network
 
 	@payment_network.setter
 	def payment_network(self, value):
@@ -593,8 +604,6 @@ class Client(object):
 	@property
 	def bank_accounts(self):
 		self._check_client_loaded()
-		print '-- calling Client.bank_accounts'
-		print '	' + str(self._c) # self._c.payment_methods
 		return [BankAccount(x) for x in filter(
 				lambda y: isinstance(y, payment_network.BankAccount), self.payment_methods)]
 

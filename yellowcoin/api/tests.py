@@ -2,7 +2,6 @@ from rest_framework.test import APIRequestFactory
 from rest_framework.test import APITestCase, APIClient
 from yellowcoin.users.models import User, PaymentMethod
 from django.conf import settings
-from balanced_yellowcoin import balanced
 from decimal import Decimal
 
 class YellowcoinAPITestCase(APITestCase):
@@ -13,7 +12,7 @@ class YellowcoinAPITestCase(APITestCase):
 		self.client.login(email='test@test.com', password='test')
 
 	def tearDown(self):
-		self.base_user.profile.payment_network.delete() # clean up a bit
+		# self.base_user.profile.payment_network.delete() # clean up a bit
 		self.client.logout()
 
 	def create_user(self, username, password='test'):

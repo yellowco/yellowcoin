@@ -472,11 +472,8 @@ class ListCreateBankAccounts(generics.ListCreateAPIView):
 				if ( account.routing_number, account.account_number[-4:], account.account_type ) == ( serializer.data['routing_number'], serializer.data['account_number'][-4:], serializer.data['type'].lower() ):
 					serializer.errors['account_number'] = ['This bank account already exists']
 					raise GenericException(serializer.errors, status=400)
-			print(client.add_payment_method)
 			client.add_payment_method(bank_account)
 			client.save()
-			print '-- calling ListCreateBankAccounts.post: ' + str(client._virtual_client)
-			print '	' + str(self.request.user.profile)
 			signals.create_bank_account.send(sender=request, user=request.user, account=bank_account)
 			serializer.data['id'] = BankAccount(bank_account).eid
 			serializer.mask = True
